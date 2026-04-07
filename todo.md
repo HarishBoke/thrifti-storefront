@@ -1,0 +1,22 @@
+# Thrifti Storefront TODO
+
+- [x] Project foundation: schema, Shopify API layer, global styles
+- [x] Shopify Storefront API integration (products, collections, cart)
+- [x] Global navigation header with logo, search, cart icon, mobile menu
+- [x] Animated banner ticker: SELL * EVOLVE * BUY
+- [x] Footer with About/Community/Help columns and social icons
+- [x] Homepage hero section with three product images and colored borders
+- [x] Homepage value proposition section with step-by-step selling guide
+- [x] Homepage Sell/Buy/Repeat three-pillar feature cards
+- [x] Product listing page with filtering and search
+- [x] Product detail page with image gallery, variant selection, add-to-cart
+- [x] Shopping cart with line items, quantity updates, checkout redirect
+- [x] WhatsApp CTA button for seller onboarding
+- [x] User authentication and account management
+- [x] Owner email notification on new orders
+- [x] LLM-powered product description generator
+- [x] Collections page and collection detail page
+- [x] About page with brand story and values
+- [x] Shared Shopify types (safe for client import, no process.env)
+- [x] Fully responsive design (mobile/tablet/desktop)
+- [x] Vitest unit tests (15 tests passing)
