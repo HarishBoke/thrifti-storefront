@@ -1,8 +1,36 @@
 import { Link } from "wouter";
+import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import StorefrontLayout from "@/components/StorefrontLayout";
 import { trpc } from "@/lib/trpc";
 import ProductCard from "@/components/ProductCard";
+
+// Launch date: 26 April 2026 midnight IST (UTC+5:30)
+const LAUNCH_DATE = new Date("2026-04-26T00:00:00+05:30");
+
+function useCountdown() {
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const diff = LAUNCH_DATE.getTime() - Date.now();
+    return Math.max(0, diff);
+  });
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const id = setInterval(() => {
+      const diff = LAUNCH_DATE.getTime() - Date.now();
+      setTimeLeft(Math.max(0, diff));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [timeLeft]);
+
+  const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+  const launched = timeLeft <= 0;
+
+  return { days, hours, minutes, seconds, launched };
+}
 
 const WHATSAPP_URL = "https://wa.me/918065253722?text=Hey!%20I%20want%20to%20sell%20on%20Thrifti";
 
@@ -38,6 +66,68 @@ const WATERMARK = [
   { word: "BUY", rotate: "-4deg", size: "5.5rem", x: "0%", y: "60%" },
   { word: "EVOLVE", rotate: "3deg", size: "6rem", x: "45%", y: "58%" },
 ];
+
+function CountdownBanner() {
+  const { days, hours, minutes, seconds, launched } = useCountdown();
+
+  if (launched) {
+    return (
+      <div className="mb-6">
+        <span
+          className="inline-block text-white font-black text-sm uppercase tracking-[0.3em] px-4 py-2 border border-white/40"
+          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+        >
+          WE'RE LIVE!
+        </span>
+      </div>
+    );
+  }
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  return (
+    <div className="mb-8">
+      <p
+        className="text-white/60 text-[10px] font-bold tracking-[0.35em] uppercase mb-3"
+        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+      >
+        LAUNCHING IN
+      </p>
+      <div className="flex items-end gap-3 sm:gap-5">
+        {[
+          { value: pad(days), label: "DAYS" },
+          { value: pad(hours), label: "HRS" },
+          { value: pad(minutes), label: "MIN" },
+          { value: pad(seconds), label: "SEC" },
+        ].map(({ value, label }, i) => (
+          <div key={label} className="flex items-end gap-3 sm:gap-5">
+            {i > 0 && (
+              <span
+                className="text-white/40 text-3xl sm:text-4xl font-black leading-none pb-4"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >:
+              </span>
+            )}
+            <div className="text-center">
+              <div
+                className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-none tabular-nums"
+                style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}
+              >
+                {value}
+              </div>
+              <div
+                className="text-white/50 text-[9px] font-bold tracking-[0.25em] mt-1"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                {label}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const { data: productsData, isLoading: productsLoading } = trpc.products.list.useQuery({ first: 8, reverse: true });
@@ -377,6 +467,7 @@ export default function Home() {
       {/* ===== SECTION 5: NEW DROPS, JUST IN (Red bg) ===== */}
       <section style={{ backgroundColor: "var(--thrifti-red)" }}>
         <div className="px-5 sm:px-8 lg:px-16 py-14 sm:py-20">
+          <CountdownBanner />
           <p
             className="text-white/80 text-xs font-bold tracking-[0.3em] uppercase mb-3"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}

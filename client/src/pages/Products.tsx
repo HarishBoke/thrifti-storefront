@@ -8,7 +8,6 @@ import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 import type { ShopifyProduct } from "@shared/shopifyTypes";
 
 const FASHION_PHOTO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/photo-sell-clean_0a7f2a46.png";
-const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/thrifti-logo_4dbb8d2e.svg";
 
 const FILTER_OPTIONS = {
   Brand: ["Zara", "H&M", "Mango", "Levi's", "Nike", "Adidas", "Forever 21", "Marks & Spencer"],

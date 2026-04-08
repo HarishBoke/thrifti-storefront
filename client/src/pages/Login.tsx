@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 import StorefrontLayout from "@/components/StorefrontLayout";
+import ThriftiLogo from "@/components/ThriftiLogo";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 
@@ -93,11 +94,7 @@ export default function Login() {
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/thrifti-logo_4dbb8d2e.svg"
-              alt="THRIFTI"
-              className="h-20 w-auto mx-auto"
-            />
+              <ThriftiLogo height={64} className="mx-auto" />
           </div>
 
           {/* Forgot Password View */}

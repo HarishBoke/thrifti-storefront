@@ -4,25 +4,24 @@ import { ShoppingBag, Search, Menu, X, User, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 import { trpc } from "@/lib/trpc";
-
-const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/thrifti-logo_4dbb8d2e.svg";
+import ThriftiLogo from "@/components/ThriftiLogo";
 const WHATSAPP_NUMBER = "918065253722";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Hey!%20I%20want%20to%20sell%20on%20Thrifti`;
 
-// Category nav links (left side on desktop)
+// Category nav links — each href maps to a Shopify collection handle
 const CATEGORY_LINKS = [
-  { label: "WOMEN", href: "/products?q=women" },
-  { label: "MEN", href: "/products?q=men" },
-  { label: "KIDS", href: "/products?q=kids" },
-  { label: "ACCESSORIES", href: "/products?q=accessories" },
+  { label: "WOMEN", href: "/collections/women" },
+  { label: "MEN", href: "/collections/men" },
+  { label: "KIDS", href: "/collections/kids" },
+  { label: "ACCESSORIES", href: "/collections/accessories" },
 ];
 
 // Mobile menu links
 const MOBILE_NAV_LINKS = [
-  { label: "WOMEN", href: "/products?q=women" },
-  { label: "MEN", href: "/products?q=men" },
-  { label: "KIDS", href: "/products?q=kids" },
-  { label: "ACCESSORIES", href: "/products?q=accessories" },
+  { label: "WOMEN", href: "/collections/women" },
+  { label: "MEN", href: "/collections/men" },
+  { label: "KIDS", href: "/collections/kids" },
+  { label: "ACCESSORIES", href: "/collections/accessories" },
   { label: "COLLECTIONS", href: "/collections" },
   { label: "SELL", href: "/sell" },
   { label: "ABOUT", href: "/about" },
@@ -104,7 +103,7 @@ export default function Navbar() {
 
             {/* CENTER: Logo */}
             <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
-              <img src={LOGO_URL} alt="THRIFTI" className="h-14 w-auto" />
+              <ThriftiLogo height={52} />
             </Link>
 
             {/* RIGHT: Music toggle + icons */}
@@ -204,7 +203,7 @@ export default function Navbar() {
           <div className="flex lg:hidden items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center">
-              <img src={LOGO_URL} alt="THRIFTI" className="h-12 w-auto" />
+              <ThriftiLogo height={44} />
             </Link>
 
             {/* Mobile Right Icons */}
