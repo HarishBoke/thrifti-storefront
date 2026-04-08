@@ -217,21 +217,22 @@ export default function Navbar() {
               )}
 
               {/* Cart */}
-              <button
-                onClick={openCart}
-                className="p-2.5 hover:bg-black/5 rounded-full transition-colors relative"
-                aria-label={`Cart (${totalQuantity} items)`}
-              >
-                <ShoppingBag className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
-                {totalQuantity > 0 && (
-                  <span
-                    className="absolute top-1 right-1 w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none"
-                    style={{ backgroundColor: "var(--thrifti-red)", fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {totalQuantity > 9 ? "9+" : totalQuantity}
-                  </span>
-                )}
-              </button>
+              <Link href="/cart">
+                <button
+                  className="p-2.5 hover:bg-black/5 rounded-full transition-colors relative"
+                  aria-label={`Cart (${totalQuantity} items)`}
+                >
+                  <ShoppingBag className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
+                  {totalQuantity > 0 && (
+                    <span
+                      className="absolute top-1 right-1 w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none"
+                      style={{ backgroundColor: "var(--thrifti-red)", fontFamily: "'Space Grotesk', sans-serif" }}
+                    >
+                      {totalQuantity > 9 ? "9+" : totalQuantity}
+                    </span>
+                  )}
+                </button>
+              </Link>
 
               {/* Hamburger (for extra pages on desktop) */}
               <button
@@ -280,14 +281,16 @@ export default function Navbar() {
               <button onClick={() => setSearchOpen((v) => !v)} className="p-2.5" aria-label="Search">
                 <Search className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
               </button>
-              <button onClick={openCart} className="p-2.5 relative" aria-label="Cart">
-                <ShoppingBag className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
-                {totalQuantity > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none" style={{ backgroundColor: "var(--thrifti-red)" }}>
-                    {totalQuantity > 9 ? "9+" : totalQuantity}
-                  </span>
-                )}
-              </button>
+              <Link href="/cart">
+                <button className="p-2.5 relative" aria-label="Cart">
+                  <ShoppingBag className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
+                  {totalQuantity > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none" style={{ backgroundColor: "var(--thrifti-red)" }}>
+                      {totalQuantity > 9 ? "9+" : totalQuantity}
+                    </span>
+                  )}
+                </button>
+              </Link>
               <button onClick={() => setMobileOpen((v) => !v)} className="p-2.5" aria-label="Menu">
                 {mobileOpen ? <X className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} /> : <Menu className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />}
               </button>

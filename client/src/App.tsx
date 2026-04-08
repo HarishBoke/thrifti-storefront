@@ -24,6 +24,7 @@ import Returns from "./pages/Returns";
 import Shipping from "./pages/Shipping";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Cart from "./pages/Cart";
 
 function Router() {
   return (
@@ -54,6 +55,9 @@ function Router() {
         <Route path="/shipping" component={Shipping} />
         <Route path="/terms" component={Terms} />
         <Route path="/privacy" component={Privacy} />
+
+        {/* Cart page */}
+        <Route path="/cart" component={Cart} />
 
         {/* Fallback */}
         <Route path="/404" component={NotFound} />

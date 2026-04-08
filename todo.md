@@ -98,3 +98,26 @@
 - [x] Find/download ambient lo-fi background track (royalty-free)
 - [x] Upload track to CDN
 - [x] Wire Navbar music toggle to play/pause the track with fade in/out
+
+## Listing / PDP / Cart Redesign (Figma PDF)
+- [x] Listing: category label + serif heading above filter bar
+- [x] Listing: filter pills (Brand/Size/Color/Condition/Price) with sliders icon
+- [x] Listing: "Results: N items" count below filters
+- [x] Listing: product card hover state (white bg + shadow), heart icon filled red if wishlisted
+- [x] Listing: Recently Viewed section below product grid
+- [x] PDP: breadcrumb navigation
+- [x] PDP: vertical thumbnail strip + large main image layout
+- [x] PDP: attributes row (Size/Condition/Brand/Location)
+- [x] PDP: BUY NOW + ADD TO BAG + MAKE AN OFFER buttons
+- [x] PDP: Buyer Protection trust badge
+- [x] PDP: MEASUREMENTS section
+- [x] PDP: Seller card (avatar, username, rating, View Shop)
+- [x] PDP: "More from this seller" product grid
+- [x] PDP: "Looking for more [category]" product grid
+- [x] Cart: Full cart page (not drawer) with two-column layout
+- [x] Cart: Grouped by seller with seller avatar + item count
+- [x] Cart: Quantity controls (- / +) + trash icon per item
+- [x] Cart: Order Summary sticky card (Item total, Shipping, Tax, Total)
+- [x] Cart: CHECKOUT button + free shipping promo text
+- [x] Cart: SECURE ESCROW trust section
+- [x] Cart: Recently Viewed section
