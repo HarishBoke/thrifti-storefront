@@ -1,6 +1,8 @@
 import { Link } from "wouter";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
 
+const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/thrifti-logo_4dbb8d2e.svg";
+
 const FOOTER_LINKS = [
   {
     heading: "About",
@@ -42,22 +44,17 @@ export default function Footer() {
 
         {/* Brand block */}
         <div className="mb-8 text-center lg:text-left">
-          <p
-            className="text-white/80 text-[10px] font-bold tracking-[0.35em] uppercase mb-1"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-          >
-            BUY. SELL. REPEAT.
-          </p>
-          <h2
-            className="text-white font-black leading-none"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(3.5rem, 18vw, 9rem)",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            THRIFTI
-          </h2>
+          <Link href="/">
+            <img
+              src={LOGO_URL}
+              alt="THRIFTI"
+              className="w-auto inline-block"
+              style={{
+                height: "clamp(3.5rem, 14vw, 7rem)",
+                filter: "brightness(0) invert(1)",
+              }}
+            />
+          </Link>
         </div>
 
         {/* Tagline + Social */}

@@ -5,14 +5,27 @@ import { useCart } from "@/contexts/CartContext";
 import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 import { trpc } from "@/lib/trpc";
 
+const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/thrifti-logo_4dbb8d2e.svg";
 const WHATSAPP_NUMBER = "918065253722";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Hey!%20I%20want%20to%20sell%20on%20Thrifti`;
 
-const NAV_LINKS = [
-  { label: "Shop", href: "/products" },
-  { label: "Collections", href: "/collections" },
-  { label: "Sell", href: "/sell" },
-  { label: "About", href: "/about" },
+// Category nav links (left side on desktop)
+const CATEGORY_LINKS = [
+  { label: "WOMEN", href: "/products?q=women" },
+  { label: "MEN", href: "/products?q=men" },
+  { label: "KIDS", href: "/products?q=kids" },
+  { label: "ACCESSORIES", href: "/products?q=accessories" },
+];
+
+// Mobile menu links
+const MOBILE_NAV_LINKS = [
+  { label: "WOMEN", href: "/products?q=women" },
+  { label: "MEN", href: "/products?q=men" },
+  { label: "KIDS", href: "/products?q=kids" },
+  { label: "ACCESSORIES", href: "/products?q=accessories" },
+  { label: "COLLECTIONS", href: "/collections" },
+  { label: "SELL", href: "/sell" },
+  { label: "ABOUT", href: "/about" },
 ];
 
 export default function Navbar() {
@@ -20,6 +33,7 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const [musicOn, setMusicOn] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const { totalQuantity, openCart } = useCart();
   const { isAuthenticated, customer } = useShopifyAuth();
@@ -63,45 +77,24 @@ export default function Navbar() {
         className="sticky top-0 z-50 transition-all duration-200"
         style={{
           backgroundColor: "var(--thrifti-cream)",
-          boxShadow: scrolled ? "0 1px 0 rgba(0,0,0,0.08)" : "none",
+          boxShadow: scrolled ? "0 1px 0 rgba(0,0,0,0.1)" : "none",
         }}
       >
         <div className="px-4 sm:px-6 lg:px-10">
-          <div className="flex items-center justify-between h-16 sm:h-18">
+          {/* Desktop Navbar — 3-column layout matching design */}
+          <div className="hidden lg:flex items-center justify-between h-[72px]">
 
-            {/* Logo — matches design: "BUY. SELL. REPEAT." above "THRIFTI" in red */}
-            <Link href="/" className="flex-shrink-0 flex flex-col leading-none">
-              <span
-                className="text-[9px] font-bold tracking-[0.3em] uppercase mb-0.5"
-                style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  color: "var(--thrifti-red)",
-                }}
-              >
-                BUY. SELL. REPEAT.
-              </span>
-              <span
-                className="text-[2rem] sm:text-[2.4rem] font-black leading-none"
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  color: "var(--thrifti-red)",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                THRIFTI
-              </span>
-            </Link>
-
-            {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-8">
-              {NAV_LINKS.map((link) => (
+            {/* LEFT: Category navigation */}
+            <nav className="flex items-center gap-7">
+              {CATEGORY_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm font-bold uppercase tracking-wider transition-colors"
+                  className="text-sm font-black uppercase tracking-wider transition-colors hover:opacity-70"
                   style={{
                     fontFamily: "'Space Grotesk', sans-serif",
-                    color: location === link.href ? "var(--thrifti-red)" : "var(--thrifti-dark)",
+                    color: "var(--thrifti-dark)",
+                    letterSpacing: "0.08em",
                   }}
                 >
                   {link.label}
@@ -109,38 +102,59 @@ export default function Navbar() {
               ))}
             </nav>
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-0.5 sm:gap-1">
+            {/* CENTER: Logo */}
+            <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
+              <img src={LOGO_URL} alt="THRIFTI" className="h-14 w-auto" />
+            </Link>
+
+            {/* RIGHT: Music toggle + icons */}
+            <div className="flex items-center gap-1">
+              {/* Music Toggle */}
+              <div className="flex items-center gap-2 mr-3">
+                <button
+                  onClick={() => setMusicOn((v) => !v)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                    musicOn ? "bg-[var(--thrifti-red)]" : "bg-[var(--thrifti-red)]"
+                  }`}
+                  aria-label="Toggle music"
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      musicOn ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+                <span
+                  className="text-xs italic leading-tight max-w-[80px]"
+                  style={{ fontFamily: "'Space Mono', monospace", color: "var(--thrifti-red)" }}
+                >
+                  If you like<br />the music
+                </span>
+              </div>
+
               {/* Search */}
               <button
                 onClick={() => setSearchOpen((v) => !v)}
-                className="p-2.5 hover:bg-muted transition-colors"
+                className="p-2.5 hover:bg-black/5 rounded-full transition-colors"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
               </button>
 
               {/* Account */}
-              {isAuthenticated ? (
-                <Link href="/account" className="p-2.5 hover:bg-muted transition-colors hidden sm:flex">
-                  <User className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
-                </Link>
-              ) : (
-                <Link
-                  href="/login"
-                  className="p-2.5 hover:bg-muted transition-colors hidden sm:flex"
-                  aria-label="Login"
-                >
-                  <User className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
-                </Link>
-              )}
+              <Link
+                href={isAuthenticated ? "/account" : "/login"}
+                className="p-2.5 hover:bg-black/5 rounded-full transition-colors"
+                aria-label={isAuthenticated ? "My Account" : "Sign In"}
+              >
+                <User className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
+              </Link>
 
               {/* Wishlist */}
               {isAuthenticated && (
                 <Link
                   href="/account"
-                  onClick={() => { /* will switch to wishlist tab via URL later */ }}
-                  className="p-2.5 hover:bg-muted transition-colors relative hidden sm:flex"
+                  className="p-2.5 hover:bg-black/5 rounded-full transition-colors relative"
                   aria-label={`Wishlist (${wishlistCount} items)`}
                 >
                   <Heart className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
@@ -158,7 +172,7 @@ export default function Navbar() {
               {/* Cart */}
               <button
                 onClick={openCart}
-                className="p-2.5 hover:bg-muted transition-colors relative"
+                className="p-2.5 hover:bg-black/5 rounded-full transition-colors relative"
                 aria-label={`Cart (${totalQuantity} items)`}
               >
                 <ShoppingBag className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
@@ -172,16 +186,42 @@ export default function Navbar() {
                 )}
               </button>
 
-              {/* Mobile Hamburger */}
+              {/* Hamburger (for extra pages on desktop) */}
               <button
                 onClick={() => setMobileOpen((v) => !v)}
-                className="p-2.5 hover:bg-muted transition-colors lg:hidden"
-                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                className="p-2.5 hover:bg-black/5 rounded-full transition-colors"
+                aria-label="Menu"
               >
                 {mobileOpen
                   ? <X className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
                   : <Menu className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
                 }
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navbar */}
+          <div className="flex lg:hidden items-center justify-between h-16">
+            {/* Logo */}
+            <Link href="/" className="flex items-center">
+              <img src={LOGO_URL} alt="THRIFTI" className="h-12 w-auto" />
+            </Link>
+
+            {/* Mobile Right Icons */}
+            <div className="flex items-center gap-0.5">
+              <button onClick={() => setSearchOpen((v) => !v)} className="p-2.5" aria-label="Search">
+                <Search className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
+              </button>
+              <button onClick={openCart} className="p-2.5 relative" aria-label="Cart">
+                <ShoppingBag className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
+                {totalQuantity > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none" style={{ backgroundColor: "var(--thrifti-red)" }}>
+                    {totalQuantity > 9 ? "9+" : totalQuantity}
+                  </span>
+                )}
+              </button>
+              <button onClick={() => setMobileOpen((v) => !v)} className="p-2.5" aria-label="Menu">
+                {mobileOpen ? <X className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} /> : <Menu className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />}
               </button>
             </div>
           </div>
@@ -212,42 +252,29 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileOpen && (
-          <div
-            className="lg:hidden border-t border-border"
-            style={{ backgroundColor: "var(--thrifti-cream)" }}
-          >
+          <div className="border-t border-border" style={{ backgroundColor: "var(--thrifti-cream)" }}>
             <nav className="px-4 sm:px-6 py-4 flex flex-col">
-              {NAV_LINKS.map((link) => (
+              {MOBILE_NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   className="py-4 text-base font-black uppercase tracking-wider border-b border-border/40 last:border-0 transition-colors"
                   style={{
                     fontFamily: "'Space Grotesk', sans-serif",
-                    color: location === link.href ? "var(--thrifti-red)" : "var(--thrifti-dark)",
+                    color: "var(--thrifti-dark)",
                   }}
                 >
                   {link.label}
                 </Link>
               ))}
               <div className="pt-4 flex flex-col gap-3">
-                {isAuthenticated ? (
-                  <Link
-                    href="/account"
-                    className="flex items-center gap-2 text-sm font-semibold"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}
-                  >
-                    <User className="w-4 h-4" /> My Account
-                  </Link>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="flex items-center gap-2 text-sm font-semibold"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}
-                  >
-                    <User className="w-4 h-4" /> Sign In
-                  </Link>
-                )}
+                <Link
+                  href={isAuthenticated ? "/account" : "/login"}
+                  className="flex items-center gap-2 text-sm font-semibold"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}
+                >
+                  <User className="w-4 h-4" /> {isAuthenticated ? "My Account" : "Sign In"}
+                </Link>
                 <a
                   href={WHATSAPP_URL}
                   target="_blank"

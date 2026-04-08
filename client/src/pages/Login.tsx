@@ -93,15 +93,11 @@ export default function Login() {
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1
-              className="text-4xl font-black uppercase tracking-tight text-[#CC2200]"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              THRIFTI
-            </h1>
-            <p className="text-sm text-gray-500 mt-1 tracking-widest uppercase">
-              Buy. Sell. Repeat.
-            </p>
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/thrifti-logo_4dbb8d2e.svg"
+              alt="THRIFTI"
+              className="h-20 w-auto mx-auto"
+            />
           </div>
 
           {/* Forgot Password View */}

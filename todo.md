@@ -69,3 +69,15 @@
 - [x] Heart button on ProductCard (toggle wishlist, filled red when saved, prompts login if not authenticated)
 - [x] Saved Items tab on Account page showing all wishlisted products with remove button
 - [x] Wishlist count badge in Navbar (red bubble, visible when logged in)
+
+## Listing Page Redesign (ThriftiListingPage.pdf)
+- [x] Analyze listing page PDF design
+- [x] Rebuild Products page to match PDF design exactly
+- [x] Verify responsiveness and test
+
+## Logo & Navbar Update
+- [x] Upload Group59.svg logo to CDN and replace all text-based THRIFTI logos (Navbar, Footer, Login)
+- [x] Navbar: WOMEN/MEN/KIDS/ACCESSORIES on left, centered SVG logo, music toggle + icons on right
+- [x] Product cards: portrait image, attributes, heart wishlist, price with strikethrough, hover Add to Cart
+- [x] Mid-page NEW DROPS JUST IN banner after 8 products
+- [x] Pagination with page numbers and prev/next controls
