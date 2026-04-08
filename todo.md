@@ -36,3 +36,16 @@
 - [x] Update fashion show dark section with correct photo
 - [x] Derive and implement desktop layout from mobile design
 - [x] Verify full responsiveness across mobile/tablet/desktop
+
+## Footer Pages & Content (from thrifti.in)
+- [x] Scrape all pages from thrifti.in for content (sub-pages return 404 on live site, built with brand voice)
+- [x] How Thrifti Works page (/how-it-works) — 5-step sell guide, buyer section, quick FAQs
+- [x] FAQ page (/faqs) — 4 categories, accordion, WhatsApp CTA
+- [x] Contact Us page (/contact) — contact info cards, contact form, WhatsApp CTA
+- [x] Partner Up page (/partner) — 4 partner types, stats banner, application form
+- [x] Returns Policy page (/returns) — full policy with prose typography
+- [x] Shipping Policy page (/shipping) — full policy with delivery timeframes
+- [x] Terms of Use page (/terms) — full legal terms for Meshi Commerce Pvt. Ltd
+- [x] Privacy Policy page (/privacy) — full GDPR/Indian privacy law compliant policy
+- [x] Wire all footer links to correct routes (all 9 links working)
+- [x] Verify all navigation works end-to-end (tested in browser)

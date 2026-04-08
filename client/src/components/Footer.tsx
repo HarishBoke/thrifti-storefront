@@ -5,13 +5,14 @@ const FOOTER_LINKS = [
   {
     heading: "About",
     links: [
-      { label: "How Thrifti Works?", href: "/about" },
-      { label: "FAQ's", href: "/faqs" },
+      { label: "How Thrifti Works?", href: "/how-it-works" },
+      { label: "Our Story", href: "/about" },
     ],
   },
   {
     heading: "Community",
     links: [
+      { label: "FAQ's", href: "/faqs" },
       { label: "Contact Us", href: "/contact" },
       { label: "Partner Up", href: "/partner" },
     ],
@@ -28,9 +29,9 @@ const FOOTER_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { icon: Facebook, label: "Facebook", href: "https://facebook.com" },
-  { icon: Instagram, label: "Instagram", href: "https://instagram.com" },
-  { icon: Twitter, label: "Twitter", href: "https://twitter.com" },
+  { icon: Facebook, label: "Facebook", href: "https://www.facebook.com/thrifti.in" },
+  { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/thrifti.in" },
+  { icon: Twitter, label: "Twitter", href: "https://twitter.com/thrifti_in" },
   { icon: Mail, label: "Email", href: "mailto:hello@thrifti.in" },
 ];
 
@@ -39,7 +40,7 @@ export default function Footer() {
     <footer style={{ backgroundColor: "var(--thrifti-red)" }}>
       <div className="px-5 sm:px-8 lg:px-12 pt-10 pb-8">
 
-        {/* Brand block — matches design: small tagline above huge THRIFTI */}
+        {/* Brand block */}
         <div className="mb-8 text-center lg:text-left">
           <p
             className="text-white/80 text-[10px] font-bold tracking-[0.35em] uppercase mb-1"
@@ -73,7 +74,7 @@ export default function Footer() {
               <a
                 key={label}
                 href={href}
-                target="_blank"
+                target={href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
                 aria-label={label}
                 className="text-white/70 hover:text-white transition-colors"
@@ -117,7 +118,7 @@ export default function Footer() {
             className="text-white/50 text-xs"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
-            © {new Date().getFullYear()} Thrifti. All rights reserved.
+            © Copyright {new Date().getFullYear()}, Meshi Commerce Pvt. Ltd
           </p>
           <p
             className="text-white/50 text-xs"

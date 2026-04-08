@@ -13,10 +13,19 @@ import CollectionDetail from "./pages/CollectionDetail";
 import Sell from "./pages/Sell";
 import Account from "./pages/Account";
 import About from "./pages/About";
+import HowItWorks from "./pages/HowItWorks";
+import FAQ from "./pages/FAQ";
+import Contact from "./pages/Contact";
+import Partner from "./pages/Partner";
+import Returns from "./pages/Returns";
+import Shipping from "./pages/Shipping";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 function Router() {
   return (
     <Switch>
+      {/* Core pages */}
       <Route path="/" component={Home} />
       <Route path="/products" component={Products} />
       <Route path="/products/:handle" component={ProductDetail} />
@@ -24,18 +33,24 @@ function Router() {
       <Route path="/collections/:handle" component={CollectionDetail} />
       <Route path="/sell" component={Sell} />
       <Route path="/account" component={Account} />
+
+      {/* About column */}
       <Route path="/about" component={About} />
-      {/* Static info pages — redirect to About for now */}
-      <Route path="/how-it-works" component={About} />
-      <Route path="/faqs" component={About} />
-      <Route path="/contact" component={About} />
-      <Route path="/partner" component={About} />
-      <Route path="/returns" component={About} />
-      <Route path="/shipping" component={About} />
-      <Route path="/terms" component={About} />
-      <Route path="/privacy" component={About} />
+      <Route path="/how-it-works" component={HowItWorks} />
+
+      {/* Community column */}
+      <Route path="/faqs" component={FAQ} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/partner" component={Partner} />
+
+      {/* Help column */}
+      <Route path="/returns" component={Returns} />
+      <Route path="/shipping" component={Shipping} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
+
+      {/* Fallback */}
       <Route path="/404" component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
