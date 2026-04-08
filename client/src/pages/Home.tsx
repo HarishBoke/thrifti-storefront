@@ -149,15 +149,15 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/60 to-transparent" />
       </section>
 
-      {/* Hero text block on cream */}
-      <section style={{ backgroundColor: "var(--thrifti-cream)" }}>
-        <div className="px-5 sm:px-8 lg:px-16 py-10 sm:py-14 lg:py-20">
-          <div className="max-w-lg">
+      {/* Hero text block — dark background, below the photo, matching Figma */}
+      <section style={{ backgroundColor: "#111" }}>
+        <div className="px-5 sm:px-8 lg:px-16 py-10 sm:py-14 lg:py-16">
+          <div className="max-w-lg mx-auto sm:mx-0 text-center sm:text-left">
             <p
               className="text-sm sm:text-base leading-relaxed mb-8"
               style={{
                 fontFamily: "'Space Mono', monospace",
-                color: "var(--thrifti-dark)",
+                color: "rgba(255,255,255,0.85)",
               }}
             >
               Your wardrobe was never meant to be a storage unit. It's an evolving archive of moments, moods, and maincharacter eras.
@@ -405,8 +405,8 @@ export default function Home() {
           >
             BUILT FOR BANGALORE
           </h2>
-          {/* Two photos stacked on mobile, side by side on desktop */}
-          <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
+          {/* 3 photos stacked vertically on mobile, 3-col grid on desktop */}
+          <div className="flex flex-col gap-4 lg:grid lg:grid-cols-3 lg:gap-6">
             {/* Photo 1 — red border, orange privacy bars */}
             <div
               className="relative overflow-hidden"
@@ -418,7 +418,7 @@ export default function Home() {
                 className="w-full object-cover"
                 style={{ maxHeight: "480px", minHeight: "260px" }}
               />
-              {/* Orange privacy bars */}
+              {/* Orange privacy bars over faces */}
               <div
                 className="absolute rounded-full"
                 style={{
@@ -460,6 +460,36 @@ export default function Home() {
                 }}
               />
             </div>
+            {/* Photo 3 — no border (reuse polaroidSell as third Bangalore photo) */}
+            <div className="relative overflow-hidden">
+              <img
+                src={CDN.polaroidSell}
+                alt="Bangalore streetwear community"
+                className="w-full object-cover"
+                style={{ maxHeight: "480px", minHeight: "260px" }}
+              />
+              {/* Orange privacy bar */}
+              <div
+                className="absolute rounded-full"
+                style={{
+                  backgroundColor: "#FF6B35",
+                  top: "22%",
+                  left: "20%",
+                  width: "28%",
+                  height: "4%",
+                }}
+              />
+              <div
+                className="absolute rounded-full"
+                style={{
+                  backgroundColor: "#FF6B35",
+                  top: "22%",
+                  left: "55%",
+                  width: "20%",
+                  height: "4%",
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -467,9 +497,11 @@ export default function Home() {
       {/* ===== SECTION 5: NEW DROPS, JUST IN (Red bg) ===== */}
       <section style={{ backgroundColor: "var(--thrifti-red)" }}>
         <div className="px-5 sm:px-8 lg:px-16 py-14 sm:py-20">
+          {/* Countdown timer — shows DD:HH:MIN:SEC until launch */}
           <CountdownBanner />
+          {/* LAUNCHING label — below countdown, above headline */}
           <p
-            className="text-white/80 text-xs font-bold tracking-[0.3em] uppercase mb-3"
+            className="text-white/60 text-[10px] font-bold tracking-[0.35em] uppercase mb-3"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             LAUNCHING 26 APRIL 2026
@@ -487,7 +519,7 @@ export default function Home() {
             className="text-white/80 text-sm leading-relaxed mb-10 max-w-sm"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
-            Curated pieces, limited time. Once they're gone,they're gone. Experience the shift in modern Indian fashion culture.
+            Curated pieces, limited time. Once they're gone, they're gone. Experience the shift in modern Indian fashion culture.
           </p>
           <Link href="/products">
             <button className="thrifti-btn-dark text-sm">
@@ -512,119 +544,113 @@ export default function Home() {
         className="px-5 sm:px-8 lg:px-16 py-14 sm:py-20"
         style={{ backgroundColor: "var(--thrifti-cream)" }}
       >
-        <div className="flex flex-col gap-14 lg:grid lg:grid-cols-3 lg:gap-10">
+        <div className="flex flex-col gap-10 lg:grid lg:grid-cols-3 lg:gap-10">
 
-          {/* SELL */}
-          <div>
-            <h3
-              className="text-5xl sm:text-6xl font-black mb-4"
+          {/* SELL polaroid */}
+          <div
+            className="polaroid relative"
+            style={{ transform: "rotate(-2.5deg)" }}
+          >
+            {/* SELL label — top-left badge per Figma */}
+            <span
+              className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10"
               style={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'Space Grotesk', sans-serif",
                 color: "var(--thrifti-dark)",
-                letterSpacing: "-0.02em",
               }}
             >
               SELL
-            </h3>
-            <div
-              className="polaroid"
-              style={{ transform: "rotate(-2.5deg)" }}
+            </span>
+            <img
+              src={CDN.polaroidSell}
+              alt="Sell the old you"
+              className="w-full block"
+              style={{ aspectRatio: "4/5", objectFit: "cover" }}
+            />
+            <p
+              className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1"
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                color: "var(--thrifti-dark)",
+              }}
             >
-              <img
-                src={CDN.polaroidSell}
-                alt="Sell the old you"
-                className="w-full block"
-                style={{ aspectRatio: "4/5", objectFit: "cover" }}
-              />
-              <p
-                className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1"
-                style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  color: "var(--thrifti-dark)",
-                }}
-              >
-                SELL THE OLD YOU
-              </p>
-            </div>
+              SELL THE OLD YOU
+            </p>
           </div>
 
-          {/* BUY */}
-          <div>
-            <h3
-              className="text-5xl sm:text-6xl font-black mb-4"
+          {/* BUY polaroid */}
+          <div
+            className="polaroid relative"
+            style={{ transform: "rotate(1.5deg)" }}
+          >
+            {/* BUY label — top-left badge per Figma */}
+            <span
+              className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10"
               style={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'Space Grotesk', sans-serif",
                 color: "var(--thrifti-dark)",
-                letterSpacing: "-0.02em",
               }}
             >
               BUY
-            </h3>
-            <div
-              className="polaroid"
-              style={{ transform: "rotate(1.5deg)" }}
+            </span>
+            <img
+              src={CDN.polaroidBuy}
+              alt="Wear the new you"
+              className="w-full block"
+              style={{ aspectRatio: "4/5", objectFit: "cover" }}
+            />
+            <p
+              className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1"
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                color: "var(--thrifti-dark)",
+              }}
             >
-              <img
-                src={CDN.polaroidBuy}
-                alt="Wear the new you"
-                className="w-full block"
-                style={{ aspectRatio: "4/5", objectFit: "cover" }}
-              />
+              WEAR THE NEW YOU
+            </p>
+          </div>
+
+          {/* REPEAT polaroid */}
+          <div
+            className="polaroid relative"
+            style={{ transform: "rotate(-1deg)" }}
+          >
+            {/* REPEAT label — top-left badge per Figma */}
+            <span
+              className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10"
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                color: "var(--thrifti-dark)",
+              }}
+            >
+              REPEAT
+            </span>
+            <img
+              src={CDN.polaroidRepeat}
+              alt="Be new you with Thrifti"
+              className="w-full block"
+              style={{ aspectRatio: "4/5", objectFit: "cover" }}
+            />
+            <div className="flex items-end justify-between mt-3 pb-1">
               <p
-                className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1"
+                className="text-xs font-bold tracking-widest uppercase"
                 style={{
                   fontFamily: "'Space Grotesk', sans-serif",
                   color: "var(--thrifti-dark)",
                 }}
               >
-                WEAR THE NEW YOU
+                BE NEW YOU
               </p>
-            </div>
-          </div>
-
-          {/* REPEAT */}
-          <div>
-            <h3
-              className="text-5xl sm:text-6xl font-black mb-4"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                color: "var(--thrifti-dark)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              REPEAT
-            </h3>
-            <div
-              className="polaroid"
-              style={{ transform: "rotate(-1deg)" }}
-            >
-              <img
-                src={CDN.polaroidRepeat}
-                alt="Be new you with Thrifti"
-                className="w-full block"
-                style={{ aspectRatio: "4/5", objectFit: "cover" }}
-              />
-              <div className="flex items-end justify-between mt-3 pb-1">
-                <p
-                  className="text-xs font-bold tracking-widest uppercase"
-                  style={{
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    color: "var(--thrifti-dark)",
-                  }}
-                >
-                  BE NEW YOU
-                </p>
-                <div
-                  className="px-2 py-1 text-white text-[9px] font-black tracking-wider uppercase"
-                  style={{
-                    backgroundColor: "var(--thrifti-dark)",
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    transform: "rotate(-3deg)",
-                    flexShrink: 0,
-                  }}
-                >
-                  WITH THRIFTI
-                </div>
+              <div
+                className="px-2 py-1 text-white text-[9px] font-black tracking-wider uppercase"
+                style={{
+                  backgroundColor: "var(--thrifti-dark)",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  transform: "rotate(-3deg)",
+                  flexShrink: 0,
+                }}
+              >
+                WITH THRIFTI
               </div>
             </div>
           </div>

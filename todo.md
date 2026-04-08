@@ -81,3 +81,15 @@
 - [x] Product cards: portrait image, attributes, heart wishlist, price with strikethrough, hover Add to Cart
 - [x] Mid-page NEW DROPS JUST IN banner after 8 products
 - [x] Pagination with page numbers and prev/next controls
+
+## Figma v6 Mobile Homepage Redesign
+- [x] Navbar mobile: hide category links on mobile, left-align logo, keep icons right
+- [x] Hero: text block sits BELOW the photo (not overlaid), dark bg continues below image
+- [x] Sell Steps: rename to PING US / SNAP / SELL labels (not Step 1/2/3), add START SELLING button
+- [x] Puzzle section: add missing "Complete the Look" puzzle/gamification section (red bg)
+- [x] Bangalore: stack all 3 photos vertically on mobile (not 2-col grid)
+- [x] New Drops: LAUNCHING label above headline, GRAB THE DEAL button style = dark/black
+- [x] Polaroids: add SELL/BUY/REPEAT label top-left on each polaroid, add captions below photos
+- [x] Footer: white logo on red background, correct link groups (About/Community/Help)
+- [x] Logo fix: already done (ThriftiLogo SVG component)
+- [x] Countdown timer: already added to New Drops section

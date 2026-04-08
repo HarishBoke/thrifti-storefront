@@ -201,13 +201,34 @@ export default function Navbar() {
 
           {/* Mobile Navbar */}
           <div className="flex lg:hidden items-center justify-between h-16">
-            {/* Logo */}
+            {/* Logo — left aligned */}
             <Link href="/" className="flex items-center">
               <ThriftiLogo height={44} />
             </Link>
 
-            {/* Mobile Right Icons */}
+            {/* Mobile Right: music toggle + icons */}
             <div className="flex items-center gap-0.5">
+              {/* Music Toggle (mobile) */}
+              <div className="flex items-center gap-1.5 mr-1">
+                <button
+                  onClick={() => setMusicOn((v) => !v)}
+                  className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none"
+                  style={{ backgroundColor: "var(--thrifti-red)" }}
+                  aria-label="Toggle music"
+                >
+                  <span
+                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
+                      musicOn ? "translate-x-4" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+                <span
+                  className="text-[9px] italic leading-tight hidden xs:block"
+                  style={{ fontFamily: "'Space Mono', monospace", color: "var(--thrifti-red)", maxWidth: 56 }}
+                >
+                  If you like<br />the music
+                </span>
+              </div>
               <button onClick={() => setSearchOpen((v) => !v)} className="p-2.5" aria-label="Search">
                 <Search className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
               </button>

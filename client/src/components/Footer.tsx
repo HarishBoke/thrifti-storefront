@@ -2,18 +2,18 @@ import { Link } from "wouter";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
 import ThriftiLogo from "@/components/ThriftiLogo";
 
+// Footer link groups matching Figma v6 exactly
 const FOOTER_LINKS = [
   {
     heading: "About",
     links: [
       { label: "How Thrifti Works?", href: "/how-it-works" },
-      { label: "Our Story", href: "/about" },
+      { label: "FAQ's", href: "/faqs" },
     ],
   },
   {
     heading: "Community",
     links: [
-      { label: "FAQ's", href: "/faqs" },
       { label: "Contact Us", href: "/contact" },
       { label: "Partner Up", href: "/partner" },
     ],
@@ -41,10 +41,16 @@ export default function Footer() {
     <footer style={{ backgroundColor: "var(--thrifti-red)" }}>
       <div className="px-5 sm:px-8 lg:px-12 pt-10 pb-8">
 
-        {/* Brand block */}
-        <div className="mb-8 text-center lg:text-left">
+        {/* Brand block — BUY.SELL.REPEAT. above logo per Figma */}
+        <div className="mb-8">
+          <p
+            className="text-white/70 text-xs font-bold tracking-[0.25em] uppercase mb-3"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            BUY. SELL. REPEAT.
+          </p>
           <Link href="/" className="inline-block">
-            <ThriftiLogo height={80} white={true} className="max-w-full" />
+            <ThriftiLogo height={72} white={true} className="max-w-full" />
           </Link>
         </div>
 
