@@ -60,3 +60,12 @@
 - [x] Frontend: Account page showing Shopify customer profile and order history
 - [x] Remove all Manus OAuth UI references from storefront pages
 - [x] Update Navbar account icon to use Shopify auth state (links to /login or /account)
+
+## New Features
+- [x] Forgot Password flow (Shopify customerRecover mutation, reset email)
+- [x] Address management on Account page (add, edit, delete, set default address)
+- [x] Wishlist DB schema (wishlists table with customerEmail + productId)
+- [x] Wishlist tRPC procedures (wishlist.add, wishlist.remove, wishlist.list)
+- [x] Heart button on ProductCard (toggle wishlist, filled red when saved, prompts login if not authenticated)
+- [x] Saved Items tab on Account page showing all wishlisted products with remove button
+- [x] Wishlist count badge in Navbar (red bubble, visible when logged in)

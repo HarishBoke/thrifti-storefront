@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, Search, Menu, X, User } from "lucide-react";
+import { ShoppingBag, Search, Menu, X, User, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
+import { trpc } from "@/lib/trpc";
 
 const WHATSAPP_NUMBER = "918065253722";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Hey!%20I%20want%20to%20sell%20on%20Thrifti`;
@@ -21,7 +22,13 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const { totalQuantity, openCart } = useCart();
-  const { isAuthenticated } = useShopifyAuth();
+  const { isAuthenticated, customer } = useShopifyAuth();
+
+  const { data: wishlistItems } = trpc.wishlist.list.useQuery(
+    { customerEmail: customer?.email ?? "" },
+    { enabled: !!customer?.email && isAuthenticated }
+  );
+  const wishlistCount = wishlistItems?.length ?? 0;
   const [location, navigate] = useLocation();
 
   useEffect(() => {
@@ -125,6 +132,26 @@ export default function Navbar() {
                   aria-label="Login"
                 >
                   <User className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
+                </Link>
+              )}
+
+              {/* Wishlist */}
+              {isAuthenticated && (
+                <Link
+                  href="/account"
+                  onClick={() => { /* will switch to wishlist tab via URL later */ }}
+                  className="p-2.5 hover:bg-muted transition-colors relative hidden sm:flex"
+                  aria-label={`Wishlist (${wishlistCount} items)`}
+                >
+                  <Heart className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
+                  {wishlistCount > 0 && (
+                    <span
+                      className="absolute top-1 right-1 w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center leading-none"
+                      style={{ backgroundColor: "var(--thrifti-red)" }}
+                    >
+                      {wishlistCount > 9 ? "9+" : wishlistCount}
+                    </span>
+                  )}
                 </Link>
               )}
 

@@ -8,6 +8,13 @@
       "when": 1775564149826,
       "tag": "0000_typical_swordsman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1775652341331,
+      "tag": "0001_tough_speedball",
+      "breakpoints": true
     }
   ]
 }

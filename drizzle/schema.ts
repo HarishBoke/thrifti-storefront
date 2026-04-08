@@ -25,4 +25,23 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+// Wishlist table — stores saved/hearted products per Shopify customer
+export const wishlists = mysqlTable("wishlists", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Shopify customer email — used as the stable identifier for Shopify customers */
+  customerEmail: varchar("customerEmail", { length: 320 }).notNull(),
+  /** Shopify product handle — used to fetch product details from Storefront API */
+  productHandle: varchar("productHandle", { length: 255 }).notNull(),
+  /** Shopify product ID (GID format: gid://shopify/Product/123) */
+  productId: varchar("productId", { length: 255 }).notNull(),
+  /** Product title cached at save time for display without re-fetching */
+  productTitle: text("productTitle"),
+  /** Product image URL cached at save time */
+  productImage: text("productImage"),
+  /** Product price cached at save time */
+  productPrice: varchar("productPrice", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Wishlist = typeof wishlists.$inferSelect;
+export type InsertWishlist = typeof wishlists.$inferInsert;

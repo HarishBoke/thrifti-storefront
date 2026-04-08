@@ -475,6 +475,7 @@ export interface ShopifyCustomer {
   phone: string | null;
   createdAt: string;
   defaultAddress: {
+    id: string;
     address1: string | null;
     address2: string | null;
     city: string | null;
@@ -567,7 +568,7 @@ export async function customerRegister(
         customer {
           id firstName lastName email phone createdAt
           defaultAddress {
-            address1 address2 city province country zip
+            id address1 address2 city province country zip
           }
         }
         customerUserErrors {
@@ -620,7 +621,7 @@ export async function getCustomer(accessToken: string): Promise<ShopifyCustomer 
       customer(customerAccessToken: $customerAccessToken) {
         id firstName lastName email phone createdAt
         defaultAddress {
-          address1 address2 city province country zip
+          id address1 address2 city province country zip
         }
       }
     }
@@ -672,4 +673,213 @@ export async function getCustomerOrders(
   }>(gql, { customerAccessToken: accessToken, first });
 
   return data.customer?.orders.nodes ?? [];
+}
+
+// ---------------------------------------------------------------------------
+// Mutation: Customer recover (forgot password — sends reset email)
+// ---------------------------------------------------------------------------
+
+export async function customerRecover(email: string): Promise<{ success: boolean; errors: CustomerUserError[] }> {
+  const gql = `
+    mutation CustomerRecover($email: String!) {
+      customerRecover(email: $email) {
+        customerUserErrors {
+          field
+          message
+          code
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    customerRecover: { customerUserErrors: CustomerUserError[] };
+  }>(gql, { email });
+
+  const errors = data.customerRecover.customerUserErrors;
+  return { success: errors.length === 0, errors };
+}
+
+// ---------------------------------------------------------------------------
+// Types: Customer Address
+// ---------------------------------------------------------------------------
+
+export interface ShopifyAddress {
+  id: string;
+  address1: string | null;
+  address2: string | null;
+  city: string | null;
+  province: string | null;
+  country: string | null;
+  zip: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+}
+
+export interface AddressInput {
+  address1?: string;
+  address2?: string;
+  city?: string;
+  province?: string;
+  country?: string;
+  zip?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Query: Get all customer addresses
+// ---------------------------------------------------------------------------
+
+export async function getCustomerAddresses(accessToken: string): Promise<ShopifyAddress[]> {
+  const gql = `
+    query GetCustomerAddresses($customerAccessToken: String!) {
+      customer(customerAccessToken: $customerAccessToken) {
+        addresses(first: 10) {
+          nodes {
+            id address1 address2 city province country zip firstName lastName phone
+          }
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    customer: { addresses: { nodes: ShopifyAddress[] } } | null;
+  }>(gql, { customerAccessToken: accessToken });
+
+  return data.customer?.addresses.nodes ?? [];
+}
+
+// ---------------------------------------------------------------------------
+// Mutation: Create customer address
+// ---------------------------------------------------------------------------
+
+export async function createCustomerAddress(
+  accessToken: string,
+  address: AddressInput
+): Promise<{ address: ShopifyAddress | null; errors: CustomerUserError[] }> {
+  const gql = `
+    mutation CustomerAddressCreate($customerAccessToken: String!, $address: MailingAddressInput!) {
+      customerAddressCreate(customerAccessToken: $customerAccessToken, address: $address) {
+        customerAddress {
+          id address1 address2 city province country zip firstName lastName phone
+        }
+        customerUserErrors {
+          field message code
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    customerAddressCreate: {
+      customerAddress: ShopifyAddress | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>(gql, { customerAccessToken: accessToken, address });
+
+  return {
+    address: data.customerAddressCreate.customerAddress,
+    errors: data.customerAddressCreate.customerUserErrors,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Mutation: Update customer address
+// ---------------------------------------------------------------------------
+
+export async function updateCustomerAddress(
+  accessToken: string,
+  addressId: string,
+  address: AddressInput
+): Promise<{ address: ShopifyAddress | null; errors: CustomerUserError[] }> {
+  const gql = `
+    mutation CustomerAddressUpdate($customerAccessToken: String!, $id: ID!, $address: MailingAddressInput!) {
+      customerAddressUpdate(customerAccessToken: $customerAccessToken, id: $id, address: $address) {
+        customerAddress {
+          id address1 address2 city province country zip firstName lastName phone
+        }
+        customerUserErrors {
+          field message code
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    customerAddressUpdate: {
+      customerAddress: ShopifyAddress | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>(gql, { customerAccessToken: accessToken, id: addressId, address });
+
+  return {
+    address: data.customerAddressUpdate.customerAddress,
+    errors: data.customerAddressUpdate.customerUserErrors,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Mutation: Delete customer address
+// ---------------------------------------------------------------------------
+
+export async function deleteCustomerAddress(
+  accessToken: string,
+  addressId: string
+): Promise<{ success: boolean; errors: CustomerUserError[] }> {
+  const gql = `
+    mutation CustomerAddressDelete($customerAccessToken: String!, $id: ID!) {
+      customerAddressDelete(customerAccessToken: $customerAccessToken, id: $id) {
+        deletedCustomerAddressId
+        customerUserErrors {
+          field message code
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    customerAddressDelete: {
+      deletedCustomerAddressId: string | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>(gql, { customerAccessToken: accessToken, id: addressId });
+
+  const errors = data.customerAddressDelete.customerUserErrors;
+  return { success: errors.length === 0, errors };
+}
+
+// ---------------------------------------------------------------------------
+// Mutation: Set default customer address
+// ---------------------------------------------------------------------------
+
+export async function setDefaultCustomerAddress(
+  accessToken: string,
+  addressId: string
+): Promise<{ success: boolean; errors: CustomerUserError[] }> {
+  const gql = `
+    mutation CustomerDefaultAddressUpdate($customerAccessToken: String!, $addressId: ID!) {
+      customerDefaultAddressUpdate(customerAccessToken: $customerAccessToken, addressId: $addressId) {
+        customer {
+          id
+        }
+        customerUserErrors {
+          field message code
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    customerDefaultAddressUpdate: {
+      customer: { id: string } | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>(gql, { customerAccessToken: accessToken, addressId });
+
+  const errors = data.customerDefaultAddressUpdate.customerUserErrors;
+  return { success: errors.length === 0, errors };
 }

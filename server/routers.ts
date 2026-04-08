@@ -16,14 +16,20 @@ import {
   customerLogin,
   customerRegister,
   customerLogout,
+  customerRecover,
   getCustomer,
   getCustomerOrders,
+  getCustomerAddresses,
+  createCustomerAddress,
+  updateCustomerAddress,
+  deleteCustomerAddress,
+  setDefaultCustomerAddress,
 } from "./shopify";
 import { invokeLLM } from "./_core/llm";
 import { notifyOwner } from "./_core/notification";
 import { getDb } from "./db";
-import { users } from "../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { users, wishlists } from "../drizzle/schema";
+import { eq, and } from "drizzle-orm";
 
 export const appRouter = router({
   system: systemRouter,
@@ -276,6 +282,162 @@ export const appRouter = router({
       .input(z.object({ accessToken: z.string(), first: z.number().default(10) }))
       .query(async ({ input }) => {
         return getCustomerOrders(input.accessToken, input.first);
+      }),
+  }),
+
+  // ---------------------------------------------------------------------------
+  // Shopify Customer: Forgot Password
+  // ---------------------------------------------------------------------------
+  customerRecover: router({
+    sendReset: publicProcedure
+      .input(z.object({ email: z.string().email() }))
+      .mutation(async ({ input }) => {
+        const result = await customerRecover(input.email);
+        // Always return success to prevent email enumeration
+        return { success: true };
+      }),
+  }),
+
+  // ---------------------------------------------------------------------------
+  // Shopify Customer: Address Management
+  // ---------------------------------------------------------------------------
+  customerAddress: router({
+    list: publicProcedure
+      .input(z.object({ accessToken: z.string() }))
+      .query(async ({ input }) => {
+        return getCustomerAddresses(input.accessToken);
+      }),
+
+    create: publicProcedure
+      .input(
+        z.object({
+          accessToken: z.string(),
+          address: z.object({
+            firstName: z.string().optional(),
+            lastName: z.string().optional(),
+            address1: z.string().min(1),
+            address2: z.string().optional(),
+            city: z.string().min(1),
+            province: z.string().optional(),
+            country: z.string().min(1),
+            zip: z.string().min(1),
+            phone: z.string().optional(),
+          }),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const result = await createCustomerAddress(input.accessToken, input.address);
+        if (result.errors.length > 0) {
+          throw new Error(result.errors[0]?.message || "Failed to create address");
+        }
+        return result.address;
+      }),
+
+    update: publicProcedure
+      .input(
+        z.object({
+          accessToken: z.string(),
+          addressId: z.string(),
+          address: z.object({
+            firstName: z.string().optional(),
+            lastName: z.string().optional(),
+            address1: z.string().min(1),
+            address2: z.string().optional(),
+            city: z.string().min(1),
+            province: z.string().optional(),
+            country: z.string().min(1),
+            zip: z.string().min(1),
+            phone: z.string().optional(),
+          }),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const result = await updateCustomerAddress(input.accessToken, input.addressId, input.address);
+        if (result.errors.length > 0) {
+          throw new Error(result.errors[0]?.message || "Failed to update address");
+        }
+        return result.address;
+      }),
+
+    delete: publicProcedure
+      .input(z.object({ accessToken: z.string(), addressId: z.string() }))
+      .mutation(async ({ input }) => {
+        const result = await deleteCustomerAddress(input.accessToken, input.addressId);
+        if (result.errors.length > 0) {
+          throw new Error(result.errors[0]?.message || "Failed to delete address");
+        }
+        return { success: true };
+      }),
+
+    setDefault: publicProcedure
+      .input(z.object({ accessToken: z.string(), addressId: z.string() }))
+      .mutation(async ({ input }) => {
+        const result = await setDefaultCustomerAddress(input.accessToken, input.addressId);
+        if (result.errors.length > 0) {
+          throw new Error(result.errors[0]?.message || "Failed to set default address");
+        }
+        return { success: true };
+      }),
+  }),
+
+  // ---------------------------------------------------------------------------
+  // Wishlist: Saved items (stored in DB by customer email)
+  // ---------------------------------------------------------------------------
+  wishlist: router({
+    list: publicProcedure
+      .input(z.object({ customerEmail: z.string().email() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        return db.select().from(wishlists).where(eq(wishlists.customerEmail, input.customerEmail));
+      }),
+
+    add: publicProcedure
+      .input(
+        z.object({
+          customerEmail: z.string().email(),
+          productId: z.string(),
+          productHandle: z.string(),
+          productTitle: z.string().optional(),
+          productImage: z.string().optional(),
+          productPrice: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+        // Prevent duplicates
+        const existing = await db
+          .select()
+          .from(wishlists)
+          .where(and(eq(wishlists.customerEmail, input.customerEmail), eq(wishlists.productId, input.productId)))
+          .limit(1);
+        if (existing.length > 0) return existing[0];
+        await db.insert(wishlists).values({
+          customerEmail: input.customerEmail,
+          productId: input.productId,
+          productHandle: input.productHandle,
+          productTitle: input.productTitle ?? null,
+          productImage: input.productImage ?? null,
+          productPrice: input.productPrice ?? null,
+        });
+        const inserted = await db
+          .select()
+          .from(wishlists)
+          .where(and(eq(wishlists.customerEmail, input.customerEmail), eq(wishlists.productId, input.productId)))
+          .limit(1);
+        return inserted[0];
+      }),
+
+    remove: publicProcedure
+      .input(z.object({ customerEmail: z.string().email(), productId: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+        await db
+          .delete(wishlists)
+          .where(and(eq(wishlists.customerEmail, input.customerEmail), eq(wishlists.productId, input.productId)));
+        return { success: true };
       }),
   }),
 

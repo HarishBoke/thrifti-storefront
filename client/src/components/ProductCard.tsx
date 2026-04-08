@@ -1,6 +1,8 @@
 import { Link } from "wouter";
 import { ShoppingBag, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
+import { trpc } from "@/lib/trpc";
 import type { ShopifyProduct } from "@shared/shopifyTypes";
 import { formatPrice } from "@shared/shopifyTypes";
 import { toast } from "sonner";
@@ -10,7 +12,10 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { addToCart, isLoading } = useCart();
+  const { addToCart, isLoading: cartLoading } = useCart();
+  const { customer, isAuthenticated } = useShopifyAuth();
+
+  const utils = trpc.useUtils();
 
   const image = product.featuredImage;
   const minPrice = product.priceRange.minVariantPrice;
@@ -25,6 +30,29 @@ export default function ProductCard({ product }: ProductCardProps) {
       ? `${formatPrice(minPrice.amount, minPrice.currencyCode)} – ${formatPrice(maxPrice.amount, maxPrice.currencyCode)}`
       : formatPrice(minPrice.amount, minPrice.currencyCode);
 
+  // Wishlist state — check if this product is already in the wishlist
+  const { data: wishlistItems } = trpc.wishlist.list.useQuery(
+    { customerEmail: customer?.email ?? "" },
+    { enabled: !!customer?.email && isAuthenticated }
+  );
+  const isWishlisted = wishlistItems?.some((w) => w.productId === product.id) ?? false;
+
+  const addWishlistMutation = trpc.wishlist.add.useMutation({
+    onSuccess: () => {
+      utils.wishlist.list.invalidate();
+      toast.success("Added to wishlist");
+    },
+    onError: (err) => toast.error(err.message || "Failed to add to wishlist"),
+  });
+
+  const removeWishlistMutation = trpc.wishlist.remove.useMutation({
+    onSuccess: () => {
+      utils.wishlist.list.invalidate();
+      toast.success("Removed from wishlist");
+    },
+    onError: (err) => toast.error(err.message || "Failed to remove from wishlist"),
+  });
+
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -37,10 +65,35 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated || !customer?.email) {
+      toast.info("Sign in to save items to your wishlist", {
+        action: { label: "Sign In", onClick: () => (window.location.href = "/login") },
+      });
+      return;
+    }
+    if (isWishlisted) {
+      removeWishlistMutation.mutate({ customerEmail: customer.email, productId: product.id });
+    } else {
+      addWishlistMutation.mutate({
+        customerEmail: customer.email,
+        productId: product.id,
+        productHandle: product.handle,
+        productTitle: product.title,
+        productImage: image?.url ?? undefined,
+        productPrice: priceDisplay,
+      });
+    }
+  };
+
+  const wishlistPending = addWishlistMutation.isPending || removeWishlistMutation.isPending;
+
   return (
     <Link href={`/products/${product.handle}`}>
       <article className="group cursor-pointer">
-        {/* Image Container — sharp corners, no border-radius */}
+        {/* Image Container */}
         <div className="relative aspect-[3/4] overflow-hidden bg-muted mb-2">
           {image ? (
             <img
@@ -60,10 +113,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {!product.availableForSale && (
               <span
                 className="text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-wider"
-                style={{
-                  backgroundColor: "var(--thrifti-dark)",
-                  fontFamily: "'Space Grotesk', sans-serif",
-                }}
+                style={{ backgroundColor: "var(--thrifti-dark)", fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 Sold Out
               </span>
@@ -71,38 +121,41 @@ export default function ProductCard({ product }: ProductCardProps) {
             {hasDiscount && (
               <span
                 className="text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-wider"
-                style={{
-                  backgroundColor: "var(--thrifti-red)",
-                  fontFamily: "'Space Grotesk', sans-serif",
-                }}
+                style={{ backgroundColor: "var(--thrifti-red)", fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 Sale
               </span>
             )}
           </div>
 
-          {/* Quick Add — slides up on hover */}
+          {/* Quick Add */}
           {product.availableForSale && (
             <button
               onClick={handleAddToCart}
-              disabled={isLoading}
+              disabled={cartLoading}
               className="absolute bottom-0 left-0 right-0 text-white text-[10px] font-black py-2.5 tracking-[0.15em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-300 disabled:opacity-50"
-              style={{
-                backgroundColor: "var(--thrifti-dark)",
-                fontFamily: "'Space Grotesk', sans-serif",
-              }}
+              style={{ backgroundColor: "var(--thrifti-dark)", fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              {isLoading ? "Adding..." : "Quick Add"}
+              {cartLoading ? "Adding..." : "Quick Add"}
             </button>
           )}
 
-          {/* Wishlist */}
+          {/* Wishlist heart */}
           <button
-            className="absolute top-2 right-2 w-7 h-7 bg-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
-            onClick={(e) => { e.preventDefault(); toast.info("Wishlist coming soon"); }}
-            aria-label="Add to wishlist"
+            className={`absolute top-2 right-2 w-7 h-7 flex items-center justify-center transition-all duration-200 ${
+              isWishlisted
+                ? "opacity-100 bg-white"
+                : "opacity-0 group-hover:opacity-100 bg-white/80 hover:bg-white"
+            } ${wishlistPending ? "opacity-50 cursor-not-allowed" : ""}`}
+            onClick={handleWishlist}
+            disabled={wishlistPending}
+            aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
-            <Heart className="w-3.5 h-3.5" style={{ color: "var(--thrifti-dark)" }} />
+            <Heart
+              className="w-3.5 h-3.5 transition-colors"
+              fill={isWishlisted ? "var(--thrifti-red)" : "none"}
+              style={{ color: isWishlisted ? "var(--thrifti-red)" : "var(--thrifti-dark)" }}
+            />
           </button>
         </div>
 
@@ -111,30 +164,21 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.vendor && (
             <p
               className="text-[10px] uppercase tracking-widest mb-0.5"
-              style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                color: "var(--thrifti-red)",
-              }}
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-red)" }}
             >
               {product.vendor}
             </p>
           )}
           <h3
             className="text-xs sm:text-sm font-bold line-clamp-2 mb-1 leading-snug"
-            style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              color: "var(--thrifti-dark)",
-            }}
+            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}
           >
             {product.title}
           </h3>
           <div className="flex items-center gap-2">
             <span
               className="text-sm font-black"
-              style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                color: "var(--thrifti-dark)",
-              }}
+              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}
             >
               {priceDisplay}
             </span>
