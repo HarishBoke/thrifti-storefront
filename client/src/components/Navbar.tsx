@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { ShoppingBag, Search, Menu, X, User, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -7,6 +7,9 @@ import { trpc } from "@/lib/trpc";
 import ThriftiLogo from "@/components/ThriftiLogo";
 const WHATSAPP_NUMBER = "918065253722";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Hey!%20I%20want%20to%20sell%20on%20Thrifti`;
+
+// Ambient background music CDN URL (Lofi Study - FASSounds, Pixabay free license)
+const AMBIENT_TRACK_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/thrifti-ambient_37354e1c.mp3";
 
 // Category nav links — each href maps to a Shopify collection handle
 const CATEGORY_LINKS = [
@@ -33,7 +36,52 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [musicOn, setMusicOn] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fadeRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  // Initialise audio element once
+  useEffect(() => {
+    const audio = new Audio(AMBIENT_TRACK_URL);
+    audio.loop = true;
+    audio.volume = 0;
+    audioRef.current = audio;
+    return () => {
+      audio.pause();
+      audio.src = "";
+    };
+  }, []);
+
+  // Fade helper
+  const fadeTo = useCallback((targetVol: number, onDone?: () => void) => {
+    if (fadeRef.current) clearInterval(fadeRef.current);
+    const audio = audioRef.current;
+    if (!audio) return;
+    const step = targetVol > audio.volume ? 0.05 : -0.05;
+    fadeRef.current = setInterval(() => {
+      if (!audioRef.current) return;
+      const next = Math.min(1, Math.max(0, audioRef.current.volume + step));
+      audioRef.current.volume = next;
+      if ((step > 0 && next >= targetVol) || (step < 0 && next <= targetVol)) {
+        clearInterval(fadeRef.current!);
+        if (onDone) onDone();
+      }
+    }, 40);
+  }, []);
+
+  // Play / pause with fade
+  const handleMusicToggle = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (!musicOn) {
+      audio.play().catch(() => {/* autoplay blocked — user interaction required */});
+      fadeTo(0.45);
+      setMusicOn(true);
+    } else {
+      fadeTo(0, () => audio.pause());
+      setMusicOn(false);
+    }
+  }, [musicOn, fadeTo]);
   const { totalQuantity, openCart } = useCart();
   const { isAuthenticated, customer } = useShopifyAuth();
 
@@ -111,7 +159,7 @@ export default function Navbar() {
               {/* Music Toggle */}
               <div className="flex items-center gap-2 mr-3">
                 <button
-                  onClick={() => setMusicOn((v) => !v)}
+                  onClick={handleMusicToggle}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                     musicOn ? "bg-[var(--thrifti-red)]" : "bg-[var(--thrifti-red)]"
                   }`}
@@ -211,7 +259,7 @@ export default function Navbar() {
               {/* Music Toggle (mobile) */}
               <div className="flex items-center gap-1.5 mr-1">
                 <button
-                  onClick={() => setMusicOn((v) => !v)}
+                  onClick={handleMusicToggle}
                   className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none"
                   style={{ backgroundColor: "var(--thrifti-red)" }}
                   aria-label="Toggle music"

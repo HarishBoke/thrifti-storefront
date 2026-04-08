@@ -93,3 +93,8 @@
 - [x] Footer: white logo on red background, correct link groups (About/Community/Help)
 - [x] Logo fix: already done (ThriftiLogo SVG component)
 - [x] Countdown timer: already added to New Drops section
+
+## Music Toggle
+- [x] Find/download ambient lo-fi background track (royalty-free)
+- [x] Upload track to CDN
+- [x] Wire Navbar music toggle to play/pause the track with fade in/out
