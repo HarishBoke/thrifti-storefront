@@ -49,3 +49,6 @@
 - [x] Privacy Policy page (/privacy) — full GDPR/Indian privacy law compliant policy
 - [x] Wire all footer links to correct routes (all 9 links working)
 - [x] Verify all navigation works end-to-end (tested in browser)
+
+## UX Fixes
+- [x] Scroll to top on every route navigation (footer links, navbar links, all internal links)
