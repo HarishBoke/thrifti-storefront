@@ -462,3 +462,214 @@ export function formatPrice(amount: string, currencyCode: string): string {
     maximumFractionDigits: 2,
   }).format(num);
 }
+
+// ---------------------------------------------------------------------------
+// Types: Customer
+// ---------------------------------------------------------------------------
+
+export interface ShopifyCustomer {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  phone: string | null;
+  createdAt: string;
+  defaultAddress: {
+    address1: string | null;
+    address2: string | null;
+    city: string | null;
+    province: string | null;
+    country: string | null;
+    zip: string | null;
+  } | null;
+}
+
+export interface ShopifyOrder {
+  id: string;
+  orderNumber: number;
+  processedAt: string;
+  financialStatus: string;
+  fulfillmentStatus: string;
+  totalPrice: { amount: string; currencyCode: string };
+  lineItems: {
+    nodes: {
+      title: string;
+      quantity: number;
+      variant: {
+        price: { amount: string; currencyCode: string };
+        image: ShopifyImage | null;
+      } | null;
+    }[];
+  };
+}
+
+export interface CustomerAccessToken {
+  accessToken: string;
+  expiresAt: string;
+}
+
+export interface CustomerUserError {
+  field: string[] | null;
+  message: string;
+  code: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Mutation: Customer login (create access token)
+// ---------------------------------------------------------------------------
+
+export async function customerLogin(
+  email: string,
+  password: string
+): Promise<{ accessToken: CustomerAccessToken | null; errors: CustomerUserError[] }> {
+  const gql = `
+    mutation CustomerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+      customerAccessTokenCreate(input: $input) {
+        customerAccessToken {
+          accessToken
+          expiresAt
+        }
+        customerUserErrors {
+          field
+          message
+          code
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    customerAccessTokenCreate: {
+      customerAccessToken: CustomerAccessToken | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>(gql, { input: { email, password } });
+
+  return {
+    accessToken: data.customerAccessTokenCreate.customerAccessToken,
+    errors: data.customerAccessTokenCreate.customerUserErrors,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Mutation: Customer register
+// ---------------------------------------------------------------------------
+
+export async function customerRegister(
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string
+): Promise<{ customer: ShopifyCustomer | null; errors: CustomerUserError[] }> {
+  const gql = `
+    mutation CustomerCreate($input: CustomerCreateInput!) {
+      customerCreate(input: $input) {
+        customer {
+          id firstName lastName email phone createdAt
+          defaultAddress {
+            address1 address2 city province country zip
+          }
+        }
+        customerUserErrors {
+          field
+          message
+          code
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    customerCreate: {
+      customer: ShopifyCustomer | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>(gql, { input: { firstName, lastName, email, password } });
+
+  return {
+    customer: data.customerCreate.customer,
+    errors: data.customerCreate.customerUserErrors,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Mutation: Customer logout (delete access token)
+// ---------------------------------------------------------------------------
+
+export async function customerLogout(accessToken: string): Promise<boolean> {
+  const gql = `
+    mutation CustomerAccessTokenDelete($customerAccessToken: String!) {
+      customerAccessTokenDelete(customerAccessToken: $customerAccessToken) {
+        deletedAccessToken
+        userErrors { field message }
+      }
+    }
+  `;
+
+  await shopifyFetch(gql, { customerAccessToken: accessToken });
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// Query: Get customer by access token
+// ---------------------------------------------------------------------------
+
+export async function getCustomer(accessToken: string): Promise<ShopifyCustomer | null> {
+  const gql = `
+    query GetCustomer($customerAccessToken: String!) {
+      customer(customerAccessToken: $customerAccessToken) {
+        id firstName lastName email phone createdAt
+        defaultAddress {
+          address1 address2 city province country zip
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{ customer: ShopifyCustomer | null }>(gql, {
+    customerAccessToken: accessToken,
+  });
+  return data.customer;
+}
+
+// ---------------------------------------------------------------------------
+// Query: Get customer orders
+// ---------------------------------------------------------------------------
+
+export async function getCustomerOrders(
+  accessToken: string,
+  first = 10
+): Promise<ShopifyOrder[]> {
+  const gql = `
+    query GetCustomerOrders($customerAccessToken: String!, $first: Int!) {
+      customer(customerAccessToken: $customerAccessToken) {
+        orders(first: $first, sortKey: PROCESSED_AT, reverse: true) {
+          nodes {
+            id
+            orderNumber
+            processedAt
+            financialStatus
+            fulfillmentStatus
+            totalPrice { amount currencyCode }
+            lineItems(first: 10) {
+              nodes {
+                title
+                quantity
+                variant {
+                  price { amount currencyCode }
+                  image { url altText width height }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const data = await shopifyFetch<{
+    customer: { orders: { nodes: ShopifyOrder[] } } | null;
+  }>(gql, { customerAccessToken: accessToken, first });
+
+  return data.customer?.orders.nodes ?? [];
+}

@@ -13,6 +13,11 @@ import {
   addCartLines,
   updateCartLines,
   removeCartLines,
+  customerLogin,
+  customerRegister,
+  customerLogout,
+  getCustomer,
+  getCustomerOrders,
 } from "./shopify";
 import { invokeLLM } from "./_core/llm";
 import { notifyOwner } from "./_core/notification";
@@ -208,7 +213,74 @@ export const appRouter = router({
   }),
 
   // ---------------------------------------------------------------------------
-  // User: Account profile
+  // Shopify Customer Auth
+  // ---------------------------------------------------------------------------
+  customer: router({
+    login: publicProcedure
+      .input(z.object({ email: z.string().email(), password: z.string().min(1) }))
+      .mutation(async ({ input }) => {
+        const result = await customerLogin(input.email, input.password);
+        if (result.errors.length > 0) {
+          throw new Error(result.errors[0]?.message || "Login failed");
+        }
+        if (!result.accessToken) {
+          throw new Error("Invalid email or password");
+        }
+        return { accessToken: result.accessToken.accessToken, expiresAt: result.accessToken.expiresAt };
+      }),
+
+    register: publicProcedure
+      .input(
+        z.object({
+          firstName: z.string().min(1),
+          lastName: z.string().min(1),
+          email: z.string().email(),
+          password: z.string().min(5, "Password must be at least 5 characters"),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const result = await customerRegister(
+          input.firstName,
+          input.lastName,
+          input.email,
+          input.password
+        );
+        if (result.errors.length > 0) {
+          throw new Error(result.errors[0]?.message || "Registration failed");
+        }
+        if (!result.customer) {
+          throw new Error("Could not create account");
+        }
+        // Auto-login after registration
+        const loginResult = await customerLogin(input.email, input.password);
+        if (!loginResult.accessToken) {
+          throw new Error("Account created but login failed. Please log in manually.");
+        }
+        return { accessToken: loginResult.accessToken.accessToken, expiresAt: loginResult.accessToken.expiresAt };
+      }),
+
+    logout: publicProcedure
+      .input(z.object({ accessToken: z.string() }))
+      .mutation(async ({ input }) => {
+        await customerLogout(input.accessToken);
+        return { success: true };
+      }),
+
+    me: publicProcedure
+      .input(z.object({ accessToken: z.string() }))
+      .query(async ({ input }) => {
+        return getCustomer(input.accessToken);
+      }),
+
+    orders: publicProcedure
+      .input(z.object({ accessToken: z.string(), first: z.number().default(10) }))
+      .query(async ({ input }) => {
+        return getCustomerOrders(input.accessToken, input.first);
+      }),
+  }),
+
+  // ---------------------------------------------------------------------------
+  // User: Account profile (legacy - kept for backward compat)
   // ---------------------------------------------------------------------------
   account: router({
     profile: protectedProcedure.query(async ({ ctx }) => {

@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { ShoppingBag, Search, Menu, X, User } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
+import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 
 const WHATSAPP_NUMBER = "918065253722";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Hey!%20I%20want%20to%20sell%20on%20Thrifti`;
@@ -22,7 +21,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const { totalQuantity, openCart } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useShopifyAuth();
   const [location, navigate] = useLocation();
 
   useEffect(() => {
@@ -120,13 +119,13 @@ export default function Navbar() {
                   <User className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
                 </Link>
               ) : (
-                <a
-                  href={getLoginUrl()}
+                <Link
+                  href="/login"
                   className="p-2.5 hover:bg-muted transition-colors hidden sm:flex"
                   aria-label="Login"
                 >
                   <User className="w-5 h-5" style={{ color: "var(--thrifti-dark)" }} />
-                </a>
+                </Link>
               )}
 
               {/* Cart */}
@@ -214,13 +213,13 @@ export default function Navbar() {
                     <User className="w-4 h-4" /> My Account
                   </Link>
                 ) : (
-                  <a
-                    href={getLoginUrl()}
+                  <Link
+                    href="/login"
                     className="flex items-center gap-2 text-sm font-semibold"
                     style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}
                   >
                     <User className="w-4 h-4" /> Sign In
-                  </a>
+                  </Link>
                 )}
                 <a
                   href={WHATSAPP_URL}

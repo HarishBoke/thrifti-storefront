@@ -1,155 +1,221 @@
-import { Link } from "wouter";
-import { User, Package, LogOut, ShoppingBag } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import StorefrontLayout from "@/components/StorefrontLayout";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
+import StorefrontLayout from "@/components/StorefrontLayout";
+import { toast } from "sonner";
+import { Package, MapPin, LogOut, ChevronRight, ShoppingBag } from "lucide-react";
 
 export default function Account() {
-  const { user, isAuthenticated, loading, logout } = useAuth();
-  const { data: profile } = trpc.account.profile.useQuery(undefined, {
-    enabled: isAuthenticated,
-  });
+  const { customer, accessToken, isLoading, isAuthenticated, logout } = useShopifyAuth();
+  const [, navigate] = useLocation();
 
-  if (loading) {
+  const { data: orders, isLoading: ordersLoading } = trpc.customer.orders.useQuery(
+    { accessToken: accessToken ?? "", first: 10 },
+    { enabled: !!accessToken && isAuthenticated }
+  );
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isLoading, isAuthenticated, navigate]);
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success("You've been signed out.");
+    navigate("/");
+  };
+
+  if (isLoading) {
     return (
       <StorefrontLayout>
-        <div className="container py-20 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[oklch(0.52_0.22_25)] border-t-transparent rounded-full animate-spin" />
+        <div className="min-h-screen bg-[#F5F0E8] flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-[#CC2200] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-sm text-gray-500 uppercase tracking-widest">Loading...</p>
+          </div>
         </div>
       </StorefrontLayout>
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <StorefrontLayout>
-        <div className="container py-20 text-center">
-          <User className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
-          <h1
-            className="text-2xl font-black mb-2"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Sign In to Your Account
-          </h1>
-          <p className="text-muted-foreground mb-6" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Access your order history and account settings.
-          </p>
-            <a href={getLoginUrl()}>
-            <Button
-              className="bg-[oklch(0.52_0.22_25)] hover:bg-[oklch(0.45_0.22_25)] text-white font-semibold px-8"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Sign In
-            </Button>
-          </a>
-        </div>
-      </StorefrontLayout>
-    );
-  }
+  if (!isAuthenticated) return null;
+
+  const fullName =
+    [customer?.firstName, customer?.lastName].filter(Boolean).join(" ") || "Customer";
+  const initials =
+    [customer?.firstName?.[0], customer?.lastName?.[0]].filter(Boolean).join("").toUpperCase() ||
+    "C";
 
   return (
     <StorefrontLayout>
-      <div className="bg-[oklch(0.97_0.01_80)] py-10 sm:py-14">
-        <div className="container">
-          <p
-            className="text-[oklch(0.52_0.22_25)] text-xs font-semibold tracking-[0.3em] uppercase mb-2"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-          >
-            My Account
-          </p>
+      <div className="min-h-screen bg-[#F5F0E8]">
+        {/* Hero header */}
+        <div className="bg-black text-white py-16 px-4 text-center">
+          <p className="text-xs tracking-widest uppercase text-gray-400 mb-2">My Account</p>
           <h1
-            className="text-3xl sm:text-4xl font-black text-foreground"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Welcome back, {profile?.name ?? user?.name ?? "Thrifter"}!
-          </h1>
-        </div>
-      </div>
-
-      <div className="container py-8 sm:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {/* Profile Card */}
-          <div className="bg-white border border-border rounded-sm p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-[oklch(0.52_0.22_25)]/10 flex items-center justify-center">
-                <User className="w-6 h-6 text-[oklch(0.52_0.22_25)]" />
-              </div>
-              <div>
-                <p className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {profile?.name ?? user?.name ?? "—"}
-                </p>
-                <p className="text-xs text-muted-foreground" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  {profile?.email ?? user?.email ?? "—"}
-                </p>
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground" style={{ fontFamily: "'Inter', sans-serif" }}>
-              Member since {new Date(profile?.createdAt ?? Date.now()).toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
-            </p>
-          </div>
-
-          {/* Orders Card */}
-          <div className="bg-white border border-border rounded-sm p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-[oklch(0.52_0.22_25)]/10 flex items-center justify-center">
-                <Package className="w-6 h-6 text-[oklch(0.52_0.22_25)]" />
-              </div>
-              <div>
-                <p className="font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Order History</p>
-                <p className="text-xs text-muted-foreground" style={{ fontFamily: "'Inter', sans-serif" }}>Track your purchases</p>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground mb-3" style={{ fontFamily: "'Inter', sans-serif" }}>
-              Your order history is managed through Shopify. Click below to view your orders.
-            </p>
-            <Button
-              variant="outline"
-              className="w-full border-foreground text-sm"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-              onClick={() => window.open("https://shopify.com/account", "_blank")}
-            >
-              View Orders on Shopify
-            </Button>
-          </div>
-
-          {/* Sell Card */}
-          <div className="bg-[oklch(0.52_0.22_25)] text-white rounded-sm p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                <ShoppingBag className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Start Selling</p>
-                <p className="text-xs text-white/70" style={{ fontFamily: "'Inter', sans-serif" }}>Turn clothes into cash</p>
-              </div>
-            </div>
-            <p className="text-sm text-white/80 mb-3" style={{ fontFamily: "'Inter', sans-serif" }}>
-              List your pre-loved items in under 60 seconds with our WhatsApp concierge.
-            </p>
-            <Link href="/sell">
-              <Button
-                className="w-full bg-white text-[oklch(0.52_0.22_25)] hover:bg-white/90 font-semibold text-sm"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-              >
-                Go to Sell Page
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Sign Out */}
-        <div className="mt-8 pt-6 border-t border-border">
-          <Button
-            variant="ghost"
-            onClick={logout}
-            className="text-muted-foreground hover:text-foreground gap-2"
+            className="text-3xl md:text-4xl font-black uppercase"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            <LogOut className="w-4 h-4" />
+            {fullName}
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">{customer?.email}</p>
+        </div>
+
+        <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
+          {/* Profile card */}
+          <div className="bg-white border-2 border-black p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-14 h-14 bg-[#CC2200] text-white flex items-center justify-center text-xl font-black shrink-0">
+                {initials}
+              </div>
+              <div>
+                <p className="font-bold text-lg">{fullName}</p>
+                <p className="text-sm text-gray-500">{customer?.email}</p>
+                {customer?.phone && (
+                  <p className="text-sm text-gray-500">{customer.phone}</p>
+                )}
+              </div>
+            </div>
+
+            {customer?.defaultAddress && (
+              <div className="border-t border-gray-100 pt-4">
+                <div className="flex items-start gap-2 text-sm text-gray-600">
+                  <MapPin size={14} className="mt-0.5 text-[#CC2200] shrink-0" />
+                  <div>
+                    <p className="font-semibold text-black text-xs uppercase tracking-widest mb-1">
+                      Default Address
+                    </p>
+                    <p>{customer.defaultAddress.address1}</p>
+                    {customer.defaultAddress.address2 && (
+                      <p>{customer.defaultAddress.address2}</p>
+                    )}
+                    <p>
+                      {[
+                        customer.defaultAddress.city,
+                        customer.defaultAddress.province,
+                        customer.defaultAddress.zip,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </p>
+                    <p>{customer.defaultAddress.country}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Quick links */}
+          <div className="grid grid-cols-2 gap-3">
+            <a
+              href="/products"
+              className="bg-[#CC2200] text-white p-4 flex items-center justify-between hover:bg-[#aa1a00] transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <ShoppingBag size={14} />
+                <span className="text-xs font-bold uppercase tracking-widest">Shop Now</span>
+              </div>
+              <ChevronRight size={16} />
+            </a>
+            <a
+              href="/sell"
+              className="bg-black text-white p-4 flex items-center justify-between hover:bg-gray-800 transition-colors"
+            >
+              <span className="text-xs font-bold uppercase tracking-widest">Sell an Item</span>
+              <ChevronRight size={16} />
+            </a>
+          </div>
+
+          {/* Orders */}
+          <div className="bg-white border-2 border-black">
+            <div className="flex items-center gap-2 px-6 py-4 border-b-2 border-black">
+              <Package size={16} className="text-[#CC2200]" />
+              <h2 className="font-bold text-sm uppercase tracking-widest">Order History</h2>
+            </div>
+
+            {ordersLoading ? (
+              <div className="p-8 text-center">
+                <div className="w-6 h-6 border-2 border-[#CC2200] border-t-transparent rounded-full animate-spin mx-auto" />
+              </div>
+            ) : orders && orders.length > 0 ? (
+              <div className="divide-y divide-gray-100">
+                {orders.map((order) => (
+                  <div key={order.id} className="px-6 py-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="font-bold text-sm">Order #{order.orderNumber}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(order.processedAt).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-sm text-[#CC2200]">
+                          ₹{parseFloat(order.totalPrice.amount).toLocaleString("en-IN")}
+                        </p>
+                        <span
+                          className={`text-xs font-bold uppercase px-2 py-0.5 ${
+                            order.financialStatus === "PAID"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {order.financialStatus}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      {order.lineItems.nodes.map((item, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          {item.variant?.image && (
+                            <img
+                              src={item.variant.image.url}
+                              alt={item.title}
+                              className="w-10 h-10 object-cover border border-gray-200"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-gray-700 truncate">{item.title}</p>
+                            <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-10 text-center">
+                <Package size={32} className="text-gray-300 mx-auto mb-3" />
+                <p className="text-sm font-bold uppercase tracking-widest text-gray-400">
+                  No orders yet
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Your order history will appear here once you make a purchase.
+                </p>
+                <a
+                  href="/products"
+                  className="inline-block mt-4 bg-[#CC2200] text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#aa1a00] transition-colors"
+                >
+                  Start Shopping
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Sign out */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 border-2 border-black py-3 text-sm font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors"
+          >
+            <LogOut size={14} />
             Sign Out
-          </Button>
+          </button>
         </div>
       </div>
     </StorefrontLayout>

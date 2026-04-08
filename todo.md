@@ -52,3 +52,11 @@
 
 ## UX Fixes
 - [x] Scroll to top on every route navigation (footer links, navbar links, all internal links)
+
+## Shopify Customer Authentication
+- [x] Replace Manus OAuth with Shopify Customer Account API
+- [x] Backend: customerLogin, customerRegister, customerLogout, customerMe, customerOrders procedures
+- [x] Frontend: Login/Register page (/login) with Sign In and Create Account tabs
+- [x] Frontend: Account page showing Shopify customer profile and order history
+- [x] Remove all Manus OAuth UI references from storefront pages
+- [x] Update Navbar account icon to use Shopify auth state (links to /login or /account)
