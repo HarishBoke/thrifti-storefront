@@ -1,89 +1,106 @@
 import { Link } from "wouter";
 import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
 
-const FOOTER_LINKS = {
-  About: [
-    { label: "How Thrifti Works", href: "/how-it-works" },
-    { label: "FAQ's", href: "/faqs" },
-    { label: "Our Story", href: "/about" },
-  ],
-  Community: [
-    { label: "Contact Us", href: "/contact" },
-    { label: "Partner Up", href: "/partner" },
-    { label: "Sell With Us", href: "/sell" },
-  ],
-  Help: [
-    { label: "Returns Policy", href: "/returns" },
-    { label: "Shipping Policy", href: "/shipping" },
-    { label: "Terms of Use", href: "/terms" },
-    { label: "Privacy Policy", href: "/privacy" },
-  ],
-};
+const FOOTER_LINKS = [
+  {
+    heading: "About",
+    links: [
+      { label: "How Thrifti Works?", href: "/about" },
+      { label: "FAQ's", href: "/faqs" },
+    ],
+  },
+  {
+    heading: "Community",
+    links: [
+      { label: "Contact Us", href: "/contact" },
+      { label: "Partner Up", href: "/partner" },
+    ],
+  },
+  {
+    heading: "Help",
+    links: [
+      { label: "Returns Policy", href: "/returns" },
+      { label: "Shipping Policy", href: "/shipping" },
+      { label: "Terms of Use", href: "/terms" },
+      { label: "Privacy Policy", href: "/privacy" },
+    ],
+  },
+];
 
 const SOCIAL_LINKS = [
-  { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
-  { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
-  { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-  { icon: Mail, href: "mailto:hello@thrifti.in", label: "Email" },
+  { icon: Facebook, label: "Facebook", href: "https://facebook.com" },
+  { icon: Instagram, label: "Instagram", href: "https://instagram.com" },
+  { icon: Twitter, label: "Twitter", href: "https://twitter.com" },
+  { icon: Mail, label: "Email", href: "mailto:hello@thrifti.in" },
 ];
 
 export default function Footer() {
   return (
-    <footer className="bg-[oklch(0.52_0.22_25)] text-white">
-      <div className="container py-12 sm:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* Brand Column */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <div className="mb-4">
-              <div
-                className="text-3xl font-black tracking-tight text-white"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}
-              >
-                THRIFTI
-              </div>
-              <div
-                className="text-[9px] tracking-[0.25em] text-white/70 font-semibold uppercase mt-0.5"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-              >
-                BUY · SELL · REPEAT
-              </div>
-            </div>
-            <p className="text-white/80 text-sm leading-relaxed mb-5" style={{ fontFamily: "'Inter', sans-serif" }}>
-              Sell what you've outgrown.<br />
-              Wear what you're becoming.
-            </p>
-            <div className="flex items-center gap-3">
-              {SOCIAL_LINKS.map(({ icon: Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center transition-colors"
-                >
-                  <Icon className="w-4 h-4 text-white" />
-                </a>
-              ))}
-            </div>
-          </div>
+    <footer style={{ backgroundColor: "var(--thrifti-red)" }}>
+      <div className="px-5 sm:px-8 lg:px-12 pt-10 pb-8">
 
-          {/* Link Columns */}
-          {Object.entries(FOOTER_LINKS).map(([section, links]) => (
-            <div key={section}>
-              <h4
-                className="text-white font-semibold text-sm mb-4 tracking-wide"
+        {/* Brand block — matches design: small tagline above huge THRIFTI */}
+        <div className="mb-8 text-center lg:text-left">
+          <p
+            className="text-white/80 text-[10px] font-bold tracking-[0.35em] uppercase mb-1"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            BUY. SELL. REPEAT.
+          </p>
+          <h2
+            className="text-white font-black leading-none"
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "clamp(3.5rem, 18vw, 9rem)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            THRIFTI
+          </h2>
+        </div>
+
+        {/* Tagline + Social */}
+        <div className="mb-8">
+          <p
+            className="text-white/80 text-sm leading-relaxed mb-5"
+            style={{ fontFamily: "'Space Mono', monospace" }}
+          >
+            Sell what you've outgrown.<br />
+            Wear what you're becoming.
+          </p>
+          <div className="flex items-center gap-5">
+            {SOCIAL_LINKS.map(({ icon: Icon, label, href }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="text-white/70 hover:text-white transition-colors"
+              >
+                <Icon className="w-5 h-5" />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Link columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 border-t border-white/20 pt-8">
+          {FOOTER_LINKS.map((col) => (
+            <div key={col.heading}>
+              <h3
+                className="text-white font-bold text-sm mb-3"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                {section}
-              </h4>
-              <ul className="space-y-2.5">
-                {links.map((link) => (
+                {col.heading}
+              </h3>
+              <ul className="flex flex-col gap-2.5">
+                {col.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
                       className="text-white/70 hover:text-white text-sm transition-colors"
-                      style={{ fontFamily: "'Inter', sans-serif" }}
+                      style={{ fontFamily: "'Space Mono', monospace" }}
                     >
                       {link.label}
                     </Link>
@@ -94,12 +111,18 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-white/20 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-white/60 text-xs" style={{ fontFamily: "'Inter', sans-serif" }}>
+        {/* Bottom bar */}
+        <div className="mt-8 pt-6 border-t border-white/20 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p
+            className="text-white/50 text-xs"
+            style={{ fontFamily: "'Space Mono', monospace" }}
+          >
             © {new Date().getFullYear()} Thrifti. All rights reserved.
           </p>
-          <p className="text-white/60 text-xs" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <p
+            className="text-white/50 text-xs"
+            style={{ fontFamily: "'Space Mono', monospace" }}
+          >
             Built for Bangalore. Made for India.
           </p>
         </div>

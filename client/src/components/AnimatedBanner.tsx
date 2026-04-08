@@ -1,38 +1,43 @@
 export default function AnimatedBanner() {
-  const items = Array(12).fill("SELL * EVOLVE * BUY");
-  const text = items.join("   ");
+  const segment = "SELL * EVOLVE * BUY   ";
+  const repeated = segment.repeat(16);
 
   return (
     <div
-      className="overflow-hidden bg-[oklch(0.52_0.22_25)] py-2.5"
+      className="overflow-hidden py-3"
+      style={{ backgroundColor: "var(--thrifti-red)" }}
       aria-label="Thrifti tagline banner"
     >
-      <div className="flex">
-        <div
-          className="whitespace-nowrap"
+      <div
+        className="whitespace-nowrap"
+        style={{
+          display: "inline-flex",
+          animation: "ticker 22s linear infinite",
+        }}
+      >
+        <span
+          className="text-white font-black text-sm sm:text-base"
           style={{
-            animation: "ticker 25s linear infinite",
-            display: "inline-flex",
-            alignItems: "center",
+            fontFamily: "'Space Grotesk', sans-serif",
+            letterSpacing: "0.12em",
           }}
         >
-          {Array(3)
-            .fill(null)
-            .map((_, i) => (
-              <span
-                key={i}
-                className="text-white text-xs sm:text-sm font-grotesk font-semibold tracking-[0.2em] uppercase px-8"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-              >
-                {text}
-              </span>
-            ))}
-        </div>
+          {repeated}
+        </span>
+        <span
+          className="text-white font-black text-sm sm:text-base"
+          style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            letterSpacing: "0.12em",
+          }}
+        >
+          {repeated}
+        </span>
       </div>
       <style>{`
         @keyframes ticker {
           0% { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
+          100% { transform: translateX(-50%); }
         }
       `}</style>
     </div>

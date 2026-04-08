@@ -99,7 +99,7 @@ export default function Sell() {
               List in less than 60 seconds. Literally.
             </p>
             <a
-              href="https://wa.me/919999999999?text=Hey!+I+want+to+sell+on+Thrifti"
+              href="https://wa.me/918065253722?text=Hey!+I+want+to+sell+on+Thrifti"
               target="_blank"
               rel="noopener noreferrer"
             >

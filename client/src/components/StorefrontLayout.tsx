@@ -11,9 +11,9 @@ interface StorefrontLayoutProps {
 
 export default function StorefrontLayout({ children, showBanner = true }: StorefrontLayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col">
-      {showBanner && <AnimatedBanner />}
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--thrifti-cream)" }}>
       <Navbar />
+      {showBanner && <AnimatedBanner />}
       <main className="flex-1">{children}</main>
       <Footer />
       <CartDrawer />

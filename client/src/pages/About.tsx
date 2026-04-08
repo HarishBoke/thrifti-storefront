@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import StorefrontLayout from "@/components/StorefrontLayout";
 import { MessageCircle } from "lucide-react";
 
-const WHATSAPP_NUMBER = "919999999999";
+const WHATSAPP_NUMBER = "918065253722";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Hey!%20I%20want%20to%20know%20more%20about%20Thrifti`;
 
 export default function About() {

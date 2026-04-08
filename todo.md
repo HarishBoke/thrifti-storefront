@@ -1,5 +1,6 @@
 # Thrifti Storefront TODO
 
+## Core Features
 - [x] Project foundation: schema, Shopify API layer, global styles
 - [x] Shopify Storefront API integration (products, collections, cart)
 - [x] Global navigation header with logo, search, cart icon, mobile menu
@@ -20,3 +21,18 @@
 - [x] Shared Shopify types (safe for client import, no process.env)
 - [x] Fully responsive design (mobile/tablet/desktop)
 - [x] Vitest unit tests (15 tests passing)
+
+## Design Alignment Tasks (iPhone 16 Plus Mobile Design)
+- [x] Update WhatsApp number to +91 80652 53722 across all pages
+- [x] Analyze mobile design PDF and extract design tokens
+- [x] Rebuild homepage to pixel-perfectly match iPhone 16 Plus mobile design
+- [x] Rebuild Navbar to match mobile design (BUY.SELL.REPEAT. tagline, red THRIFTI logo)
+- [x] Rebuild Footer to match mobile design (large THRIFTI wordmark, red background)
+- [x] Fix AnimatedBanner text to use SELL * EVOLVE * BUY with asterisks
+- [x] Upload exact polaroid photos from design to CDN (SELL/BUY/REPEAT)
+- [x] Update hero section with dark warehouse photo
+- [x] Update "COMPLETE THE LOOK" puzzle section with correct photos
+- [x] Update "BUILT FOR BANGALORE" section with correct photos
+- [x] Update fashion show dark section with correct photo
+- [x] Derive and implement desktop layout from mobile design
+- [x] Verify full responsiveness across mobile/tablet/desktop
