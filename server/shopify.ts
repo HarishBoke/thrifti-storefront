@@ -88,7 +88,7 @@ export interface CartLine {
     id: string;
     title: string;
     price: { amount: string; currencyCode: string };
-    product: { title: string; handle: string; featuredImage: ShopifyImage | null };
+    product: { title: string; handle: string; vendor: string; productType: string; featuredImage: ShopifyImage | null; images: { nodes: ShopifyImage[] } };
   };
   cost: {
     totalAmount: { amount: string; currencyCode: string };
@@ -279,7 +279,7 @@ export async function createCart(
                 ... on ProductVariant {
                   id title
                   price { amount currencyCode }
-                  product { title handle featuredImage { url altText width height } }
+                  product { title handle vendor productType featuredImage { url altText width height } images(first: 1) { nodes { url altText width height } } }
                 }
               }
               cost { totalAmount { amount currencyCode } }
@@ -315,7 +315,7 @@ export async function getCart(cartId: string): Promise<ShopifyCart | null> {
               ... on ProductVariant {
                 id title
                 price { amount currencyCode }
-                product { title handle featuredImage { url altText width height } }
+                product { title handle vendor productType featuredImage { url altText width height } images(first: 1) { nodes { url altText width height } } }
               }
             }
             cost { totalAmount { amount currencyCode } }
@@ -353,7 +353,7 @@ export async function addCartLines(
                 ... on ProductVariant {
                   id title
                   price { amount currencyCode }
-                  product { title handle featuredImage { url altText width height } }
+                  product { title handle vendor productType featuredImage { url altText width height } images(first: 1) { nodes { url altText width height } } }
                 }
               }
               cost { totalAmount { amount currencyCode } }
@@ -393,7 +393,7 @@ export async function updateCartLines(
                 ... on ProductVariant {
                   id title
                   price { amount currencyCode }
-                  product { title handle featuredImage { url altText width height } }
+                  product { title handle vendor productType featuredImage { url altText width height } images(first: 1) { nodes { url altText width height } } }
                 }
               }
               cost { totalAmount { amount currencyCode } }
@@ -433,7 +433,7 @@ export async function removeCartLines(
                 ... on ProductVariant {
                   id title
                   price { amount currencyCode }
-                  product { title handle featuredImage { url altText width height } }
+                  product { title handle vendor productType featuredImage { url altText width height } images(first: 1) { nodes { url altText width height } } }
                 }
               }
               cost { totalAmount { amount currencyCode } }

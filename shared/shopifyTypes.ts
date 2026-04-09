@@ -68,7 +68,10 @@ export interface CartLine {
     product: {
       title: string;
       handle: string;
+      vendor: string;
+      productType: string;
       featuredImage: ShopifyImage | null;
+      images: { nodes: ShopifyImage[] };
     };
   };
   cost: {
