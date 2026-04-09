@@ -167,6 +167,37 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React core
+          "vendor-react": ["react", "react-dom"],
+          // Routing
+          "vendor-router": ["wouter"],
+          // tRPC + TanStack Query
+          "vendor-trpc": ["@trpc/client", "@trpc/react-query", "@trpc/server", "@tanstack/react-query"],
+          // UI: Radix primitives
+          "vendor-radix": [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-select",
+            "@radix-ui/react-tabs",
+            "@radix-ui/react-accordion",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-tooltip",
+          ],
+          // Animation
+          "vendor-motion": ["framer-motion"],
+          // Icons
+          "vendor-icons": ["lucide-react"],
+          // Charts
+          "vendor-charts": ["recharts"],
+          // Date utilities
+          "vendor-date": ["date-fns", "react-day-picker"],
+        },
+      },
+    },
   },
   server: {
     host: true,
