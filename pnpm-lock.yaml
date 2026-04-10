@@ -187,6 +187,9 @@ importers:
       react-hook-form:
         specifier: ^7.64.0
         version: 7.64.0(react@19.2.1)
+      react-jigsaw:
+        specifier: github:arissafram/react-jigsaw
+        version: https://codeload.github.com/arissafram/react-jigsaw/tar.gz/3121d4ce7bdb53e7a1a2e5c28b8a8245d286f308(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react-resizable-panels:
         specifier: ^3.0.6
         version: 3.0.6(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -3835,6 +3838,13 @@ packages:
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
+
+  react-jigsaw@https://codeload.github.com/arissafram/react-jigsaw/tar.gz/3121d4ce7bdb53e7a1a2e5c28b8a8245d286f308:
+    resolution: {tarball: https://codeload.github.com/arissafram/react-jigsaw/tar.gz/3121d4ce7bdb53e7a1a2e5c28b8a8245d286f308}
+    version: 1.0.0
+    peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
 
   react-markdown@10.1.0:
     resolution: {integrity: sha512-qKxVopLT/TyA6BX3Ue5NwabOsAzm0Q7kAPwq6L+wWDwisYs7R8vZ0nRXqq6rkueboxpkjvLGU9fWifiX/ZZFxQ==}
@@ -8532,6 +8542,11 @@ snapshots:
   react-is@16.13.1: {}
 
   react-is@18.3.1: {}
+
+  react-jigsaw@https://codeload.github.com/arissafram/react-jigsaw/tar.gz/3121d4ce7bdb53e7a1a2e5c28b8a8245d286f308(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
+    dependencies:
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
 
   react-markdown@10.1.0(@types/react@19.2.1)(react@19.2.1):
     dependencies:

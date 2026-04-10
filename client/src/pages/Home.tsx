@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import StorefrontLayout from "@/components/StorefrontLayout";
 import { trpc } from "@/lib/trpc";
 import ProductCard from "@/components/ProductCard";
+import { Puzzle } from "react-jigsaw";
+import "react-jigsaw/styles";
 
 // Launch date: 26 April 2026 midnight IST (UTC+5:30)
 const LAUNCH_DATE = new Date("2026-04-26T00:00:00+05:30");
@@ -110,7 +112,9 @@ function CountdownBanner() {
 export default function Home() {
   const { data: productsData, isLoading: productsLoading } = trpc.products.list.useQuery({ first: 8, reverse: true });
   const featuredProducts = productsData?.products ?? [];
-
+  const [puzzleSolved, setPuzzleSolved] = useState(false);
+  const [puzzleKey, setPuzzleKey] = useState(0);
+  const PROMO_CODE = "THRIFTI-FREE";
   return (
     <StorefrontLayout>
 
@@ -267,42 +271,87 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== SECTION 3: COMPLETE THE LOOK (Red bg) ===== */}
+      {/* ===== SECTION 3: COMPLETE THE LOOK — Interactive Jigsaw Puzzle ===== */}
       <section style={{ backgroundColor: "var(--thrifti-red)" }}>
         <div className="grid grid-cols-1 lg:grid-cols-2">
-          {/* Left: Puzzle image */}
-          <div className="px-6 sm:px-10 lg:px-12 py-10 flex flex-col items-start justify-center">
-            <div className="relative" style={{ maxWidth: "280px", width: "100%" }}>
-              <div className="relative overflow-hidden" style={{ border: "3px solid white" }}>
-                <img
-                  src={CDN.puzzlePhoto}
-                  alt="Complete the look"
-                  className="w-full block"
-                  style={{ aspectRatio: "4/5", objectFit: "cover" }}
-                />
-                {/* Puzzle grid overlay */}
+          {/* Left: Interactive Jigsaw Puzzle */}
+          <div className="px-6 sm:px-10 lg:px-12 py-10 flex flex-col items-center justify-center">
+            {puzzleSolved ? (
+              <div
+                className="flex flex-col items-center justify-center text-center"
+                style={{ minHeight: "320px" }}
+              >
+                <div className="text-6xl mb-4">🎉</div>
+                <h3 className="font-black text-white text-2xl mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  OUTFIT UNLOCKED!
+                </h3>
+                <p className="text-white text-sm mb-4 opacity-90" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Your free delivery code:
+                </p>
                 <div
-                  className="absolute inset-0 pointer-events-none"
+                  className="px-6 py-3 font-black text-xl tracking-widest mb-4"
+                  style={{ backgroundColor: "white", color: "var(--thrifti-red)", fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "0.15em" }}
+                >
+                  {PROMO_CODE}
+                </div>
+                <p className="text-white text-xs opacity-75 mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Apply at checkout for free delivery on your next order
+                </p>
+                <button
+                  onClick={() => { setPuzzleSolved(false); setPuzzleKey(k => k + 1); }}
+                  className="text-white underline text-xs opacity-75"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", background: "none", border: "none", cursor: "pointer" }}
+                >
+                  Play again
+                </button>
+              </div>
+            ) : (
+              <div style={{ width: "100%", maxWidth: "340px" }}>
+                <p
+                  className="text-white text-xs mb-3 text-center font-bold tracking-widest uppercase"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  Solve the puzzle to unlock free delivery
+                </p>
+                <div
+                  key={puzzleKey}
                   style={{
-                    backgroundImage: "linear-gradient(to right, rgba(232,41,28,0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(232,41,28,0.5) 1px, transparent 1px)",
-                    backgroundSize: "33.33% 33.33%",
+                    borderRadius: "4px",
+                    overflow: "hidden",
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
                   }}
-                />
+                >
+                  <Puzzle
+                    image={CDN.puzzlePhoto}
+                    onComplete={() => setPuzzleSolved(true)}
+                    onRefresh={() => setPuzzleSolved(false)}
+                    options={{
+                      board: {
+                        columns: 3,
+                        rows: 3,
+                        width: 300,
+                        height: 360,
+                        snapThreshold: 25,
+                        showBoardSlotOutlines: true,
+                        outlineStrokeColor: "rgba(255,255,255,0.4)",
+                        scatterArea: 0,
+                      },
+                      puzzle: {
+                        responsive: true,
+                        timer: { enabled: true },
+                        refreshButton: { enabled: true },
+                        rowsAndColumns: { enabled: false },
+                      },
+                      puzzlePiece: {
+                        strokeColor: "rgba(255,255,255,0.8)",
+                        strokeEnabled: true,
+                      },
+                    }}
+                  />
+                </div>
               </div>
-              {/* Thumbnail strip A, B, C */}
-              <div className="flex gap-2 mt-3">
-                {["A", "B", "C"].map((label) => (
-                  <div key={label} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full overflow-hidden" style={{ border: "2px solid white", aspectRatio: "1/1" }}>
-                      <img src={CDN.puzzlePhoto} alt={`Piece ${label}`} className="w-full h-full object-cover" />
-                    </div>
-                    <span className="text-white font-black text-xs" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            )}
           </div>
-
           {/* Right: Text content */}
           <div className="px-6 sm:px-10 lg:px-12 py-10 flex flex-col justify-center">
             <h2
@@ -322,7 +371,7 @@ export default function Home() {
               </span>
             </div>
             <h2
-              className="font-black leading-tight mb-8 text-white"
+              className="font-black leading-tight mb-4 text-white"
               style={{
                 fontFamily: "'Playfair Display', serif",
                 fontSize: "clamp(2rem, 4vw, 3rem)",
@@ -331,18 +380,34 @@ export default function Home() {
             >
               ON YOUR<br />NEXT FIND
             </h2>
-            <Link href="/products">
-              <button
-                className="inline-flex items-center px-6 py-3 font-black text-sm tracking-widest uppercase"
-                style={{ backgroundColor: "var(--thrifti-dark)", color: "white", fontFamily: "'Space Grotesk', sans-serif", border: "none" }}
+            <p
+              className="text-white text-sm mb-8 opacity-90"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              Drag and drop the pieces to complete the outfit. Solve it to claim your free delivery code!
+            </p>
+            {puzzleSolved ? (
+              <Link href="/products">
+                <button
+                  className="inline-flex items-center px-6 py-3 font-black text-sm tracking-widest uppercase"
+                  style={{ backgroundColor: "var(--thrifti-dark)", color: "white", fontFamily: "'Space Grotesk', sans-serif", border: "none" }}
+                >
+                  SHOP NOW →
+                </button>
+              </Link>
+            ) : (
+              <div
+                className="inline-flex items-center gap-2 px-4 py-2"
+                style={{ backgroundColor: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.3)" }}
               >
-                CLAIM CODE
-              </button>
-            </Link>
+                <span className="text-white text-xs opacity-75" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  🧩 Solve the puzzle on the left to unlock your code
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </section>
-
       {/* ===== SECTION 4: BUILT FOR BANGALORE ===== */}
       <section style={{ backgroundColor: "var(--thrifti-cream)" }}>
         <div className="px-6 sm:px-10 lg:px-16 py-12 sm:py-16">
