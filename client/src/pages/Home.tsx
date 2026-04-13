@@ -1,11 +1,23 @@
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import StorefrontLayout from "@/components/StorefrontLayout";
+import { ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import ProductCard from "@/components/ProductCard";
 import { Puzzle } from "react-jigsaw";
 import "react-jigsaw/styles";
-
+import homePageBanner from "@/assets/img/home-page-banner.png";
+import homeBannerModel from "@/assets/img/home-banner-model.png";
+import homeBannerModel1 from "@/assets/img/home-banner-model1.png";
+import transitionfundImage from "@/assets/img/transition-fund.png";
+import transitionfundImage1 from "@/assets/img/transitionfundImage1.png";
+import puzzlePhoto from "@/assets/img/puzzlePhoto.png";
+import built1 from "@/assets/img/Built1.png";
+import built2 from "@/assets/img/Built2.png";
+import built3 from "@/assets/img/Built3.png";
+import repeatPolaroid from "@/assets/img/Repeat.png";
+import repeat1Polaroid from "@/assets/img/Repeat1.png";
+import launchingImage from "@/assets/img/launching.png";
 // Launch date: 26 April 2026 midnight IST (UTC+5:30)
 const LAUNCH_DATE = new Date("2026-04-26T00:00:00+05:30");
 
@@ -87,7 +99,7 @@ function CountdownBanner() {
   if (launched) {
     return (
       <div className="mb-6">
-        <span className="inline-block text-white font-black text-sm uppercase tracking-[0.3em] px-4 py-2 border border-white/40" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+        <span className="anek-devanagari-font inline-block text-white font-black text-sm uppercase tracking-[0.3em] px-4 py-2 border border-white/40">
           WE'RE LIVE!
         </span>
       </div>
@@ -112,217 +124,205 @@ function CountdownBanner() {
 export default function Home() {
   const { data: productsData, isLoading: productsLoading } = trpc.products.list.useQuery({ first: 8, reverse: true });
   const featuredProducts = productsData?.products ?? [];
+  const builtSlides = [built1, built2, built3];
+  const [activeBuiltSlide, setActiveBuiltSlide] = useState(0);
+  const [visibleBuiltSlides, setVisibleBuiltSlides] = useState(1);
   const [puzzleSolved, setPuzzleSolved] = useState(false);
   const [puzzleKey, setPuzzleKey] = useState(0);
   const PROMO_CODE = "THRIFTI-FREE";
+
+  useEffect(() => {
+    const updateVisibleSlides = () => {
+      if (window.innerWidth >= 1024) {
+        setVisibleBuiltSlides(3);
+      } else if (window.innerWidth >= 768) {
+        setVisibleBuiltSlides(2);
+      } else {
+        setVisibleBuiltSlides(1);
+      }
+    };
+
+    updateVisibleSlides();
+    window.addEventListener("resize", updateVisibleSlides);
+    return () => window.removeEventListener("resize", updateVisibleSlides);
+  }, []);
+
+  useEffect(() => {
+    const maxStart = Math.max(0, builtSlides.length - visibleBuiltSlides);
+    setActiveBuiltSlide((prev) => Math.min(prev, maxStart));
+  }, [visibleBuiltSlides, builtSlides.length]);
+
+  const goToPrevBuiltSlide = () => {
+    const maxStart = Math.max(0, builtSlides.length - visibleBuiltSlides);
+    if (maxStart === 0) return;
+    setActiveBuiltSlide((prev) => (prev <= 0 ? maxStart : prev - 1));
+  };
+
+  const goToNextBuiltSlide = () => {
+    const maxStart = Math.max(0, builtSlides.length - visibleBuiltSlides);
+    if (maxStart === 0) return;
+    setActiveBuiltSlide((prev) => (prev >= maxStart ? 0 : prev + 1));
+  };
   return (
     <StorefrontLayout>
 
       {/* ===== SECTION 1: HERO — Full-bleed with BANNER11-2 image ===== */}
-      <section className="relative overflow-hidden" style={{ backgroundColor: "#1a1008", minHeight: "80vh" }}>
-        {/* Hero image — man in gold jacket */}
-        <img
-          src="/hero-main.png"
-          alt="Thrifti — Built for how you show up"
-          className="absolute inset-0 w-full h-full object-cover object-top"
-          style={{ opacity: 0.92 }}
-        />
-        {/* Dark gradient overlay on left */}
+      <section className="bg-[var(--thrifti-cream)]">
         <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)" }}
-        />
-        {/* Hero content */}
-        <div className="relative z-10 px-6 sm:px-10 lg:px-16 flex flex-col justify-end" style={{ minHeight: "80vh", paddingBottom: "4rem" }}>
-          <div className="max-w-md">
-            <h1
-              className="font-black leading-none text-white mb-3"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "clamp(3rem, 8vw, 5.5rem)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              BUILT FOR<br />HOW YOU<br />SHOW UP
-            </h1>
-            <p
-              className="text-white/75 text-xs sm:text-sm tracking-[0.25em] uppercase mb-8"
-              style={{ fontFamily: "'Space Mono', monospace" }}
-            >
-              WORK. WEEKENDS. EVERYTHING IN BETWEEN.
-            </p>
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="thrifti-btn-red inline-flex text-sm font-black tracking-widest"
-            >
-              SELL NOW
-            </a>
+          className="min-h-[560px] sm:min-h-[620px] lg:min-h-[680px] bg-cover bg-no-repeat flex items-end"
+          style={{ backgroundImage: `url(${homeBannerModel1})` }}
+        >
+          <div className="h-full flex items-end w-full">
+            <div className="px-6 sm:px-10 lg:px-20 pb-10 sm:pb-14 lg:pb-16">
+              <h1 className="vogue-font text-white uppercase leading-tight tracking-[-0.01em] text-[52px] sm:text-[60px] 2xl:text-[64px]">
+                Built for
+                <br />
+                how you
+                <br />
+                show up
+              </h1>
+              <p className="geist-mono-font mt-3 sm:mt-4 text-white uppercase tracking-[0.08em] text-sm sm:text-xl">
+                Work. Weekends. Everything in between.
+              </p>
+              <div className="mt-10">
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="thrifti-btn-red inline-flex"
+                >
+                  Sell now
+                </a>
+              </div>
+            </div>
           </div>
         </div>
+        {/* ===== ANIMATED TICKER ===== */}
+        <AnimatedTicker />
       </section>
 
-      {/* ===== ANIMATED TICKER ===== */}
-      <AnimatedTicker />
 
       {/* ===== SECTION 2: YOUR WARDROBE IS A TRANSITION FUND ===== */}
-      <section className="relative overflow-hidden" style={{ backgroundColor: "var(--thrifti-cream)" }}>
-        {/* Watermark background — right side only */}
-        <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true" style={{ zIndex: 0 }}>
-          {WATERMARK.map((w, i) => (
-            <span
-              key={i}
-              className="absolute font-black leading-none"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: w.size,
-                color: "rgba(0,0,0,0.07)",
-                transform: `rotate(${w.rotate})`,
-                left: w.x,
-                top: w.y,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {w.word}
-              {i % 3 !== 2 && (
-                <span style={{ color: "rgba(232,41,28,0.25)", fontSize: "0.4em", verticalAlign: "middle", margin: "0 0.3em" }}>✳</span>
-              )}
-            </span>
-          ))}
-        </div>
+      <section className=" bg-[#F5F1E9]">
+        <div className="flex flex-col lg:flex-row lg:items-center">
+          <div className="w-full lg:w-1/2 order-2 lg:order-1">
+            <div className="px-5 py-10 sm:px-8 md:px-10 md:py-12 2xl:px-16">
+              <h2 className="mb-5 md:mb-6 2xl:mb-8 vogue-font uppercase leading-tight text-3xl sm:text-4xl md:text-[2.6rem] lg:text-5xl 2xl:text-6xl hidden lg:block">
+                YOUR WARDROBE IS A TRANSITION FUND
+              </h2>
 
-        <div className="relative grid grid-cols-1 lg:grid-cols-2" style={{ zIndex: 1 }}>
-          {/* Left: Text content */}
-          <div className="px-6 sm:px-10 lg:px-16 py-14 sm:py-20 flex flex-col justify-center">
-            <h2
-              className="font-black leading-tight mb-6"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "clamp(2rem, 5vw, 3.5rem)",
-                color: "var(--thrifti-dark)",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              YOUR WARDROBE<br />IS A TRANSITION<br />FUND
-            </h2>
-            <p
-              className="font-black mb-6 leading-tight"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "clamp(1.3rem, 3vw, 2rem)",
-                color: "var(--thrifti-dark)",
-              }}
-            >
-              List In Less<br />
-              Than 60 Seconds{" "}
-              <span className="italic underline decoration-2" style={{ color: "var(--thrifti-red)", textDecorationColor: "var(--thrifti-red)" }}>
-                Literally
-              </span>
-            </p>
+              <div className="2xl:mb-6 mb-4 md:mb-5 anek-devanagari-font leading-tight text-[var(--thrifti-dark)] text-2xl md:text-[1.95rem] lg:text-3xl 2xl:text-[2.5rem] font-semibold">
+                List In Less
+                <p>
+                  Than 60 Seconds{" "}
+                  <span className="text-[var(--thrifti-red)] underline decoration-2 decoration-[var(--thrifti-red)] underline-offset-4">
+                    Literally
+                  </span>
+                </p>
+              </div>
 
-            {/* Steps */}
-            <div className="flex flex-col gap-5 mb-10 max-w-xs">
-              {[
-                { label: "PING US", desc: 'Shoot us a "Hey!, Hi!" on WhatsApp.' },
-                { label: "SNAP", desc: "Take a clean photo of your item." },
-                { label: "SELL", desc: "Get paid & ship with our concierge." },
-              ].map((step) => (
-                <div key={step.label}>
-                  <p className="font-black text-sm tracking-wider mb-0.5" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-red)" }}>
-                    {step.label}
-                  </p>
-                  <p className="text-xs leading-relaxed" style={{ fontFamily: "'Space Mono', monospace", color: "var(--thrifti-dark)" }}>
-                    {step.desc}
-                  </p>
-                </div>
-              ))}
+              <div className="mb-8 md:mb-10 flex max-w-sm md:max-w-[30rem] flex-col 2xl:gap-6 gap-4 md:gap-5">
+                {[
+                  { label: "PING US", desc: 'Shoot us a "Hey!, Hi!" on WhatsApp.' },
+                  { label: "SNAP", desc: "Take a clean photo of your item." },
+                  { label: "SELL", desc: "Get paid & ship with our concierge." },
+                ].map((step) => (
+                  <div key={step.label}>
+                    <h4 className="mb-0 anek-devanagari-font text-base md:text-lg lg:text-xl 2xl:text-3xl font-semibold uppercase text-[var(--thrifti-red)]">
+                      {step.label}
+                    </h4>
+                    <p className="geist-mono-font 2xl:text-base text-sm md:text-[15px] font-normal leading-relaxed text-[var(--thrifti-dark)]">
+                      {step.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="thrifti-btn-red inline-flex text-sm md:text-base 2xl:text-2xl"
+              >
+                START SELLING
+              </a>
             </div>
-
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="thrifti-btn-red inline-flex text-sm font-black tracking-widest self-start"
-            >
-              START SELLING
-            </a>
           </div>
 
-          {/* Right: Sell section image (Group96 — phone photographing jacket) */}
-          <div className="relative flex items-stretch overflow-hidden" style={{ minHeight: "420px" }}>
-            <img
-              src="/sell-section-bg.png"
-              alt="Sell on Thrifti"
-              className="w-full object-cover object-center"
-            />
-            {/* "SELL ON THRIFTI" badge */}
-            <div
-              className="absolute bottom-6 right-6 px-4 py-2 text-white font-black text-xs tracking-widest uppercase"
-              style={{
-                backgroundColor: "var(--thrifti-dark)",
-                fontFamily: "'Space Grotesk', sans-serif",
-                transform: "rotate(-2deg)",
-              }}
-            >
-              SELL ON THRIFTI
+          <div className="mt-12 md:mt-14 lg:mt-0 lg:flex w-full items-center justify-center px-4 sm:px-8 md:px-10 lg:w-1/2 lg:px-10 order-1 lg:order-2 relative">
+            <div className="flex items-center justify-center">
+              <h2 className="mb-5 md:mb-6 font-['Playfair_Display',serif] uppercase leading-tight text-3xl sm:text-4xl md:text-[2.6rem] lg:hidden text-center w-[20ch]">
+                YOUR WARDROBE IS A TRANSITION FUND
+              </h2>
+            </div>
+            <div className="w-full flex justify-center">
+              <img
+                src={transitionfundImage}
+                alt="Sell on Thrifti — photograph your item to list"
+                className="h-auto object-contain hidden lg:block max-w-[96%]"
+              />
+
+              <img
+                src={transitionfundImage1}
+                alt="Sell on Thrifti — photograph your item to list"
+                className="h-auto object-contain block lg:hidden w-full md:max-w-[92%]"
+              />
+            </div>
+            <div className="absolute bottom-8 right-4 sm:right-10 md:right-20 md:bottom-2 lg:right-16 lg:-bottom-4 -rotate-[6deg] bg-white px-4 md:px-5 py-2 shadow-md">
+              <p className="font-['Space_Mono',monospace] text-sm md:text-base font-bold uppercase tracking-widest text-[var(--thrifti-dark)] sm:text-lg">
+                SELL ON THRIFTI
+              </p>
             </div>
           </div>
         </div>
+
+        {/* <div className="h-16 w-full bg-[var(--thrifti-red)] sm:h-20" aria-hidden /> */}
       </section>
 
       {/* ===== SECTION 3: COMPLETE THE LOOK — Interactive Jigsaw Puzzle ===== */}
-      <section style={{ backgroundColor: "var(--thrifti-red)" }}>
-        <div className="grid grid-cols-1 lg:grid-cols-2">
-          {/* Left: Interactive Jigsaw Puzzle */}
-          <div className="px-6 sm:px-10 lg:px-12 py-10 flex flex-col items-center justify-center">
+      <section className="bg-[var(--thrifti-red)]">
+        <div className="flex flex-col lg:flex-row px-5 sm:px-8 lg:px-16 pt-10 pb-10 lg:pb-0 lg:pt-20">
+          {/* Puzzle photo with grid overlay */}
+          <div className="relative w-full lg:w-1/2 mb-5 lg:-mb-20 flex items-center justify-center lg:justify-start">
             {puzzleSolved ? (
               <div
-                className="flex flex-col items-center justify-center text-center"
-                style={{ minHeight: "320px" }}
+                className="flex flex-col items-center justify-center text-center min-h-[320px]"
               >
                 <div className="text-6xl mb-4">🎉</div>
-                <h3 className="font-black text-white text-2xl mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h3 className="vogue-font font-black text-white text-2xl mb-2">
                   OUTFIT UNLOCKED!
                 </h3>
-                <p className="text-white text-sm mb-4 opacity-90" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <p className="anek-devanagari-font text-white text-sm mb-4 opacity-90">
                   Your free delivery code:
                 </p>
                 <div
-                  className="px-6 py-3 font-black text-xl tracking-widest mb-4"
-                  style={{ backgroundColor: "white", color: "var(--thrifti-red)", fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "0.15em" }}
+                  className="px-6 py-3 font-black text-xl tracking-[0.15em] mb-4 bg-white text-[var(--thrifti-red)] anek-devanagari-font"
                 >
                   {PROMO_CODE}
                 </div>
-                <p className="text-white text-xs opacity-75 mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <p className="anek-devanagari-font text-white text-xs opacity-75 mb-4">
                   Apply at checkout for free delivery on your next order
                 </p>
                 <button
                   onClick={() => { setPuzzleSolved(false); setPuzzleKey(k => k + 1); }}
-                  className="text-white underline text-xs opacity-75"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", background: "none", border: "none", cursor: "pointer" }}
+                  className="anek-devanagari-font text-white underline text-xs opacity-75 bg-transparent border-none cursor-pointer"
                 >
                   Play again
                 </button>
               </div>
             ) : (
-              <div style={{ width: "100%", maxWidth: "340px" }}>
+              <div className="w-full lg:max-w-3/4 mx-auto p-4 bg-white shadow-[0_6px_20px_rgba(0,0,0,0.25)]">
                 <p
-                  className="text-white text-xs mb-3 text-center font-bold tracking-widest uppercase"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  className="anek-devanagari-font text-[var(--thrifti-dark)] text-xs mb-3 text-center font-bold tracking-widest uppercase"
                 >
                   Solve the puzzle to unlock free delivery
                 </p>
                 <div
                   key={puzzleKey}
-                  style={{
-                    borderRadius: "4px",
-                    overflow: "hidden",
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
-                  }}
+                  className="overflow-hidden"
                 >
                   <Puzzle
-                    image={CDN.puzzlePhoto}
+                    image={puzzlePhoto}
                     onComplete={() => setPuzzleSolved(true)}
                     onRefresh={() => setPuzzleSolved(false)}
                     options={{
@@ -333,7 +333,7 @@ export default function Home() {
                         height: 360,
                         snapThreshold: 25,
                         showBoardSlotOutlines: true,
-                        outlineStrokeColor: "rgba(255,255,255,0.4)",
+                        outlineStrokeColor: "rgba(0,0,0,0.75)",
                         scatterArea: 0,
                       },
                       puzzle: {
@@ -343,7 +343,7 @@ export default function Home() {
                         rowsAndColumns: { enabled: false },
                       },
                       puzzlePiece: {
-                        strokeColor: "rgba(255,255,255,0.8)",
+                        strokeColor: "rgba(0,0,0,0.9)",
                         strokeEnabled: true,
                       },
                     }}
@@ -352,187 +352,193 @@ export default function Home() {
               </div>
             )}
           </div>
-          {/* Right: Text content */}
-          <div className="px-6 sm:px-10 lg:px-12 py-10 flex flex-col justify-center">
+          {/* Text */}
+          <div className=" text-white w-full lg:w-1/2 pr-0 2xl:pr-20">
             <h2
-              className="font-black leading-tight mb-4 text-white"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "clamp(2rem, 4vw, 3rem)",
-                letterSpacing: "-0.01em",
-              }}
+              className="vogue-font tracking-[0.02em] mb-4 lg:mb-8 uppercase text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl text-center lg:text-left"
             >
-              COMPLETE THE<br />LOOK AND UNLOCK
+              COMPLETE THE LOOK AND UNLOCK
             </h2>
-            {/* FREE DELIVERY badge */}
-            <div className="inline-block mb-4 px-4 py-2" style={{ backgroundColor: "white", border: "3px solid var(--thrifti-dark)" }}>
-              <span className="font-black text-2xl sm:text-3xl tracking-tight" style={{ fontFamily: "'Playfair Display', serif", color: "var(--thrifti-dark)" }}>
+            <div
+              className="border-2 bg-white text-black border-white px-6 py-3 mb-4 lg:mb-6 shadow-lg -rotate-2 flex items-center justify-center"
+            >
+              <span
+                className="vogue-font text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl"
+              >
                 FREE DELIVERY
               </span>
             </div>
-            <h2
-              className="font-black leading-tight mb-4 text-white"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "clamp(2rem, 4vw, 3rem)",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              ON YOUR<br />NEXT FIND
-            </h2>
             <p
-              className="text-white text-sm mb-8 opacity-90"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              className="mb-4 vogue-font uppercase leading-tight text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl w-full lg:w-[10ch] text-center lg:text-left"
             >
-              Drag and drop the pieces to complete the outfit. Solve it to claim your free delivery code!
+              ON YOUR NEXT FIND
             </p>
-            {puzzleSolved ? (
-              <Link href="/products">
-                <button
-                  className="inline-flex items-center px-6 py-3 font-black text-sm tracking-widest uppercase"
-                  style={{ backgroundColor: "var(--thrifti-dark)", color: "white", fontFamily: "'Space Grotesk', sans-serif", border: "none" }}
-                >
-                  SHOP NOW →
-                </button>
-              </Link>
-            ) : (
-              <div
-                className="inline-flex items-center gap-2 px-4 py-2"
-                style={{ backgroundColor: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.3)" }}
-              >
-                <span className="text-white text-xs opacity-75" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  🧩 Solve the puzzle on the left to unlock your code
-                </span>
-              </div>
-            )}
+            <Link href="/products" className="flex items-center justify-center lg:justify-start">
+              <button className="thrifti-btn-dark 2xl:text-2xl text-sm ">
+                CLAIM CODE
+              </button>
+            </Link>
           </div>
         </div>
       </section>
       {/* ===== SECTION 4: BUILT FOR BANGALORE ===== */}
-      <section style={{ backgroundColor: "var(--thrifti-cream)" }}>
-        <div className="px-6 sm:px-10 lg:px-16 py-12 sm:py-16">
-          <h2
-            className="text-center font-black mb-8"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
-              color: "var(--thrifti-dark)",
-              letterSpacing: "-0.01em",
-            }}
-          >
+      <section className="bg-[var(--thrifti-cream)] lg:pt-20">
+        <div className="px-5 sm:px-8 lg:px-10 xl:px-16 pt-10 sm:pt-14 pb-10">
+          <h2 className="mb-5 2xl:mb-8 vogue-font uppercase leading-tight text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl text-center">
             BUILT FOR BANGALORE
           </h2>
-
-          {/* 3-column photo grid */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            {[
-              { src: "/hero-couple.png", label: "KORAMANGALA\nSTREET FITS" },
-              { src: "/hero-woman.png", label: "INDIRANAGAR\nLOOKS" },
-              { src: "/hero-banner.png", label: "HSR\nTHRIFT FINDS" },
-            ].map(({ src, label }) => (
-              <div key={label} className="relative overflow-hidden group cursor-pointer">
-                <img
-                  src={src}
-                  alt={label}
-                  className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  style={{ aspectRatio: "3/4" }}
-                />
-                <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%)" }} />
-                <div className="absolute bottom-3 left-3">
-                  <p className="text-white font-black text-xs tracking-wider uppercase leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                    {label.split("\n").map((line, i) => <span key={i}>{line}{i === 0 && <br />}</span>)}
-                  </p>
-                </div>
+          <div className="relative">
+            <div className="overflow-hidden">
+              <div
+                className="flex transition-transform duration-500 ease-out"
+                style={{ transform: `translateX(-${(activeBuiltSlide * 100) / visibleBuiltSlides}%)` }}
+              >
+                {builtSlides.map((slide, index) => (
+                  <div key={index} className="w-full shrink-0 basis-full px-1.5 md:basis-1/2 lg:basis-1/3">
+                    <div className="group relative overflow-hidden border-2 border-transparent transition-colors duration-300 hover:border-[var(--thrifti-red)]">
+                      <img
+                        src={slide}
+                        alt={`Built for Bangalore ${index + 1}`}
+                        className="w-full h-[300px] md:h-[360px] lg:h-[460px] object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/55 transition-colors duration-300 pointer-events-none" />
+                      <div className="absolute inset-x-0 bottom-4 z-10 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                        <p className="anek-devanagari-font text-[var(--thrifti-red)] text-2xl uppercase leading-[1.05] tracking-[0.04em]">
+                          Koramangala
+                        </p>
+                        <p className="anek-devanagari-font text-[var(--thrifti-red)] text-2xl uppercase leading-[1.05] tracking-[0.04em]">
+                          Street Fits
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={goToPrevBuiltSlide}
+              aria-label="Previous built for bangalore image"
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/45 hover:bg-black/65 text-white text-2xl leading-none flex items-center justify-center transition-colors"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={goToNextBuiltSlide}
+              aria-label="Next built for bangalore image"
+              className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/45 hover:bg-black/65 text-white text-2xl leading-none flex items-center justify-center transition-colors"
+            >
+              ›
+            </button>
+
+            <div className="mt-4 flex items-center justify-center gap-2">
+              {Array.from({ length: Math.max(1, builtSlides.length - visibleBuiltSlides + 1) }).map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setActiveBuiltSlide(index)}
+                  aria-label={`Go to built for bangalore image ${index + 1}`}
+                  className={`h-2.5 rounded-full transition-all ${activeBuiltSlide === index ? "w-8 bg-[var(--thrifti-red)]" : "w-2.5 bg-black/25 hover:bg-black/45"
+                    }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* ===== SECTION 5: NEW DROPS (Red split) ===== */}
-      <section style={{ backgroundColor: "var(--thrifti-red)" }}>
-        <div className="grid grid-cols-1 lg:grid-cols-2">
-          {/* Left: Text + countdown */}
-          <div className="px-6 sm:px-10 lg:px-16 py-14 sm:py-20 flex flex-col justify-center">
-            <p className="text-white/80 text-xs tracking-[0.3em] uppercase mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+      <section className="bg-[var(--thrifti-red)] my-6">
+        <div className="flex flex-col lg:flex-row lg:min-h-[430px]">
+          <div className="w-full lg:w-[40%] px-7 sm:px-10 lg:px-12 py-10 lg:py-12 flex flex-col justify-center">
+            <p
+              className="anek-devanagari-font text-white text-base 2xl:text-xl font-medium lg:font-bold tracking-[0.16em] uppercase mb-1"
+            >
               LAUNCHING 26 APRIL 2026
             </p>
             <h2
-              className="font-black leading-none text-white mb-4"
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "clamp(2.5rem, 6vw, 4.5rem)",
-                letterSpacing: "-0.02em",
-              }}
+              className="mb-6 2xl:mb-12 vogue-font uppercase leading-tight text-[32px] sm:text-4xl lg:text-5xl 2xl:text-6xl text-white"
             >
               NEW DROPS,<br />JUST IN
             </h2>
-            <CountdownBanner />
-            <p className="text-white/80 text-sm leading-relaxed mb-8 max-w-xs" style={{ fontFamily: "'Space Mono', monospace" }}>
-              Curated pieces. Limited time. Once they're gone, they're gone. Experience the shift in modern Indian fashion culture.
+            <p
+              className="geist-mono-font text-white text-base lg:text-lg leading-relaxed mb-10 lg:mb-8 lg:w-[35ch] font-medium"
+            >
+              Curated pieces, limited time. Once they're gone, they're gone. Experience the shift in modern Indian fashion culture.
             </p>
             <Link href="/products">
-              <button
-                className="inline-flex items-center px-6 py-3 font-black text-sm tracking-widest uppercase self-start"
-                style={{ backgroundColor: "var(--thrifti-dark)", color: "white", fontFamily: "'Space Grotesk', sans-serif", border: "none" }}
-              >
+              <button className="thrifti-btn-dark 2xl:text-2xl text-sm ">
                 GRAB THE DEAL
               </button>
             </Link>
           </div>
-
-          {/* Right: Fashion show image */}
-          <div className="relative overflow-hidden" style={{ minHeight: "400px" }}>
+          <div className="w-full lg:w-[60%]">
             <img
-              src={CDN.fashionShow}
-              alt="New Drops"
-              className="w-full h-full object-cover object-center"
+              src={launchingImage}
+              alt="Fashion show"
+              className="w-full h-[300px] sm:h-[360px] lg:h-[700px] block object-cover"
             />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(232,41,28,0.3) 0%, transparent 50%)" }} />
           </div>
         </div>
       </section>
 
       {/* ===== SECTION 6: SELL / BUY / REPEAT POLAROIDS ===== */}
-      <section className="py-14 sm:py-20" style={{ backgroundColor: "var(--thrifti-cream)" }}>
-        <div className="px-6 sm:px-10 lg:px-16">
-          <div className="grid grid-cols-3 gap-4 sm:gap-8 lg:gap-12 max-w-4xl mx-auto">
-            {/* SELL polaroid */}
-            <div className="polaroid relative" style={{ transform: "rotate(2deg)" }}>
-              <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
-                SELL
-              </span>
-              <img src={CDN.polaroidSell} alt="Sell the old you" className="w-full block" style={{ aspectRatio: "4/5", objectFit: "cover" }} />
-              <p className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+      <section
+        className="px-4 sm:px-6 lg:px-16 py-10 sm:py-14 lg:py-20 bg-[var(--thrifti-cream)]  lg:w-[90%] mx-auto"
+      >
+        <div className="max-w-[255px] sm:max-w-[300px] lg:max-w-none mx-auto lg:mx-0 flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-4">
+          {/* SELL — left, tilted, in front of center */}
+          <div className="w-full rotate-[-8deg] lg:rotate-[-12deg] pl-8 lg:pl-0">
+            <div className="vogue-font text-[19px] sm:text-[28px] lg:text-5xl uppercase italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
+              SELL
+            </div>
+            <div className="polaroid">
+              <img
+                src={built1}
+                alt="Sell the old you"
+                className="block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center"
+              />
+              <p className="geist-mono-font mt-1.5 lg:mt-3 text-center 2xl:text-2xl text-[8px] sm:text-[10px] lg:text-xl uppercase leading-none tracking-wide text-[var(--thrifti-dark)]">
                 SELL THE OLD YOU
               </p>
             </div>
+          </div>
 
-            {/* BUY polaroid */}
-            <div className="polaroid relative" style={{ transform: "rotate(-1deg)", marginTop: "1.5rem" }}>
-              <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
-                BUY
-              </span>
-              <img src={CDN.polaroidBuy} alt="Wear the new you" className="w-full block" style={{ aspectRatio: "4/5", objectFit: "cover" }} />
-              <p className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+          {/* BUY — center, straight, sits lower and behind side cards */}
+          <div className="w-full -mt-10 sm:mt-2 lg:mt-10 relative lg:static pr-8 lg:pr-0">
+            <div className="vogue-font text-[19px] sm:text-[28px] lg:text-5xl uppercase not-italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
+              BUY
+            </div>
+            <div className="polaroid">
+              <img
+                src={repeat1Polaroid}
+                alt="Wear the new you"
+                className="block aspect-[4/5] w-full object-cover h-[238px] sm:h-[270px] md:h-[302px] lg:h-[400px] object-center"
+              />
+              <p className="geist-mono-font mt-1.5 lg:mt-3 text-center uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-[8px] sm:text-[10px] lg:text-xl">
                 WEAR THE NEW YOU
               </p>
             </div>
+          </div>
 
-            {/* REPEAT polaroid */}
-            <div className="polaroid relative" style={{ transform: "rotate(-2deg)", marginTop: "-0.5rem" }}>
-              <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
-                REPEAT
-              </span>
-              <img src={CDN.polaroidRepeat} alt="Be new you with Thrifti" className="w-full block" style={{ aspectRatio: "4/5", objectFit: "cover" }} />
-              <div className="flex items-end justify-between mt-3 pb-1">
-                <p className="text-xs font-bold tracking-widest uppercase" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+          {/* REPEAT — right, tilted, overlaps center; WITH THRIFTI sticker */}
+          <div className="w-full rotate-[-10deg] lg:rotate-[14deg] -mt-7 lg:mt-0 pr-8 lg:pr-0">
+            <div className="vogue-font text-[19px] sm:text-[28px] lg:text-5xl uppercase italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
+              REPEAT
+            </div>
+            <div className="polaroid">
+              <img
+                src={repeatPolaroid}
+                alt="Be new you with Thrifti"
+                className="block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center"
+              />
+              <div className="relative flex min-h-[2.5rem] items-end justify-center pb-1">
+                <p className="geist-mono-font uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-[8px] sm:text-[10px] lg:text-xl">
                   BE NEW YOU
                 </p>
-                <div
-                  className="px-2 py-1 text-white text-[9px] font-black tracking-wider uppercase"
-                  style={{ backgroundColor: "var(--thrifti-dark)", fontFamily: "'Space Grotesk', sans-serif", transform: "rotate(-3deg)", flexShrink: 0 }}
-                >
+                <div className="anek-devanagari-font 2xl:text-2xl text-[8px] sm:text-[10px] lg:text-xl font-bold bg-[#F5F1EA] px-1.5 sm:px-2.5 lg:px-4 pt-0.5 lg:pt-2 pb-0 absolute lg:bottom-[-10%] lg:right-[-20%] bottom-[-38%] right-[-12%] shrink-0 rotate-[-16deg] flex items-center justify-center shadow-md">
                   WITH THRIFTI
                 </div>
               </div>
@@ -542,7 +548,7 @@ export default function Home() {
       </section>
 
       {/* ===== SECTION 7: FEATURED PRODUCTS ===== */}
-      <section className="py-12 sm:py-16" style={{ backgroundColor: "white" }}>
+      {/* <section className="py-12 sm:py-16" style={{ backgroundColor: "white" }}>
         <div className="px-6 sm:px-10 lg:px-16">
           <div className="flex items-end justify-between mb-8">
             <div>
@@ -588,7 +594,7 @@ export default function Home() {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
     </StorefrontLayout>
   );
