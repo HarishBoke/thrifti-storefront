@@ -6,9 +6,18 @@ import { trpc } from "@/lib/trpc";
 import ProductCard from "@/components/ProductCard";
 import { Puzzle } from "react-jigsaw";
 import "react-jigsaw/styles";
-import homePageBanner from "@/assets/img/home-page-banner.png";
-import homeBannerModel from "@/assets/img/home-banner-model.png";
+import bannerBg1 from "@/assets/img/Banner-bg-1.png";
+import bannerBg2 from "@/assets/img/Banner-bg-2.png";
+import bannerBg3 from "@/assets/img/Banner-bg-3.png";
+import bannerBg4 from "@/assets/img/Banner-bg-4.png";
+import bannerModel1 from "@/assets/img/Banner-model-1.png";
+import bannerModel2 from "@/assets/img/Banner-model-2.png";
+import bannerModel3 from "@/assets/img/Banner-model-3.png";
+import bannerModel4 from "@/assets/img/Banner-model-4.png";
 import homeBannerModel1 from "@/assets/img/home-banner-model1.png";
+import homeBannerModel2 from "@/assets/img/home-banner-model2.png";
+import homeBannerModel3 from "@/assets/img/home-banner-model3.png";
+import homeBannerModel4 from "@/assets/img/home-banner-model4.png";
 import transitionfundImage from "@/assets/img/transition-fund.png";
 import transitionfundImage1 from "@/assets/img/transitionfundImage1.png";
 import puzzlePhoto from "@/assets/img/puzzlePhoto.png";
@@ -44,6 +53,49 @@ function useCountdown() {
 
 const WHATSAPP_URL = "https://wa.me/918065253722?text=Hey!%20I%20want%20to%20sell%20on%20Thrifti";
 
+const HERO_BANNER_SLIDES = [
+  {
+    bg: bannerBg1,
+    mobileBg: homeBannerModel1,
+    model: bannerModel1,
+    modelClass: "left-1/2 -translate-x-1/2 bottom-0 h-[108%] md:h-[114%] lg:h-[125%] w-auto",
+    title: ["Built for", "how you", "show up"],
+    subtitle: "Work. Weekends. Everything in between.",
+    ctaLabel: "Sell now",
+    ctaHref: WHATSAPP_URL,
+  },
+  {
+    bg: bannerBg2,
+    mobileBg: homeBannerModel2,
+    model: bannerModel2,
+    modelClass: "left-1/2 -translate-x-1/2 bottom-0 h-[109%] md:h-[116%] lg:h-[126%] w-auto",
+    title: ["DRESS THE", "NEXT YOU"],
+    subtitle: "From everyday staples to standout pieces.",
+    ctaLabel: "SHOP WOMEN",
+    ctaHref: WHATSAPP_URL,
+  },
+  {
+    bg: bannerBg3,
+    mobileBg: homeBannerModel3,
+    model: bannerModel3,
+    modelClass: "left-1/2 -translate-x-1/2 bottom-0 h-[112%] md:h-[120%] lg:h-[130%] w-auto",
+    title: ["NO SCAMS.", "NO JUNK.",],
+    subtitle: "",
+    ctaLabel: "Sell now",
+    ctaHref: WHATSAPP_URL,
+  },
+  {
+    bg: bannerBg4,
+    mobileBg: homeBannerModel4,
+    model: bannerModel4,
+    modelClass: "left-1/2 -translate-x-1/2 bottom-0 h-[111%] md:h-[118%] lg:h-[128%] w-auto",
+    title: ["SELL WHAT", "YOU'VE", "OUTGROWN."],
+    subtitle: "Wear what you're becoming.",
+    ctaLabel: "Sell Now",
+    ctaHref: WHATSAPP_URL,
+  },
+];
+
 // CDN images for polaroids and fashion show
 const CDN = {
   fashionShow: "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/photo-fashion-final_3379776b.png",
@@ -69,10 +121,10 @@ const WATERMARK = [
   { word: "SELL", rotate: "-2deg", size: "5rem", x: "55%", y: "80%" },
 ];
 
-function AnimatedTicker() {
+function AnimatedTicker({ className = "" }: { className?: string }) {
   const items = ["SELL", "★", "REPEAT", "★", "BUY", "★", "SELL", "★", "REPEAT", "★", "BUY", "★", "SELL", "★", "REPEAT", "★", "BUY", "★"];
   return (
-    <div className="overflow-hidden py-3 relative" style={{ backgroundColor: "var(--thrifti-red)" }}>
+    <div className={`overflow-hidden py-3 relative md:absolute md:-top-10 md:left-0 md:w-full z-[5] ${className}`} style={{ backgroundColor: "var(--thrifti-red)" }}>
       <style>{`
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
       `}</style>
@@ -130,6 +182,15 @@ export default function Home() {
   const [puzzleSolved, setPuzzleSolved] = useState(false);
   const [puzzleKey, setPuzzleKey] = useState(0);
   const PROMO_CODE = "THRIFTI-FREE";
+  const [activeHeroSlide, setActiveHeroSlide] = useState(0);
+
+  useEffect(() => {
+    if (HERO_BANNER_SLIDES.length <= 1) return;
+    const id = window.setInterval(() => {
+      setActiveHeroSlide((prev) => (prev + 1) % HERO_BANNER_SLIDES.length);
+    }, 10000);
+    return () => window.clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const updateVisibleSlides = () => {
@@ -163,51 +224,108 @@ export default function Home() {
     if (maxStart === 0) return;
     setActiveBuiltSlide((prev) => (prev >= maxStart ? 0 : prev + 1));
   };
+  const currentHeroSlide = HERO_BANNER_SLIDES[activeHeroSlide];
   return (
     <StorefrontLayout>
 
       {/* ===== SECTION 1: HERO — Full-bleed with BANNER11-2 image ===== */}
-      <section className="bg-[var(--thrifti-cream)]">
-        <div
-          className="min-h-[560px] sm:min-h-[620px] lg:min-h-[680px] bg-cover bg-no-repeat flex items-end"
-          style={{ backgroundImage: `url(${homeBannerModel1})` }}
-        >
-          <div className="h-full flex items-end w-full">
-            <div className="px-6 sm:px-10 lg:px-20 pb-10 sm:pb-14 lg:pb-16">
-              <h1 className="vogue-font text-white uppercase leading-tight tracking-[-0.01em] text-[52px] sm:text-[60px] 2xl:text-[64px]">
-                Built for
+      <section className="bg-[var(--thrifti-cream)] md:mt-24 lg:mt-32 xl:mt-44 md:relative">
+        <div className="relative min-h-[560px] md:min-h-[360px] xl:min-h-[680px] flex items-end">
+          {HERO_BANNER_SLIDES.map((slide, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-700 ease-out ${index === activeHeroSlide ? "opacity-100 z-[10]" : "opacity-0 z-0"
+                }`}
+              aria-hidden={index !== activeHeroSlide}
+            >
+              <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat md:hidden"
+                style={{ backgroundImage: `url(${slide.mobileBg})` }}
+              />
+              <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat hidden md:block"
+                style={{ backgroundImage: `url(${slide.bg})` }}
+              />
+              <img
+                src={slide.model}
+                alt=""
+                aria-hidden="true"
+                className={`absolute z-[20] object-contain pointer-events-none hidden md:block ${slide.modelClass}`}
+              />
+            </div>
+          ))}
+          <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/45 via-black/15 to-transparent pointer-events-none" />
+
+          <div className="relative z-[30] flex h-full min-h-[560px] md:min-h-[360px] xl:min-h-[680px] w-full items-end">
+            <div className="px-6 sm:px-10 md:px-20 pb-14 sm:pb-4 lg:pb-20 max-w-[720px]">
+              <h1 className="vogue-font text-white uppercase leading-tight tracking-[-0.01em] text-[52px] sm:text-[60px] md:text-[52px] 2xl:text-[64px]">
+                {currentHeroSlide.title[0]}
                 <br />
-                how you
+                {currentHeroSlide.title[1]}
                 <br />
-                show up
+                {currentHeroSlide.title[2]}
               </h1>
-              <p className="geist-mono-font mt-3 sm:mt-4 text-white uppercase tracking-[0.08em] text-sm sm:text-xl">
-                Work. Weekends. Everything in between.
+              <p className="geist-mono-font mt-3 sm:mt-4 text-white uppercase tracking-[0.08em] text-sm sm:text-xl md:text-xl max-w-[52ch]">
+                {currentHeroSlide.subtitle}
               </p>
               <div className="mt-10">
                 <a
-                  href={WHATSAPP_URL}
+                  href={currentHeroSlide.ctaHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="thrifti-btn-red inline-flex"
+                  className="thrifti-btn-red inline-flex anek-devanagari-font text-sm md:text-base 2xl:text-2xl pb-1"
                 >
-                  Sell now
+                  {currentHeroSlide.ctaLabel}
                 </a>
               </div>
             </div>
           </div>
+
+          {HERO_BANNER_SLIDES.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  setActiveHeroSlide((prev) => (prev - 1 + HERO_BANNER_SLIDES.length) % HERO_BANNER_SLIDES.length)
+                }
+                aria-label="Previous hero slide"
+                className="absolute left-3 top-1/2 z-[30] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-2xl leading-none text-white transition-colors hover:bg-black/60"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveHeroSlide((prev) => (prev + 1) % HERO_BANNER_SLIDES.length)}
+                aria-label="Next hero slide"
+                className="absolute right-3 top-1/2 z-[30] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-2xl leading-none text-white transition-colors hover:bg-black/60"
+              >
+                ›
+              </button>
+              <div className="absolute bottom-6 left-1/2 z-[30] flex -translate-x-1/2 gap-2">
+                {HERO_BANNER_SLIDES.map((_, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => setActiveHeroSlide(index)}
+                    aria-label={`Go to hero slide ${index + 1}`}
+                    className={`h-2 rounded-full transition-all ${activeHeroSlide === index ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
+                      }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </div>
         {/* ===== ANIMATED TICKER ===== */}
         <AnimatedTicker />
       </section>
-
 
       {/* ===== SECTION 2: YOUR WARDROBE IS A TRANSITION FUND ===== */}
       <section className=" bg-[#F5F1E9]">
         <div className="flex flex-col lg:flex-row lg:items-center">
           <div className="w-full lg:w-1/2 order-2 lg:order-1">
             <div className="px-5 py-10 sm:px-8 md:px-10 md:py-12 2xl:px-16">
-              <h2 className="mb-5 md:mb-6 2xl:mb-8 vogue-font uppercase leading-tight text-3xl sm:text-4xl md:text-[2.6rem] lg:text-5xl 2xl:text-6xl hidden lg:block">
+              <h2 className="mb-5 md:mb-6 2xl:mb-8 vogue-font uppercase leading-tight text-3xl sm:text-4xl md:text-[2.6rem] lg:text-5xl 2xl:text-6xl hidden lg:block w-[15ch]">
                 YOUR WARDROBE IS A TRANSITION FUND
               </h2>
 
@@ -228,10 +346,10 @@ export default function Home() {
                   { label: "SELL", desc: "Get paid & ship with our concierge." },
                 ].map((step) => (
                   <div key={step.label}>
-                    <h4 className="mb-0 anek-devanagari-font text-base md:text-lg lg:text-xl 2xl:text-3xl font-semibold uppercase text-[var(--thrifti-red)]">
+                    <h4 className="mb-0 anek-devanagari-font text-xl md:text-lg lg:text-xl 2xl:text-3xl font-semibold uppercase text-[var(--thrifti-red)]">
                       {step.label}
                     </h4>
-                    <p className="geist-mono-font 2xl:text-base text-sm md:text-[15px] font-normal leading-relaxed text-[var(--thrifti-dark)]">
+                    <p className="geist-mono-font text-base font-normal leading-relaxed text-[var(--thrifti-dark)]">
                       {step.desc}
                     </p>
                   </div>
@@ -242,16 +360,16 @@ export default function Home() {
                 href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="thrifti-btn-red inline-flex text-sm md:text-base 2xl:text-2xl"
+                className="thrifti-btn-red inline-flex text-2xl anek-devanagari-font pb-1"
               >
                 START SELLING
               </a>
             </div>
           </div>
 
-          <div className="mt-12 md:mt-14 lg:mt-0 lg:flex w-full items-center justify-center px-4 sm:px-8 md:px-10 lg:w-1/2 lg:px-10 order-1 lg:order-2 relative">
+          <div className="mt-11 md:mt-14 lg:mt-0 lg:flex w-full items-center justify-center px-4 sm:px-8 md:px-10 lg:w-1/2 lg:px-10 order-1 lg:order-2 relative">
             <div className="flex items-center justify-center">
-              <h2 className="mb-5 md:mb-6 font-['Playfair_Display',serif] uppercase leading-tight text-3xl sm:text-4xl md:text-[2.6rem] lg:hidden text-center w-[20ch]">
+              <h2 className="mb-5 md:mb-6 vogue-font uppercase leading-tight text-3xl sm:text-4xl md:text-[2.6rem] lg:hidden text-center w-[20ch]">
                 YOUR WARDROBE IS A TRANSITION FUND
               </h2>
             </div>
@@ -281,7 +399,7 @@ export default function Home() {
 
       {/* ===== SECTION 3: COMPLETE THE LOOK — Interactive Jigsaw Puzzle ===== */}
       <section className="bg-[var(--thrifti-red)]">
-        <div className="flex flex-col lg:flex-row px-5 sm:px-8 lg:px-16 pt-10 pb-10 lg:pb-0 lg:pt-20">
+        <div className="flex flex-col lg:flex-row px-4 sm:px-8 lg:px-16 pt-4 pb-10 lg:pb-0 lg:pt-20">
           {/* Puzzle photo with grid overlay */}
           <div className="relative w-full lg:w-1/2 mb-5 lg:-mb-20 flex items-center justify-center lg:justify-start">
             {puzzleSolved ? (
@@ -322,7 +440,7 @@ export default function Home() {
                   className="overflow-hidden"
                 >
                   <Puzzle
-                    image={puzzlePhoto}
+                    image={built3}
                     onComplete={() => setPuzzleSolved(true)}
                     onRefresh={() => setPuzzleSolved(false)}
                     options={{
@@ -344,7 +462,7 @@ export default function Home() {
                       },
                       puzzlePiece: {
                         strokeColor: "rgba(0,0,0,0.9)",
-                        strokeEnabled: true,
+                        strokeEnabled: false,
                       },
                     }}
                   />
@@ -355,12 +473,12 @@ export default function Home() {
           {/* Text */}
           <div className=" text-white w-full lg:w-1/2 pr-0 2xl:pr-20">
             <h2
-              className="vogue-font tracking-[0.02em] mb-4 lg:mb-8 uppercase text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl text-center lg:text-left"
+              className="vogue-font tracking-[0.02em] mb-4 uppercase text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl text-center lg:text-left leading-tight"
             >
               COMPLETE THE LOOK AND UNLOCK
             </h2>
             <div
-              className="border-2 bg-white text-black border-white px-6 py-3 mb-4 lg:mb-6 shadow-lg -rotate-2 flex items-center justify-center"
+              className="border-2 bg-white text-black border-white px-6 py-3 mb-4 shadow-lg -rotate-2 flex items-center justify-center"
             >
               <span
                 className="vogue-font text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl"
@@ -374,7 +492,7 @@ export default function Home() {
               ON YOUR NEXT FIND
             </p>
             <Link href="/products" className="flex items-center justify-center lg:justify-start">
-              <button className="thrifti-btn-dark 2xl:text-2xl text-sm ">
+              <button className="thrifti-btn-dark text-2xl">
                 CLAIM CODE
               </button>
             </Link>
@@ -383,7 +501,7 @@ export default function Home() {
       </section>
       {/* ===== SECTION 4: BUILT FOR BANGALORE ===== */}
       <section className="bg-[var(--thrifti-cream)] lg:pt-20">
-        <div className="px-5 sm:px-8 lg:px-10 xl:px-16 pt-10 sm:pt-14 pb-10">
+        <div className="px-5 sm:px-8 lg:px-10 xl:px-16 pt-10 sm:pt-14 pb-10 lg:pb-14">
           <h2 className="mb-5 2xl:mb-8 vogue-font uppercase leading-tight text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl text-center">
             BUILT FOR BANGALORE
           </h2>
@@ -450,7 +568,7 @@ export default function Home() {
       </section>
 
       {/* ===== SECTION 5: NEW DROPS (Red split) ===== */}
-      <section className="bg-[var(--thrifti-red)] my-6">
+      <section className="bg-[var(--thrifti-red)]">
         <div className="flex flex-col lg:flex-row lg:min-h-[430px]">
           <div className="w-full lg:w-[40%] px-7 sm:px-10 lg:px-12 py-10 lg:py-12 flex flex-col justify-center">
             <p
@@ -459,9 +577,9 @@ export default function Home() {
               LAUNCHING 26 APRIL 2026
             </p>
             <h2
-              className="mb-6 2xl:mb-12 vogue-font uppercase leading-tight text-[32px] sm:text-4xl lg:text-5xl 2xl:text-6xl text-white"
+              className="mb-6 vogue-font uppercase leading-tight text-[32px] sm:text-4xl lg:text-5xl 2xl:text-6xl text-white"
             >
-              NEW DROPS,<br />JUST IN
+              Limited drops.<br /> No repeats.
             </h2>
             <p
               className="geist-mono-font text-white text-base lg:text-lg leading-relaxed mb-10 lg:mb-8 lg:w-[35ch] font-medium"
@@ -469,7 +587,7 @@ export default function Home() {
               Curated pieces, limited time. Once they're gone, they're gone. Experience the shift in modern Indian fashion culture.
             </p>
             <Link href="/products">
-              <button className="thrifti-btn-dark 2xl:text-2xl text-sm ">
+              <button className="thrifti-btn-dark text-2xl">
                 GRAB THE DEAL
               </button>
             </Link>
@@ -486,21 +604,21 @@ export default function Home() {
 
       {/* ===== SECTION 6: SELL / BUY / REPEAT POLAROIDS ===== */}
       <section
-        className="px-4 sm:px-6 lg:px-16 py-10 sm:py-14 lg:py-20 bg-[var(--thrifti-cream)]  lg:w-[90%] mx-auto"
+        className="px-4 sm:px-6 lg:px-16 pt-10 pb-18 sm:pb-18 sm:pt-14 lg:py-20 bg-[var(--thrifti-cream)]  lg:w-[90%] mx-auto"
       >
         <div className="max-w-[255px] sm:max-w-[300px] lg:max-w-none mx-auto lg:mx-0 flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-4">
           {/* SELL — left, tilted, in front of center */}
           <div className="w-full rotate-[-8deg] lg:rotate-[-12deg] pl-8 lg:pl-0">
-            <div className="vogue-font text-[19px] sm:text-[28px] lg:text-5xl uppercase italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
-              SELL
+            <div className="vogue-font text-3xl lg:text-7xl uppercase italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
+              BUY
             </div>
             <div className="polaroid">
               <img
-                src={built1}
+                src={built3}
                 alt="Sell the old you"
                 className="block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center"
               />
-              <p className="geist-mono-font mt-1.5 lg:mt-3 text-center 2xl:text-2xl text-[8px] sm:text-[10px] lg:text-xl uppercase leading-none tracking-wide text-[var(--thrifti-dark)]">
+              <p className="geist-mono-font mt-1.5 lg:mt-3 text-center 2xl:text-2xl text-sm lg:text-xl uppercase leading-none tracking-wide text-[var(--thrifti-dark)]">
                 SELL THE OLD YOU
               </p>
             </div>
@@ -508,8 +626,8 @@ export default function Home() {
 
           {/* BUY — center, straight, sits lower and behind side cards */}
           <div className="w-full -mt-10 sm:mt-2 lg:mt-10 relative lg:static pr-8 lg:pr-0">
-            <div className="vogue-font text-[19px] sm:text-[28px] lg:text-5xl uppercase not-italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
-              BUY
+            <div className="vogue-font text-3xl lg:text-7xl uppercase not-italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
+              SELL
             </div>
             <div className="polaroid">
               <img
@@ -517,7 +635,7 @@ export default function Home() {
                 alt="Wear the new you"
                 className="block aspect-[4/5] w-full object-cover h-[238px] sm:h-[270px] md:h-[302px] lg:h-[400px] object-center"
               />
-              <p className="geist-mono-font mt-1.5 lg:mt-3 text-center uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-[8px] sm:text-[10px] lg:text-xl">
+              <p className="geist-mono-font mt-1.5 lg:mt-3 text-center uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl">
                 WEAR THE NEW YOU
               </p>
             </div>
@@ -525,7 +643,7 @@ export default function Home() {
 
           {/* REPEAT — right, tilted, overlaps center; WITH THRIFTI sticker */}
           <div className="w-full rotate-[-10deg] lg:rotate-[14deg] -mt-7 lg:mt-0 pr-8 lg:pr-0">
-            <div className="vogue-font text-[19px] sm:text-[28px] lg:text-5xl uppercase italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
+            <div className="vogue-font text-3xl lg:text-7xl uppercase italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
               REPEAT
             </div>
             <div className="polaroid">
@@ -534,11 +652,11 @@ export default function Home() {
                 alt="Be new you with Thrifti"
                 className="block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center"
               />
-              <div className="relative flex min-h-[2.5rem] items-end justify-center pb-1">
-                <p className="geist-mono-font uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-[8px] sm:text-[10px] lg:text-xl">
+              <div className="relative flex min-h-[2rem] items-end justify-center pb-2 lg:pb-1">
+                <p className="geist-mono-font uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl">
                   BE NEW YOU
                 </p>
-                <div className="anek-devanagari-font 2xl:text-2xl text-[8px] sm:text-[10px] lg:text-xl font-bold bg-[#F5F1EA] px-1.5 sm:px-2.5 lg:px-4 pt-0.5 lg:pt-2 pb-0 absolute lg:bottom-[-10%] lg:right-[-20%] bottom-[-38%] right-[-12%] shrink-0 rotate-[-16deg] flex items-center justify-center shadow-md">
+                <div className="anek-devanagari-font 2xl:text-2xl text-lg font-bold bg-[#F5F1EA] px-3.5 lg:px-4 pt-1.5 lg:pt-2 pb-0 absolute lg:bottom-[-10%] lg:right-[-20%] bottom-[-80%] right-[-20%] shrink-0 rotate-[-13deg] lg:rotate-[-16deg] flex items-center justify-center shadow-md">
                   WITH THRIFTI
                 </div>
               </div>

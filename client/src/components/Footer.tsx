@@ -39,7 +39,7 @@ const SOCIAL_LINKS = [
 export default function Footer() {
   return (
     <footer style={{ backgroundColor: "var(--thrifti-red)" }}>
-      <div className="px-5 sm:px-8 lg:px-12 pt-16 pb-8">
+      <div className="px-9 lg:px-12 pt-11 lg:pt-16 pb-8">
 
         {/* Brand block — BUY.SELL.REPEAT. above logo per Figma */}
         <div className="mb-8 flex justify-center">
@@ -57,16 +57,15 @@ export default function Footer() {
 
 
         {/* Link columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 sm:gap-8 border-t border-white/20 pt-8">
-          <div className="mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 border-t border-white/20 pt-8">
+          <div className="lg:mb-8">
             <p
-              className="text-white/80 text-sm leading-relaxed mb-5"
-              style={{ fontFamily: "'Space Mono', monospace" }}
+              className="text-[#F5F1EA] text-sm leading-relaxed mb-3 geist-mono-font"
             >
               Sell what you've outgrown.<br />
               Wear what you're becoming.
             </p>
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-4">
               {SOCIAL_LINKS.map(({ icon: Icon, label, href }) => (
                 <a
                   key={label}
@@ -74,7 +73,7 @@ export default function Footer() {
                   target={href.startsWith("http") ? "_blank" : undefined}
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="text-white/70 hover:text-white transition-colors"
+                  className="text-[#F5F1EA] hover:text-white transition-colors"
                 >
                   <Icon className="w-5 h-5" />
                 </a>
@@ -84,18 +83,17 @@ export default function Footer() {
           {FOOTER_LINKS.map((col) => (
             <div key={col.heading}>
               <h3
-                className="text-white font-bold text-sm mb-3"
+                className="text-[#F5F1EA] mb-2 lg:mb-3 font-semibold text-base anek-devanagari-font"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 {col.heading}
               </h3>
-              <ul className="flex flex-col gap-2.5">
+              <ul className="flex flex-col gap-1 lg:gap-2.5">
                 {col.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-white/70 hover:text-white text-sm transition-colors"
-                      style={{ fontFamily: "'Space Mono', monospace" }}
+                      className="text-[#F5F1EA] hover:text-white text-sm transition-colors geist-mono-font"
                     >
                       {link.label}
                     </Link>
@@ -109,14 +107,12 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-8 pt-6 border-t border-white/20 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p
-            className="text-white/50 text-xs"
-            style={{ fontFamily: "'Space Mono', monospace" }}
+            className="text-white/70 text-xs geist-mono-font text-center"
           >
             © Copyright {new Date().getFullYear()},  Meshi Commerce Pvt. Ltd, All Rights reserved
           </p>
           <p
-            className="text-white/50 text-xs"
-            style={{ fontFamily: "'Space Mono', monospace" }}
+            className="text-white/70 text-xs geist-mono-font text-center"
           >
             Built for Bangalore. Made for India.
           </p>
