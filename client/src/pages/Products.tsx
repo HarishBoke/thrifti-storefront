@@ -74,13 +74,9 @@ function FilterPill({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border transition-all"
-        style={{
-          fontFamily: "'Space Grotesk', sans-serif",
-          borderColor: hasSelection ? "var(--thrifti-dark)" : "#D1D5DB",
-          backgroundColor: hasSelection ? "var(--thrifti-dark)" : "white",
-          color: hasSelection ? "white" : "#6B7280",
-        }}
+        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border transition-all font-['Space_Grotesk',sans-serif] ${
+          hasSelection ? "border-[var(--thrifti-dark)] bg-[var(--thrifti-dark)] text-white" : "border-gray-300 bg-white text-gray-500"
+        }`}
       >
         {label}
         {hasSelection && <span className="text-[10px]">({selected.length})</span>}
@@ -92,12 +88,9 @@ function FilterPill({
             <button
               key={opt}
               onClick={() => { onSelect(opt); setOpen(false); }}
-              className="w-full text-left px-4 py-2 text-xs hover:bg-gray-50 flex items-center justify-between"
-              style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontWeight: selected.includes(opt) ? 700 : 400,
-                color: selected.includes(opt) ? "var(--thrifti-dark)" : "#6B7280",
-              }}
+              className={`w-full text-left px-4 py-2 text-xs hover:bg-gray-50 flex items-center justify-between font-['Space_Grotesk',sans-serif] ${
+                selected.includes(opt) ? "font-bold text-[var(--thrifti-dark)]" : "font-normal text-gray-500"
+              }`}
             >
               {opt}
               {selected.includes(opt) && <X className="w-3 h-3" />}
@@ -161,13 +154,7 @@ function ListingProductCard({
       <div className="cursor-pointer group">
         {/* Image */}
         <div
-          className="relative overflow-hidden mb-2"
-          style={{
-            aspectRatio: "3/4",
-            backgroundColor: "#EDEAE4",
-            outline: isSelected ? "2px solid var(--thrifti-red)" : "none",
-            outlineOffset: "0px",
-          }}
+          className={`relative overflow-hidden mb-2 aspect-[3/4] bg-[#EDEAE4] ${isSelected ? "outline-2 outline-[var(--thrifti-red)]" : ""}`}
         >
           {image ? (
             <img
@@ -183,8 +170,7 @@ function ListingProductCard({
           {/* Selected highlight overlay — bottom bar */}
           {isSelected && (
             <div
-              className="absolute bottom-0 left-0 right-0 py-1 text-center text-[10px] font-black uppercase tracking-widest text-white"
-              style={{ backgroundColor: "var(--thrifti-red)", fontFamily: "'Space Grotesk', sans-serif" }}
+              className="absolute bottom-0 left-0 right-0 py-1 text-center text-[10px] font-black uppercase tracking-widest text-white bg-[var(--thrifti-red)] font-['Space_Grotesk',sans-serif]"
             >
               Selected
             </div>
@@ -192,22 +178,18 @@ function ListingProductCard({
         </div>
         {/* Info */}
         <div className="flex items-start justify-between gap-1 mb-0.5">
-          <p className="text-[11px] leading-snug flex-1 min-w-0 truncate" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "#9CA3AF" }}>
+          <p className="text-[11px] leading-snug flex-1 min-w-0 truncate font-['Space_Grotesk',sans-serif] text-[#9CA3AF]">
             {attrLine}
           </p>
           <button onClick={handleWishlist} className="flex-shrink-0 p-0.5 -mt-0.5 transition-transform hover:scale-110" aria-label="Wishlist">
-            <Heart className="w-4 h-4" style={{ color: wishlisted ? "var(--thrifti-red)" : "#9CA3AF", fill: wishlisted ? "var(--thrifti-red)" : "none", strokeWidth: 1.5 }} />
+            <Heart className={`w-4 h-4 stroke-[1.5] ${wishlisted ? "text-[var(--thrifti-red)] fill-[var(--thrifti-red)]" : "text-[#9CA3AF] fill-none"}`} />
           </button>
         </div>
-        <p className="text-sm font-bold leading-snug mb-1 line-clamp-1" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+        <p className="text-sm font-bold leading-snug mb-1 line-clamp-1 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">
           {product.title}
         </p>
         <p
-          className="font-black text-sm"
-          style={{
-            fontFamily: "'Space Grotesk', sans-serif",
-            color: isSelected ? "var(--thrifti-red)" : "var(--thrifti-dark)",
-          }}
+          className={`font-black text-sm font-['Space_Grotesk',sans-serif] ${isSelected ? "text-[var(--thrifti-red)]" : "text-[var(--thrifti-dark)]"}`}
         >
           {priceStr}
         </p>
@@ -230,7 +212,7 @@ function RecentlyViewedSection({ customerEmail }: { customerEmail?: string }) {
   if (recentProducts.length === 0) return null;
   return (
     <div className="px-4 sm:px-6 lg:px-10 py-10">
-      <h2 className="text-xl font-black mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+      <h2 className="text-xl font-black mb-6 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">
         Recently Viewed
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -247,39 +229,39 @@ function NewDropsBanner() {
   const { days, hours, minutes, seconds, launched } = useCountdown();
   const pad = (n: number) => String(n).padStart(2, "0");
   return (
-    <section style={{ backgroundColor: "var(--thrifti-red)" }}>
+    <section className="bg-[var(--thrifti-red)]">
       <div className="grid grid-cols-1 lg:grid-cols-2">
         <div className="px-8 sm:px-12 lg:px-16 py-14 sm:py-20">
           {launched ? (
-            <span className="inline-block text-white font-black text-sm uppercase tracking-[0.3em] px-4 py-2 border border-white/40 mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>WE'RE LIVE!</span>
+            <span className="inline-block text-white font-black text-sm uppercase tracking-[0.3em] px-4 py-2 border border-white/40 mb-6 font-['Space_Grotesk',sans-serif]">WE'RE LIVE!</span>
           ) : (
             <div className="mb-4">
-              <p className="text-white/60 text-[10px] font-bold tracking-[0.35em] uppercase mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>LAUNCHING IN</p>
+              <p className="text-white/60 text-[10px] font-bold tracking-[0.35em] uppercase mb-3 font-['Space_Grotesk',sans-serif]">LAUNCHING IN</p>
               <div className="flex items-end gap-3 sm:gap-4">
                 {[{ value: pad(days), label: "DAYS" }, { value: pad(hours), label: "HRS" }, { value: pad(minutes), label: "MIN" }, { value: pad(seconds), label: "SEC" }].map(({ value, label }, i) => (
                   <div key={label} className="flex items-end gap-3 sm:gap-4">
-                    {i > 0 && <span className="text-white/40 text-2xl sm:text-3xl font-black leading-none pb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>:</span>}
+                    {i > 0 && <span className="text-white/40 text-2xl sm:text-3xl font-black leading-none pb-3 font-['Space_Grotesk',sans-serif]">:</span>}
                     <div className="text-center">
-                      <div className="text-3xl sm:text-4xl font-black text-white leading-none tabular-nums" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.02em" }}>{value}</div>
-                      <div className="text-white/50 text-[9px] font-bold tracking-[0.25em] mt-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{label}</div>
+                      <div className="text-3xl sm:text-4xl font-black text-white leading-none tabular-nums tracking-[-0.02em] font-['Space_Grotesk',sans-serif]">{value}</div>
+                      <div className="text-white/50 text-[9px] font-bold tracking-[0.25em] mt-1 font-['Space_Grotesk',sans-serif]">{label}</div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
-          <p className="text-white/60 text-[10px] font-bold tracking-[0.35em] uppercase mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>LAUNCHING 26 APRIL 2026</p>
-          <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-5" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: "-0.01em" }}>
+          <p className="text-white/60 text-[10px] font-bold tracking-[0.35em] uppercase mb-3 font-['Space_Grotesk',sans-serif]">LAUNCHING 26 APRIL 2026</p>
+          <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-5 tracking-[-0.01em] font-['Playfair_Display',serif]">
             NEW DROPS,<br />JUST IN
           </h2>
-          <p className="text-white/80 text-sm leading-relaxed mb-10 max-w-sm" style={{ fontFamily: "'Space Mono', monospace" }}>
+          <p className="text-white/80 text-sm leading-relaxed mb-10 max-w-sm font-['Space_Mono',monospace]">
             Curated pieces, limited time. Once they're gone, they're gone. Experience the shift in modern Indian fashion culture.
           </p>
           <Link href="/products">
             <button className="thrifti-btn-dark text-sm">GRAB THE DEAL</button>
           </Link>
         </div>
-        <div className="hidden lg:block relative overflow-hidden" style={{ minHeight: "400px" }}>
+        <div className="hidden lg:block relative overflow-hidden min-h-[400px]">
           <img src={CDN.fashionShow} alt="New drops fashion show" className="w-full h-full object-cover" />
         </div>
       </div>
@@ -290,24 +272,24 @@ function NewDropsBanner() {
 // ── Sell / Buy / Repeat Polaroids ─────────────────────────────────────────────
 function PolaroidSection() {
   return (
-    <section className="px-5 sm:px-8 lg:px-16 py-14 sm:py-20" style={{ backgroundColor: "var(--thrifti-cream)" }}>
+    <section className="px-5 sm:px-8 lg:px-16 py-14 sm:py-20 bg-[var(--thrifti-cream)]">
       <div className="flex flex-col gap-10 lg:grid lg:grid-cols-3 lg:gap-10">
-        <div className="polaroid relative" style={{ transform: "rotate(-2.5deg)" }}>
-          <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>SELL</span>
-          <img src={CDN.polaroidSell} alt="Sell the old you" className="w-full block" style={{ aspectRatio: "4/5", objectFit: "cover" }} />
-          <p className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>SELL THE OLD YOU</p>
+        <div className="polaroid relative rotate-[-2.5deg]">
+          <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">SELL</span>
+          <img src={CDN.polaroidSell} alt="Sell the old you" className="w-full block aspect-[4/5] object-cover" />
+          <p className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">SELL THE OLD YOU</p>
         </div>
-        <div className="polaroid relative" style={{ transform: "rotate(1.5deg)" }}>
-          <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>BUY</span>
-          <img src={CDN.polaroidBuy} alt="Wear the new you" className="w-full block" style={{ aspectRatio: "4/5", objectFit: "cover" }} />
-          <p className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>WEAR THE NEW YOU</p>
+        <div className="polaroid relative rotate-[1.5deg]">
+          <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">BUY</span>
+          <img src={CDN.polaroidBuy} alt="Wear the new you" className="w-full block aspect-[4/5] object-cover" />
+          <p className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">WEAR THE NEW YOU</p>
         </div>
-        <div className="polaroid relative" style={{ transform: "rotate(-1deg)" }}>
-          <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>REPEAT</span>
-          <img src={CDN.polaroidRepeat} alt="Be new you with Thrifti" className="w-full block" style={{ aspectRatio: "4/5", objectFit: "cover" }} />
+        <div className="polaroid relative -rotate-1">
+          <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">REPEAT</span>
+          <img src={CDN.polaroidRepeat} alt="Be new you with Thrifti" className="w-full block aspect-[4/5] object-cover" />
           <div className="flex items-end justify-between mt-3 pb-1">
-            <p className="text-xs font-bold tracking-widest uppercase" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>BE NEW YOU</p>
-            <div className="px-2 py-1 text-white text-[9px] font-black tracking-wider uppercase" style={{ backgroundColor: "var(--thrifti-dark)", fontFamily: "'Space Grotesk', sans-serif", transform: "rotate(-3deg)", flexShrink: 0 }}>WITH THRIFTI</div>
+            <p className="text-xs font-bold tracking-widest uppercase font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">BE NEW YOU</p>
+            <div className="px-2 py-1 text-white text-[9px] font-black tracking-wider uppercase bg-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif] rotate-[-3deg] shrink-0">WITH THRIFTI</div>
           </div>
         </div>
       </div>
@@ -386,22 +368,20 @@ export default function Products() {
 
   return (
     <StorefrontLayout showBanner={false}>
-      <div style={{ backgroundColor: "var(--thrifti-cream)", minHeight: "100vh" }}>
+      <div className="bg-[var(--thrifti-cream)] min-h-screen">
 
         {/* ── Page Header ── */}
         <div className="px-4 sm:px-6 lg:px-10 pt-8 pb-4">
           {/* Category label — small red text above heading */}
           {categoryLabel && (
             <p
-              className="text-sm font-bold mb-0"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-red)" }}
+              className="text-sm font-bold mb-0 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-red)]"
             >
               {categoryLabel}
             </p>
           )}
           <h1
-            className="text-4xl sm:text-5xl font-black leading-none mb-5"
-            style={{ fontFamily: "'Playfair Display', serif", color: "var(--thrifti-dark)" }}
+            className="text-4xl sm:text-5xl font-black leading-none mb-5 font-['Playfair_Display',serif] text-[var(--thrifti-dark)]"
           >
             {pageTitle}
           </h1>
@@ -409,7 +389,7 @@ export default function Products() {
           {/* Filter Bar */}
           <div className="flex items-center gap-2 flex-wrap">
             <button className="flex items-center gap-1.5 mr-1 p-1" aria-label="Filter options">
-              <SlidersHorizontal className="w-4 h-4" style={{ color: "var(--thrifti-dark)" }} />
+              <SlidersHorizontal className="w-4 h-4 text-[var(--thrifti-dark)]" />
             </button>
             {(Object.keys(FILTER_OPTIONS) as FilterKey[]).map((key) => (
               <FilterPill
@@ -423,8 +403,7 @@ export default function Products() {
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors"
-                style={{ color: "var(--thrifti-red)", fontFamily: "'Space Grotesk', sans-serif" }}
+                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors text-[var(--thrifti-red)] font-['Space_Grotesk',sans-serif]"
               >
                 <X className="w-3 h-3" /> Clear all
               </button>
@@ -432,7 +411,7 @@ export default function Products() {
           </div>
 
           {/* Results count */}
-          <p className="text-xs mt-3 mb-2" style={{ fontFamily: "'Space Mono', monospace", color: "#6B7280" }}>
+          <p className="text-xs mt-3 mb-2 font-['Space_Mono',monospace] text-[#6B7280]">
             {isLoading ? "Loading..." : `Results: ${totalProducts} item${totalProducts !== 1 ? "s" : ""}`}
           </p>
         </div>
@@ -443,7 +422,7 @@ export default function Products() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="bg-gray-200 mb-3" style={{ aspectRatio: "3/4" }} />
+                  <div className="bg-gray-200 mb-3 aspect-[3/4]" />
                   <div className="h-3 bg-gray-200 rounded mb-2 w-2/3" />
                   <div className="h-4 bg-gray-200 rounded mb-2" />
                   <div className="h-5 bg-gray-200 rounded w-1/3" />
@@ -453,10 +432,10 @@ export default function Products() {
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-24">
               <ShoppingBag className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-              <h2 className="text-2xl font-black uppercase mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+              <h2 className="text-2xl font-black uppercase mb-2 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">
                 No products found
               </h2>
-              <p className="text-gray-500 text-sm mb-6" style={{ fontFamily: "'Space Mono', monospace" }}>
+              <p className="text-gray-500 text-sm mb-6 font-['Space_Mono',monospace]">
                 {searchQuery ? `No results for "${searchQuery}". Try a different search.` : "Check back soon for new drops."}
               </p>
               <button onClick={clearAllFilters} className="thrifti-btn-dark text-sm">Clear Filters</button>
@@ -493,13 +472,11 @@ export default function Products() {
                     <button
                       key={p}
                       onClick={() => goToPage(p)}
-                      className="w-9 h-9 text-sm font-bold border transition-colors"
-                      style={{
-                        fontFamily: "'Space Grotesk', sans-serif",
-                        borderColor: p === page ? "var(--thrifti-dark)" : "#D1D5DB",
-                        backgroundColor: p === page ? "var(--thrifti-dark)" : "transparent",
-                        color: p === page ? "#ffffff" : "#6B7280",
-                      }}
+                      className={`w-9 h-9 text-sm font-bold border transition-colors font-['Space_Grotesk',sans-serif] ${
+                        p === page
+                          ? "border-[var(--thrifti-dark)] bg-[var(--thrifti-dark)] text-white"
+                          : "border-gray-300 bg-transparent text-gray-500"
+                      }`}
                     >
                       {p}
                     </button>
