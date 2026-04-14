@@ -35,6 +35,7 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [musicOn, setMusicOn] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -93,9 +94,23 @@ export default function Navbar() {
   const [location, navigate] = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
+    let rafId: number | null = null;
+    const handleScroll = () => {
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const nextProgress = Math.min(1, y / 140);
+        setScrollProgress(nextProgress);
+        setScrolled(y > 8);
+        rafId = null;
+      });
+    };
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId !== null) window.cancelAnimationFrame(rafId);
+    };
   }, []);
 
   useEffect(() => {
@@ -117,6 +132,8 @@ export default function Navbar() {
       setSearchQuery("");
     }
   };
+  const desktopHeaderHeight = 200 - 142 * scrollProgress;
+  const desktopLogoHeight = 152 - 104 * scrollProgress;
 
   return (
     <>
@@ -129,7 +146,10 @@ export default function Navbar() {
       >
         <div className="px-4 sm:px-6 lg:px-10">
           {/* Desktop Navbar — 3-column layout matching design */}
-          <div className="hidden lg:flex items-center justify-between h-[72px]">
+          <div
+            className="hidden lg:flex items-center justify-between transition-[height] duration-150 ease-out"
+            style={{ height: `${desktopHeaderHeight}px` }}
+          >
 
             {/* LEFT: Category navigation */}
             <nav className="flex items-center gap-7">
@@ -151,7 +171,7 @@ export default function Navbar() {
 
             {/* CENTER: Logo */}
             <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center">
-              <ThriftiLogo height={52} />
+              <ThriftiLogo height={desktopLogoHeight} />
             </Link>
 
             {/* RIGHT: Music toggle + icons */}
