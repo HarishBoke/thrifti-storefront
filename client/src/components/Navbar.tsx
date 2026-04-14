@@ -74,7 +74,7 @@ export default function Navbar() {
     const audio = audioRef.current;
     if (!audio) return;
     if (!musicOn) {
-      audio.play().catch(() => {/* autoplay blocked — user interaction required */});
+      audio.play().catch(() => {/* autoplay blocked — user interaction required */ });
       fadeTo(0.45);
       setMusicOn(true);
     } else {
@@ -160,19 +160,17 @@ export default function Navbar() {
               <div className="flex items-center gap-2 mr-3">
                 <button
                   onClick={handleMusicToggle}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                    musicOn ? "bg-[var(--thrifti-red)]" : "bg-[var(--thrifti-red)]"
-                  }`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${musicOn ? "bg-[var(--thrifti-red)]" : "bg-[var(--thrifti-red)]"
+                    }`}
                   aria-label="Toggle music"
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                      musicOn ? "translate-x-6" : "translate-x-1"
-                    }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${musicOn ? "translate-x-6" : "translate-x-1"
+                      }`}
                   />
                 </button>
                 <span
-                  className="text-xs italic leading-tight max-w-[80px]"
+                  className="text-xs italic leading-tight max-w-[100px]"
                   style={{ fontFamily: "'Space Mono', monospace", color: "var(--thrifti-red)" }}
                 >
                   If you like<br />the music
@@ -266,9 +264,8 @@ export default function Navbar() {
                   aria-label="Toggle music"
                 >
                   <span
-                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
-                      musicOn ? "translate-x-4" : "translate-x-0.5"
-                    }`}
+                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${musicOn ? "translate-x-4" : "translate-x-0.5"
+                      }`}
                   />
                 </button>
                 <span

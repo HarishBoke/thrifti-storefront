@@ -39,48 +39,48 @@ const SOCIAL_LINKS = [
 export default function Footer() {
   return (
     <footer style={{ backgroundColor: "var(--thrifti-red)" }}>
-      <div className="px-5 sm:px-8 lg:px-12 pt-10 pb-8">
+      <div className="px-5 sm:px-8 lg:px-12 pt-16 pb-8">
 
         {/* Brand block — BUY.SELL.REPEAT. above logo per Figma */}
-        <div className="mb-8">
-          <p
+        <div className="mb-8 flex justify-center">
+          {/* <p
             className="text-white/70 text-xs font-bold tracking-[0.25em] uppercase mb-3"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             BUY. SELL. REPEAT.
-          </p>
+          </p> */}
           <Link href="/" className="inline-block">
-            <ThriftiLogo height={72} white={true} className="max-w-full" />
+            <ThriftiLogo height={152} white={true} className="max-w-full" />
           </Link>
         </div>
 
-        {/* Tagline + Social */}
-        <div className="mb-8">
-          <p
-            className="text-white/80 text-sm leading-relaxed mb-5"
-            style={{ fontFamily: "'Space Mono', monospace" }}
-          >
-            Sell what you've outgrown.<br />
-            Wear what you're becoming.
-          </p>
-          <div className="flex items-center gap-5">
-            {SOCIAL_LINKS.map(({ icon: Icon, label, href }) => (
-              <a
-                key={label}
-                href={href}
-                target={href.startsWith("http") ? "_blank" : undefined}
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="text-white/70 hover:text-white transition-colors"
-              >
-                <Icon className="w-5 h-5" />
-              </a>
-            ))}
-          </div>
-        </div>
+
 
         {/* Link columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 border-t border-white/20 pt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 sm:gap-8 border-t border-white/20 pt-8">
+          <div className="mb-8">
+            <p
+              className="text-white/80 text-sm leading-relaxed mb-5"
+              style={{ fontFamily: "'Space Mono', monospace" }}
+            >
+              Sell what you've outgrown.<br />
+              Wear what you're becoming.
+            </p>
+            <div className="flex items-center gap-5">
+              {SOCIAL_LINKS.map(({ icon: Icon, label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="text-white/70 hover:text-white transition-colors"
+                >
+                  <Icon className="w-5 h-5" />
+                </a>
+              ))}
+            </div>
+          </div>
           {FOOTER_LINKS.map((col) => (
             <div key={col.heading}>
               <h3
@@ -112,7 +112,7 @@ export default function Footer() {
             className="text-white/50 text-xs"
             style={{ fontFamily: "'Space Mono', monospace" }}
           >
-            © Copyright {new Date().getFullYear()}, Meshi Commerce Pvt. Ltd
+            © Copyright {new Date().getFullYear()},  Meshi Commerce Pvt. Ltd, All Rights reserved
           </p>
           <p
             className="text-white/50 text-xs"

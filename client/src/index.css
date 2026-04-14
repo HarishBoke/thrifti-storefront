@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@100..800&family=Geist+Mono:wght@100..900&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -6,7 +6,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'Vogue';
+  src: local('Vogue'), local('Vogue Regular');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 @theme inline {
+  --font-vogue: 'Vogue', 'Playfair Display', serif;
+  --font-geist-mono: 'Geist Mono', 'Space Mono', monospace;
+  --font-anek-devanagari: 'Anek Devanagari', 'Noto Sans Devanagari', sans-serif;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -69,9 +81,12 @@
   --chart-3: oklch(0.75 0.10 27);
   --chart-4: oklch(0.85 0.05 27);
   --chart-5: oklch(0.95 0.02 27);
-  --radius: 0px; /* Sharp corners per design */
-  --background: oklch(0.965 0.012 85); /* Cream background */
-  --foreground: oklch(0.13 0.005 260); /* Dark text */
+  --radius: 0px;
+  /* Sharp corners per design */
+  --background: oklch(0.965 0.012 85);
+  /* Cream background */
+  --foreground: oklch(0.13 0.005 260);
+  /* Dark text */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.13 0.005 260);
   --popover: oklch(1 0 0);
@@ -127,13 +142,19 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Space Mono', monospace;
   }
-  h1, h2, h3, h4 {
+
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: 'Playfair Display', serif;
   }
+
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
@@ -190,6 +211,7 @@
     justify-content: center;
     transition: background-color 0.2s;
   }
+
   .thrifti-btn-red:hover {
     background-color: var(--thrifti-red-hover);
   }
@@ -207,15 +229,22 @@
     justify-content: center;
     transition: opacity 0.2s;
   }
+
   .thrifti-btn-dark:hover {
     opacity: 0.85;
   }
 
   /* Ticker animation */
   @keyframes ticker {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
   }
+
   .ticker-track {
     animation: ticker 20s linear infinite;
     display: flex;
@@ -225,13 +254,27 @@
   /* Polaroid card */
   .polaroid {
     background: white;
-    padding: 0.75rem 0.75rem 2.5rem 0.75rem;
-    box-shadow: 2px 4px 16px rgba(0,0,0,0.18);
+    padding: 0.75rem 0.75rem 0.75rem 0.75rem;
+    box-shadow: 2px 4px 16px rgba(0, 0, 0, 0.18);
   }
 
   /* Watermark text background */
   .watermark-bg {
     position: relative;
     overflow: hidden;
+  }
+}
+
+@layer utilities {
+  .vogue-font {
+    font-family: var(--font-vogue);
+  }
+
+  .geist-mono-font {
+    font-family: var(--font-geist-mono);
+  }
+
+  .anek-devanagari-font {
+    font-family: var(--font-anek-devanagari);
   }
 }
