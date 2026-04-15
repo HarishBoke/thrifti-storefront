@@ -183,7 +183,7 @@ export default function Home() {
   const [visibleBuiltSlides, setVisibleBuiltSlides] = useState(1);
   const [puzzleSolved, setPuzzleSolved] = useState(false);
   const [puzzleKey, setPuzzleKey] = useState(0);
-  const PROMO_CODE = "THRIFTI-FREE";
+  const PROMO_CODE = "FREESHIP";
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
 
   useEffect(() => {
