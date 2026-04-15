@@ -92,8 +92,15 @@ export default function Navbar() {
   );
   const wishlistCount = wishlistItems?.length ?? 0;
   const [location, navigate] = useLocation();
+  const isHomePage = location === "/";
 
   useEffect(() => {
+    if (!isHomePage) {
+      setScrollProgress(0);
+      setScrolled(false);
+      return;
+    }
+
     let rafId: number | null = null;
     const handleScroll = () => {
       if (rafId !== null) return;
@@ -111,7 +118,7 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
       if (rafId !== null) window.cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [isHomePage]);
 
   useEffect(() => {
     if (searchOpen) {
@@ -132,8 +139,8 @@ export default function Navbar() {
       setSearchQuery("");
     }
   };
-  const desktopHeaderHeight = 200 - 142 * scrollProgress;
-  const desktopLogoHeight = 152 - 104 * scrollProgress;
+  const desktopHeaderHeight = isHomePage ? 200 - 142 * scrollProgress : 72;
+  const desktopLogoHeight = isHomePage ? 152 - 104 * scrollProgress : 52;
 
   return (
     <>
@@ -144,10 +151,10 @@ export default function Navbar() {
           boxShadow: scrolled ? "0 1px 0 rgba(0,0,0,0.1)" : "none",
         }}
       >
-        <div className="px-4 sm:px-6 lg:px-10">
+        <div className="px-4 sm:px-6 lg:px-10 container mx-auto">
           {/* Desktop Navbar — 3-column layout matching design */}
           <div
-            className="hidden lg:flex items-center justify-between transition-[height] duration-150 ease-out"
+            className={`hidden lg:flex items-center justify-between ${isHomePage ? "transition-[height] duration-150 ease-out" : ""}`}
             style={{ height: `${desktopHeaderHeight}px` }}
           >
 
@@ -255,7 +262,7 @@ export default function Navbar() {
               {/* Hamburger (for extra pages on desktop) */}
               <button
                 onClick={() => setMobileOpen((v) => !v)}
-                className="p-2.5 hover:bg-black/5 rounded-full transition-colors"
+                className="p-2.5 hover:bg-black/5 rounded-full transition-colors lg:hidden"
                 aria-label="Menu"
               >
                 {mobileOpen

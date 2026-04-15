@@ -6,6 +6,8 @@ import { trpc } from "@/lib/trpc";
 import ProductCard from "@/components/ProductCard";
 import { Puzzle } from "react-jigsaw";
 import "react-jigsaw/styles";
+import LaunchSplitSection from "@/components/LaunchSplitSection";
+import SellBuyRepeatSection from "@/components/SellBuyRepeatSection";
 import bannerBg1 from "@/assets/img/Banner-bg-1.png";
 import bannerBg2 from "@/assets/img/Banner-bg-2.png";
 import bannerBg3 from "@/assets/img/Banner-bg-3.png";
@@ -230,91 +232,95 @@ export default function Home() {
 
       {/* ===== SECTION 1: HERO — Full-bleed with BANNER11-2 image ===== */}
       <section className="bg-[var(--thrifti-cream)] md:mt-24 lg:mt-32 xl:mt-44 md:relative">
-        <div className="relative min-h-[560px] md:min-h-[360px] xl:min-h-[680px] flex items-end">
-          {HERO_BANNER_SLIDES.map((slide, index) => (
-            <div
-              key={index}
-              className={`absolute inset-0 transition-opacity duration-700 ease-out ${index === activeHeroSlide ? "opacity-100 z-[10]" : "opacity-0 z-0"
-                }`}
-              aria-hidden={index !== activeHeroSlide}
-            >
+        <div className="relative min-h-[560px] md:min-h-[360px] xl:min-h-[680px] flex items-end ">
+          <div className="container mx-auto">
+            {HERO_BANNER_SLIDES.map((slide, index) => (
               <div
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat md:hidden"
-                style={{ backgroundImage: `url(${slide.mobileBg})` }}
-              />
-              <div
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat hidden md:block"
-                style={{ backgroundImage: `url(${slide.bg})` }}
-              />
-              <img
-                src={slide.model}
-                alt=""
-                aria-hidden="true"
-                className={`absolute z-[20] object-contain pointer-events-none hidden md:block ${slide.modelClass}`}
-              />
-            </div>
-          ))}
-          <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/45 via-black/15 to-transparent pointer-events-none" />
+                key={index}
+                className={`absolute inset-0 transition-opacity duration-700 ease-out ${index === activeHeroSlide ? "opacity-100 z-[10]" : "opacity-0 z-0"
+                  }`}
+                aria-hidden={index !== activeHeroSlide}
+              >
+                <div
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat md:hidden"
+                  style={{ backgroundImage: `url(${slide.mobileBg})` }}
+                />
+                <div
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat hidden md:block"
+                  style={{ backgroundImage: `url(${slide.bg})` }}
+                />
+                <img
+                  src={slide.model}
+                  alt=""
+                  aria-hidden="true"
+                  className={`absolute z-[20] object-contain pointer-events-none hidden md:block ${slide.modelClass}`}
+                />
+              </div>
+            ))}
+            <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/45 via-black/15 to-transparent pointer-events-none" />
 
-          <div className="relative z-[30] flex h-full min-h-[560px] md:min-h-[360px] xl:min-h-[680px] w-full items-end">
-            <div className="px-6 sm:px-10 md:px-20 pb-14 sm:pb-4 lg:pb-20 max-w-[720px]">
-              <h1 className="vogue-font text-white uppercase leading-tight tracking-[-0.01em] text-[52px] sm:text-[60px] md:text-[52px] 2xl:text-[64px]">
-                {currentHeroSlide.title[0]}
-                <br />
-                {currentHeroSlide.title[1]}
-                <br />
-                {currentHeroSlide.title[2]}
-              </h1>
-              <p className="geist-mono-font mt-3 sm:mt-4 text-white uppercase tracking-[0.08em] text-sm sm:text-xl md:text-xl max-w-[52ch]">
-                {currentHeroSlide.subtitle}
-              </p>
-              <div className="mt-10">
-                <a
-                  href={currentHeroSlide.ctaHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="thrifti-btn-red inline-flex anek-devanagari-font text-sm md:text-base 2xl:text-2xl pb-1"
-                >
-                  {currentHeroSlide.ctaLabel}
-                </a>
+            <div className="relative z-[30] flex h-full min-h-[560px] md:min-h-[360px] xl:min-h-[680px] w-full items-end">
+              <div className="px-6 sm:px-10 md:px-20 pb-14 sm:pb-4 lg:pb-20 max-w-[720px]">
+                <h1 className="vogue-font text-white uppercase leading-tight tracking-[-0.01em] text-[52px] sm:text-[60px] md:text-[52px] 2xl:text-[64px]">
+                  {currentHeroSlide.title[0]}
+                  <br />
+                  {currentHeroSlide.title[1]}
+                  <br />
+                  {currentHeroSlide.title[2]}
+                </h1>
+                <p className="geist-mono-font mt-3 sm:mt-4 text-white uppercase tracking-[0.08em] text-sm sm:text-xl md:text-xl max-w-[52ch]">
+                  {currentHeroSlide.subtitle}
+                </p>
+                <div className="mt-10">
+                  <a
+                    href={currentHeroSlide.ctaHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="thrifti-btn-red inline-flex anek-devanagari-font text-sm md:text-base 2xl:text-2xl pb-1"
+                  >
+                    {currentHeroSlide.ctaLabel}
+                  </a>
+                </div>
               </div>
             </div>
+
+            {HERO_BANNER_SLIDES.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setActiveHeroSlide((prev) => (prev - 1 + HERO_BANNER_SLIDES.length) % HERO_BANNER_SLIDES.length)
+                  }
+                  aria-label="Previous hero slide"
+                  className="absolute left-3 top-1/2 z-[30] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-2xl leading-none text-white transition-colors hover:bg-black/60"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveHeroSlide((prev) => (prev + 1) % HERO_BANNER_SLIDES.length)}
+                  aria-label="Next hero slide"
+                  className="absolute right-3 top-1/2 z-[30] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-2xl leading-none text-white transition-colors hover:bg-black/60"
+                >
+                  ›
+                </button>
+                <div className="absolute bottom-6 left-1/2 z-[30] flex -translate-x-1/2 gap-2">
+                  {HERO_BANNER_SLIDES.map((_, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setActiveHeroSlide(index)}
+                      aria-label={`Go to hero slide ${index + 1}`}
+                      className={`h-2 rounded-full transition-all ${activeHeroSlide === index ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
+                        }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
           </div>
 
-          {HERO_BANNER_SLIDES.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={() =>
-                  setActiveHeroSlide((prev) => (prev - 1 + HERO_BANNER_SLIDES.length) % HERO_BANNER_SLIDES.length)
-                }
-                aria-label="Previous hero slide"
-                className="absolute left-3 top-1/2 z-[30] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-2xl leading-none text-white transition-colors hover:bg-black/60"
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveHeroSlide((prev) => (prev + 1) % HERO_BANNER_SLIDES.length)}
-                aria-label="Next hero slide"
-                className="absolute right-3 top-1/2 z-[30] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-2xl leading-none text-white transition-colors hover:bg-black/60"
-              >
-                ›
-              </button>
-              <div className="absolute bottom-6 left-1/2 z-[30] flex -translate-x-1/2 gap-2">
-                {HERO_BANNER_SLIDES.map((_, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setActiveHeroSlide(index)}
-                    aria-label={`Go to hero slide ${index + 1}`}
-                    className={`h-2 rounded-full transition-all ${activeHeroSlide === index ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
-                      }`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
         </div>
         {/* ===== ANIMATED TICKER ===== */}
         <AnimatedTicker />
@@ -322,7 +328,7 @@ export default function Home() {
 
       {/* ===== SECTION 2: YOUR WARDROBE IS A TRANSITION FUND ===== */}
       <section className=" bg-[#F5F1E9]">
-        <div className="flex flex-col lg:flex-row lg:items-center">
+        <div className="flex flex-col lg:flex-row lg:items-center container mx-auto">
           <div className="w-full lg:w-1/2 order-2 lg:order-1">
             <div className="px-5 py-10 sm:px-8 md:px-10 md:py-12 2xl:px-16">
               <h2 className="mb-5 md:mb-6 2xl:mb-8 vogue-font uppercase leading-tight text-3xl sm:text-4xl md:text-[2.6rem] lg:text-5xl 2xl:text-6xl hidden lg:block w-[15ch]">
@@ -393,15 +399,14 @@ export default function Home() {
             </div>
           </div>
         </div>
-
         {/* <div className="h-16 w-full bg-[var(--thrifti-red)] sm:h-20" aria-hidden /> */}
       </section>
 
       {/* ===== SECTION 3: COMPLETE THE LOOK — Interactive Jigsaw Puzzle ===== */}
       <section className="bg-[var(--thrifti-red)]">
-        <div className="flex flex-col lg:flex-row px-4 sm:px-8 lg:px-16 pt-4 pb-10 lg:pb-0 lg:pt-20">
+        <div className={`flex flex-col lg:flex-row px-4 sm:px-8 lg:px-16 pt-4 pb-10 lg:pb-0 lg:pt-20 container mx-auto ${puzzleSolved ? "items-center" : ""}`}>
           {/* Puzzle photo with grid overlay */}
-          <div className="relative w-full lg:w-1/2 mb-5 lg:-mb-20 flex items-center justify-center lg:justify-start">
+          <div className={`relative w-full lg:w-1/2 mb-5 flex items-center justify-center ${puzzleSolved ? "lg:mb-0" : "lg:-mb-20"}`}>
             {puzzleSolved ? (
               <div
                 className="flex flex-col items-center justify-center text-center min-h-[320px]"
@@ -471,9 +476,9 @@ export default function Home() {
             )}
           </div>
           {/* Text */}
-          <div className=" text-white w-full lg:w-1/2 pr-0 2xl:pr-20">
+          <div className={`text-white w-full lg:w-1/2 pr-0 2xl:pr-20 pb-0 lg:pb-20 ${puzzleSolved ? "text-center lg:text-center" : ""}`}>
             <h2
-              className="vogue-font tracking-[0.02em] mb-4 uppercase text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl text-center lg:text-left leading-tight"
+              className={`vogue-font tracking-[0.02em] mb-4 uppercase text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl text-center leading-tight ${puzzleSolved ? "lg:text-center" : "lg:text-left"}`}
             >
               COMPLETE THE LOOK AND UNLOCK
             </h2>
@@ -487,11 +492,11 @@ export default function Home() {
               </span>
             </div>
             <p
-              className="mb-4 vogue-font uppercase leading-tight text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl w-full lg:w-[10ch] text-center lg:text-left"
+              className={`mb-4 vogue-font uppercase leading-tight text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl w-full text-center ${puzzleSolved ? "lg:text-center lg:w-full" : "lg:text-left lg:w-[10ch]"}`}
             >
               ON YOUR NEXT FIND
             </p>
-            <Link href="/products" className="flex items-center justify-center lg:justify-start">
+            <Link href="/products" className={`flex items-center justify-center ${puzzleSolved ? "lg:justify-center" : "lg:justify-start"}`}>
               <button className="thrifti-btn-dark text-2xl">
                 CLAIM CODE
               </button>
@@ -501,7 +506,7 @@ export default function Home() {
       </section>
       {/* ===== SECTION 4: BUILT FOR BANGALORE ===== */}
       <section className="bg-[var(--thrifti-cream)] lg:pt-20">
-        <div className="px-5 sm:px-8 lg:px-10 xl:px-16 pt-10 sm:pt-14 pb-10 lg:pb-14">
+        <div className="px-5 sm:px-8 lg:px-10 xl:px-16 pt-10 sm:pt-14 pb-10 lg:pb-14 container mx-auto">
           <h2 className="mb-5 2xl:mb-8 vogue-font uppercase leading-tight text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl text-center">
             BUILT FOR BANGALORE
           </h2>
@@ -568,102 +573,50 @@ export default function Home() {
       </section>
 
       {/* ===== SECTION 5: NEW DROPS (Red split) ===== */}
-      <section className="bg-[var(--thrifti-red)]">
-        <div className="flex flex-col lg:flex-row lg:min-h-[430px]">
-          <div className="w-full lg:w-[40%] px-7 sm:px-10 lg:px-12 py-10 lg:py-12 flex flex-col justify-center">
-            <p
-              className="anek-devanagari-font text-white text-base 2xl:text-xl font-medium lg:font-bold tracking-[0.16em] uppercase mb-1"
-            >
-              LAUNCHING 26 APRIL 2026
-            </p>
-            <h2
-              className="mb-6 vogue-font uppercase leading-tight text-[32px] sm:text-4xl lg:text-5xl 2xl:text-6xl text-white"
-            >
-              Limited drops.<br /> No repeats.
-            </h2>
-            <p
-              className="geist-mono-font text-white text-base lg:text-lg leading-relaxed mb-10 lg:mb-8 lg:w-[35ch] font-medium"
-            >
-              Curated pieces, limited time. Once they're gone, they're gone. Experience the shift in modern Indian fashion culture.
-            </p>
-            <Link href="/products">
-              <button className="thrifti-btn-dark text-2xl">
-                GRAB THE DEAL
-              </button>
-            </Link>
-          </div>
-          <div className="w-full lg:w-[60%]">
-            <img
-              src={launchingImage}
-              alt="Fashion show"
-              className="w-full h-[300px] sm:h-[360px] lg:h-[700px] block object-cover"
-            />
-          </div>
-        </div>
-      </section>
+      <LaunchSplitSection
+        pretitle="LAUNCHING 26 APRIL 2026"
+        title={<>Limited drops.<br /> No repeats.</>}
+        description="Curated pieces, limited time. Once they're gone, they're gone. Experience the shift in modern Indian fashion culture."
+        ctaLabel="EXPLORE DROPS"
+        ctaHref="/products"
+        imageSrc={launchingImage}
+        imageAlt="Fashion show"
+      />
 
       {/* ===== SECTION 6: SELL / BUY / REPEAT POLAROIDS ===== */}
-      <section
-        className="px-4 sm:px-6 lg:px-16 pt-10 pb-18 sm:pb-18 sm:pt-14 lg:py-20 bg-[var(--thrifti-cream)]  lg:w-[90%] mx-auto"
-      >
-        <div className="max-w-[255px] sm:max-w-[300px] lg:max-w-none mx-auto lg:mx-0 flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-4">
-          {/* SELL — left, tilted, in front of center */}
-          <div className="w-full rotate-[-8deg] lg:rotate-[-12deg] pl-8 lg:pl-0">
-            <div className="vogue-font text-3xl lg:text-7xl uppercase italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
-              BUY
-            </div>
-            <div className="polaroid">
-              <img
-                src={built3}
-                alt="Sell the old you"
-                className="block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center"
-              />
-              <p className="geist-mono-font mt-1.5 lg:mt-3 text-center 2xl:text-2xl text-sm lg:text-xl uppercase leading-none tracking-wide text-[var(--thrifti-dark)]">
-                SELL THE OLD YOU
-              </p>
-            </div>
-          </div>
-
-          {/* BUY — center, straight, sits lower and behind side cards */}
-          <div className="w-full -mt-10 sm:mt-2 lg:mt-10 relative lg:static pr-8 lg:pr-0">
-            <div className="vogue-font text-3xl lg:text-7xl uppercase not-italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
-              SELL
-            </div>
-            <div className="polaroid">
-              <img
-                src={repeat1Polaroid}
-                alt="Wear the new you"
-                className="block aspect-[4/5] w-full object-cover h-[238px] sm:h-[270px] md:h-[302px] lg:h-[400px] object-center"
-              />
-              <p className="geist-mono-font mt-1.5 lg:mt-3 text-center uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl">
-                WEAR THE NEW YOU
-              </p>
-            </div>
-          </div>
-
-          {/* REPEAT — right, tilted, overlaps center; WITH THRIFTI sticker */}
-          <div className="w-full rotate-[-10deg] lg:rotate-[14deg] -mt-7 lg:mt-0 pr-8 lg:pr-0">
-            <div className="vogue-font text-3xl lg:text-7xl uppercase italic leading-none text-[var(--thrifti-dark)] mb-1.5 lg:mb-3">
-              REPEAT
-            </div>
-            <div className="polaroid">
-              <img
-                src={repeatPolaroid}
-                alt="Be new you with Thrifti"
-                className="block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center"
-              />
-              <div className="relative flex min-h-[2rem] items-end justify-center pb-2 lg:pb-1">
-                <p className="geist-mono-font uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl">
-                  BE NEW YOU
-                </p>
-                <div className="anek-devanagari-font 2xl:text-2xl text-lg font-bold bg-[#F5F1EA] px-3.5 lg:px-4 pt-1.5 lg:pt-2 pb-0 absolute lg:bottom-[-10%] lg:right-[-20%] bottom-[-80%] right-[-20%] shrink-0 rotate-[-13deg] lg:rotate-[-16deg] flex items-center justify-center shadow-md">
-                  WITH THRIFTI
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <SellBuyRepeatSection
+        leftCard={{
+          heading: "BUY",
+          imageSrc: built3,
+          imageAlt: "Sell the old you",
+          caption: "SELL THE OLD YOU",
+          wrapperClassName: "w-full rotate-[-8deg] lg:rotate-[-12deg] pl-8 lg:pl-0",
+          imageClassName: "block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center",
+          captionClassName:
+            "geist-mono-font mt-1.5 lg:mt-3 text-center 2xl:text-2xl text-sm lg:text-xl uppercase leading-none tracking-wide text-[var(--thrifti-dark)]",
+        }}
+        centerCard={{
+          heading: "SELL",
+          imageSrc: repeat1Polaroid,
+          imageAlt: "Wear the new you",
+          caption: "WEAR THE NEW YOU",
+          wrapperClassName: "w-full -mt-10 sm:mt-2 lg:mt-10 relative lg:static pr-8 lg:pr-0",
+          imageClassName: "block aspect-[4/5] w-full object-cover h-[238px] sm:h-[270px] md:h-[302px] lg:h-[400px] object-center",
+          captionClassName:
+            "geist-mono-font mt-1.5 lg:mt-3 text-center uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl",
+        }}
+        rightCard={{
+          heading: "REPEAT",
+          imageSrc: repeatPolaroid,
+          imageAlt: "Be new you with Thrifti",
+          caption: "BE NEW YOU",
+          wrapperClassName: "w-full rotate-[-10deg] lg:rotate-[14deg] -mt-7 lg:mt-0 pr-8 lg:pr-0",
+          imageClassName: "block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center",
+          captionClassName:
+            "geist-mono-font uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl",
+        }}
+        stickerText="WITH THRIFTI"
+      />
 
       {/* ===== SECTION 7: FEATURED PRODUCTS ===== */}
       {/* <section className="py-12 sm:py-16" style={{ backgroundColor: "white" }}>

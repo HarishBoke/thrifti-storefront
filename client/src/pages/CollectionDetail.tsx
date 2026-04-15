@@ -32,7 +32,7 @@ export default function CollectionDetail() {
     return (
       <StorefrontLayout>
         <div className="container py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h1 className="vogue-font leading-tight text-3xl sm:text-4xl lg:text-5xl text-foreground mb-4">
             Collection Not Found
           </h1>
           <Link href="/collections">

@@ -1,12 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { SlidersHorizontal, ChevronDown, Heart, ShoppingBag, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, ShoppingBag, X, ChevronLeft, ChevronRight } from "lucide-react";
 import StorefrontLayout from "@/components/StorefrontLayout";
 import AnimatedBanner from "@/components/AnimatedBanner";
+import SellBuyRepeatSection from "@/components/SellBuyRepeatSection";
+import RecentlyViewedGrid from "@/components/RecentlyViewedGrid";
 import { trpc } from "@/lib/trpc";
 import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 import type { ShopifyProduct } from "@shared/shopifyTypes";
-
+import built3 from "@/assets/img/Built3.png";
+import repeat1Polaroid from "@/assets/img/Repeat1.png";
+import repeatPolaroid from "@/assets/img/Repeat.png";
+import LaunchSplitSection from "@/components/LaunchSplitSection";
+import launchingImage from "@/assets/img/launching.png";
 // Launch date for countdown
 const LAUNCH_DATE = new Date("2026-04-26T00:00:00+05:30");
 
@@ -26,9 +32,6 @@ function useCountdown() {
 
 const CDN = {
   fashionShow: "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/photo-fashion-final_3379776b.png",
-  polaroidSell: "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/photo-sell-final_a950a217.png",
-  polaroidBuy: "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/photo-buy-final_97b38991.png",
-  polaroidRepeat: "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686037/RdJ3855myHy6XYmFtkiXgE/photo-repeat-final_f6fb09a9.png",
 };
 
 const FILTER_OPTIONS = {
@@ -39,6 +42,25 @@ const FILTER_OPTIONS = {
   Price: ["Under ₹500", "₹500–₹1000", "₹1000–₹2000", "₹2000–₹5000", "Above ₹5000"],
 } as const;
 type FilterKey = keyof typeof FILTER_OPTIONS;
+
+function HeartSvg({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      width="14"
+      height="13"
+      viewBox="0 0 14 13"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        d="M12.4464 7.625C11.2141 8.97317 10.0273 10.1785 8.68978 11.3403L6.78036 13.0007L2.21499 8.32692C1.14303 7.2329 0.298391 5.9283 0.0543298 4.4107C-0.287834 2.30253 1.01622 0.296014 3.11945 0.0297692C4.63167 -0.161443 6.00032 0.584042 6.98135 1.81845C7.79249 0.816401 8.85488 0.129006 10.1446 0.0297692C11.9655 -0.108194 13.5447 1.12379 13.8964 2.89795C14.2481 4.67211 13.6595 6.2962 12.4464 7.62258V7.625ZM13.0518 4.41312C13.3748 2.75515 12.3794 1.17462 10.7452 0.951944C9.4411 0.775254 8.14901 1.5522 7.58432 2.68253C7.87624 3.27069 8.17055 3.81286 8.2208 4.40828C8.29019 5.23606 7.74942 5.90167 6.9981 5.88473C6.33291 5.87021 5.70841 5.31352 5.76822 4.50268C5.81369 3.89274 6.14389 3.29974 6.44298 2.69222C5.87351 1.72647 4.87573 1.04392 3.72481 0.932581C2.50929 0.813981 1.42059 1.58125 1.03057 2.73578C0.0878283 5.52651 3.01895 7.85494 4.80873 9.66298L6.88564 11.7615C8.57971 10.1616 10.147 8.68514 11.6616 7.032C12.3387 6.29136 12.8508 5.42969 13.0494 4.4107L13.0518 4.41312ZM7.24934 4.76892C7.35941 4.40102 7.2302 3.90726 6.95982 3.64344C6.71336 4.20497 6.50519 4.67453 6.90239 4.93835C6.97178 4.98434 7.22063 4.86332 7.24934 4.77134V4.76892Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
 
 function parseSearchParams() {
   if (typeof window === "undefined") return { q: "", collection: "" };
@@ -74,13 +96,15 @@ function FilterPill({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border transition-all font-['Space_Grotesk',sans-serif] ${
-          hasSelection ? "border-[var(--thrifti-dark)] bg-[var(--thrifti-dark)] text-white" : "border-gray-300 bg-white text-gray-500"
-        }`}
+        className={`flex items-center gap-3 px-5 py-2 text-md font-medium anek-devanagari-font border-1 border-[#35392D] transition-all rounded-4xl
+          }`}
       >
-        {label}
+        <p className="text-foreground leading-[1] -mb-1.5 text-sm lg:text-base">
+          {label}
+
+        </p>
         {hasSelection && <span className="text-[10px]">({selected.length})</span>}
-        <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-3 h-3 lg:w-4 lg:h-4 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div className="absolute top-full left-0 mt-1 z-20 bg-white border border-gray-200 shadow-lg min-w-[160px] py-1">
@@ -88,9 +112,8 @@ function FilterPill({
             <button
               key={opt}
               onClick={() => { onSelect(opt); setOpen(false); }}
-              className={`w-full text-left px-4 py-2 text-xs hover:bg-gray-50 flex items-center justify-between font-['Space_Grotesk',sans-serif] ${
-                selected.includes(opt) ? "font-bold text-[var(--thrifti-dark)]" : "font-normal text-gray-500"
-              }`}
+              className={`w-full text-left px-4 py-2 text-xs hover:bg-gray-50 flex items-center justify-between font-['Space_Grotesk',sans-serif] ${selected.includes(opt) ? "font-bold text-[var(--thrifti-dark)]" : "font-normal text-gray-500"
+                }`}
             >
               {opt}
               {selected.includes(opt) && <X className="w-3 h-3" />}
@@ -151,10 +174,10 @@ function ListingProductCard({
 
   return (
     <Link href={`/products/${product.handle}`}>
-      <div className="cursor-pointer group">
+      <div className="cursor-pointer group bg-transparent p-3 transition-colors duration-300 hover:bg-[var(--thrifti-red)]">
         {/* Image */}
         <div
-          className={`relative overflow-hidden mb-2 aspect-[3/4] bg-[#EDEAE4] ${isSelected ? "outline-2 outline-[var(--thrifti-red)]" : ""}`}
+          className={`relative overflow-hidden aspect-[3/4] mb-4 bg-[#EDEAE4] ${isSelected ? "outline-2 outline-[var(--thrifti-red)]" : ""}`}
         >
           {image ? (
             <img
@@ -164,7 +187,7 @@ function ListingProductCard({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <ShoppingBag className="w-10 h-10 text-gray-300" />
+              <ShoppingBag className="w-10 h-10 text-gray-300 transition-colors duration-300 group-hover:text-white" />
             </div>
           )}
           {/* Selected highlight overlay — bottom bar */}
@@ -178,18 +201,18 @@ function ListingProductCard({
         </div>
         {/* Info */}
         <div className="flex items-start justify-between gap-1 mb-0.5">
-          <p className="text-[11px] leading-snug flex-1 min-w-0 truncate font-['Space_Grotesk',sans-serif] text-[#9CA3AF]">
+          <p className="font-light text-xs lg:text-sm text-[#1F1F22] geist-mono-font transition-colors duration-300 group-hover:text-white">
             {attrLine}
           </p>
           <button onClick={handleWishlist} className="flex-shrink-0 p-0.5 -mt-0.5 transition-transform hover:scale-110" aria-label="Wishlist">
-            <Heart className={`w-4 h-4 stroke-[1.5] ${wishlisted ? "text-[var(--thrifti-red)] fill-[var(--thrifti-red)]" : "text-[#9CA3AF] fill-none"}`} />
+            <HeartSvg className={`h-4 w-4 transition-colors duration-300 group-hover:text-white ${wishlisted ? "text-[var(--thrifti-red)]" : "text-[#9CA3AF] hover:text-[var(--thrifti-red)]"}`} />
           </button>
         </div>
-        <p className="text-sm font-bold leading-snug mb-1 line-clamp-1 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">
+        <p className="font-medium text-sm lg:text-lg text-[#1F1F22] geist-mono-font transition-colors duration-300 group-hover:text-white">
           {product.title}
         </p>
         <p
-          className={`font-black text-sm font-['Space_Grotesk',sans-serif] ${isSelected ? "text-[var(--thrifti-red)]" : "text-[var(--thrifti-dark)]"}`}
+          className={`text-[#1F1F22] anek-devanagari-font text-xl lg:text-3xl font-semibold mt-2 transition-colors duration-300 group-hover:text-white`}
         >
           {priceStr}
         </p>
@@ -209,18 +232,17 @@ function RecentlyViewedSection({ customerEmail }: { customerEmail?: string }) {
   }, []);
   const { data: productsData } = trpc.products.list.useQuery({ first: 20 }, { enabled: recentHandles.length > 0 });
   const recentProducts = (productsData?.products ?? []).filter((p) => recentHandles.includes(p.handle)).slice(0, 4);
-  if (recentProducts.length === 0) return null;
   return (
-    <div className="px-4 sm:px-6 lg:px-10 py-10">
-      <h2 className="text-xl font-black mb-6 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">
-        Recently Viewed
-      </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-        {recentProducts.map((product) => (
-          <ListingProductCard key={product.id} product={product} customerEmail={customerEmail} />
-        ))}
-      </div>
-    </div>
+    <RecentlyViewedGrid
+      items={recentProducts}
+      renderItem={(product) => (
+        <ListingProductCard
+          key={product.id}
+          product={product}
+          customerEmail={customerEmail}
+        />
+      )}
+    />
   );
 }
 
@@ -229,71 +251,54 @@ function NewDropsBanner() {
   const { days, hours, minutes, seconds, launched } = useCountdown();
   const pad = (n: number) => String(n).padStart(2, "0");
   return (
-    <section className="bg-[var(--thrifti-red)]">
-      <div className="grid grid-cols-1 lg:grid-cols-2">
-        <div className="px-8 sm:px-12 lg:px-16 py-14 sm:py-20">
-          {launched ? (
-            <span className="inline-block text-white font-black text-sm uppercase tracking-[0.3em] px-4 py-2 border border-white/40 mb-6 font-['Space_Grotesk',sans-serif]">WE'RE LIVE!</span>
-          ) : (
-            <div className="mb-4">
-              <p className="text-white/60 text-[10px] font-bold tracking-[0.35em] uppercase mb-3 font-['Space_Grotesk',sans-serif]">LAUNCHING IN</p>
-              <div className="flex items-end gap-3 sm:gap-4">
-                {[{ value: pad(days), label: "DAYS" }, { value: pad(hours), label: "HRS" }, { value: pad(minutes), label: "MIN" }, { value: pad(seconds), label: "SEC" }].map(({ value, label }, i) => (
-                  <div key={label} className="flex items-end gap-3 sm:gap-4">
-                    {i > 0 && <span className="text-white/40 text-2xl sm:text-3xl font-black leading-none pb-3 font-['Space_Grotesk',sans-serif]">:</span>}
-                    <div className="text-center">
-                      <div className="text-3xl sm:text-4xl font-black text-white leading-none tabular-nums tracking-[-0.02em] font-['Space_Grotesk',sans-serif]">{value}</div>
-                      <div className="text-white/50 text-[9px] font-bold tracking-[0.25em] mt-1 font-['Space_Grotesk',sans-serif]">{label}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          <p className="text-white/60 text-[10px] font-bold tracking-[0.35em] uppercase mb-3 font-['Space_Grotesk',sans-serif]">LAUNCHING 26 APRIL 2026</p>
-          <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-5 tracking-[-0.01em] font-['Playfair_Display',serif]">
-            NEW DROPS,<br />JUST IN
-          </h2>
-          <p className="text-white/80 text-sm leading-relaxed mb-10 max-w-sm font-['Space_Mono',monospace]">
-            Curated pieces, limited time. Once they're gone, they're gone. Experience the shift in modern Indian fashion culture.
-          </p>
-          <Link href="/products">
-            <button className="thrifti-btn-dark text-sm">GRAB THE DEAL</button>
-          </Link>
-        </div>
-        <div className="hidden lg:block relative overflow-hidden min-h-[400px]">
-          <img src={CDN.fashionShow} alt="New drops fashion show" className="w-full h-full object-cover" />
-        </div>
-      </div>
-    </section>
+    <LaunchSplitSection
+      pretitle="LAUNCHING 26 APRIL 2026"
+      title={<>New drops,<br /> just in</>}
+      description="Curated pieces, limited time. Once they're gone,they're gone. Experience the shift in modern Indian fashion culture."
+      ctaLabel="Grab the deal"
+      ctaHref="/products"
+      imageSrc={launchingImage}
+      imageAlt="Fashion show"
+    />
   );
 }
 
 // ── Sell / Buy / Repeat Polaroids ─────────────────────────────────────────────
 function PolaroidSection() {
   return (
-    <section className="px-5 sm:px-8 lg:px-16 py-14 sm:py-20 bg-[var(--thrifti-cream)]">
-      <div className="flex flex-col gap-10 lg:grid lg:grid-cols-3 lg:gap-10">
-        <div className="polaroid relative rotate-[-2.5deg]">
-          <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">SELL</span>
-          <img src={CDN.polaroidSell} alt="Sell the old you" className="w-full block aspect-[4/5] object-cover" />
-          <p className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">SELL THE OLD YOU</p>
-        </div>
-        <div className="polaroid relative rotate-[1.5deg]">
-          <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">BUY</span>
-          <img src={CDN.polaroidBuy} alt="Wear the new you" className="w-full block aspect-[4/5] object-cover" />
-          <p className="text-center text-xs font-bold tracking-widest uppercase mt-3 pb-1 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">WEAR THE NEW YOU</p>
-        </div>
-        <div className="polaroid relative -rotate-1">
-          <span className="absolute top-3 left-3 text-xs font-black tracking-widest uppercase z-10 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">REPEAT</span>
-          <img src={CDN.polaroidRepeat} alt="Be new you with Thrifti" className="w-full block aspect-[4/5] object-cover" />
-          <div className="flex items-end justify-between mt-3 pb-1">
-            <p className="text-xs font-bold tracking-widest uppercase font-['Space_Grotesk',sans-serif] text-[var(--thrifti-dark)]">BE NEW YOU</p>
-            <div className="px-2 py-1 text-white text-[9px] font-black tracking-wider uppercase bg-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif] rotate-[-3deg] shrink-0">WITH THRIFTI</div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <SellBuyRepeatSection
+      leftCard={{
+        heading: "BUY",
+        imageSrc: built3,
+        imageAlt: "Sell the old you",
+        caption: "SELL THE OLD YOU",
+        wrapperClassName: "w-full rotate-[-8deg] lg:rotate-[-12deg] pl-8 lg:pl-0",
+        imageClassName: "block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center",
+        captionClassName:
+          "geist-mono-font mt-1.5 lg:mt-3 text-center 2xl:text-2xl text-sm lg:text-xl uppercase leading-none tracking-wide text-[var(--thrifti-dark)]",
+      }}
+      centerCard={{
+        heading: "SELL",
+        imageSrc: repeat1Polaroid,
+        imageAlt: "Wear the new you",
+        caption: "WEAR THE NEW YOU",
+        wrapperClassName: "w-full -mt-10 sm:mt-2 lg:mt-10 relative lg:static pr-8 lg:pr-0",
+        imageClassName: "block aspect-[4/5] w-full object-cover h-[238px] sm:h-[270px] md:h-[302px] lg:h-[400px] object-center",
+        captionClassName:
+          "geist-mono-font mt-1.5 lg:mt-3 text-center uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl",
+      }}
+      rightCard={{
+        heading: "REPEAT",
+        imageSrc: repeatPolaroid,
+        imageAlt: "Be new you with Thrifti",
+        caption: "BE NEW YOU",
+        wrapperClassName: "w-full rotate-[-10deg] lg:rotate-[14deg] -mt-7 lg:mt-0 pr-8 lg:pr-0",
+        imageClassName: "block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center",
+        captionClassName:
+          "geist-mono-font uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl",
+      }}
+      stickerText="WITH THRIFTI"
+    />
   );
 }
 
@@ -371,23 +376,23 @@ export default function Products() {
       <div className="bg-[var(--thrifti-cream)] min-h-screen">
 
         {/* ── Page Header ── */}
-        <div className="px-4 sm:px-6 lg:px-10 pt-8 pb-4">
+        <div className="px-4 sm:px-6 lg:px-10 pt-4 lg:pt-8 pb-2 lg:pb-4 container mx-auto">
           {/* Category label — small red text above heading */}
           {categoryLabel && (
             <p
-              className="text-sm font-bold mb-0 font-['Space_Grotesk',sans-serif] text-[var(--thrifti-red)]"
+              className="text-[#F42824] text-3xl font-medium anek-devanagari-font underline"
             >
               {categoryLabel}
             </p>
           )}
           <h1
-            className="text-4xl sm:text-5xl font-black leading-none mb-5 font-['Playfair_Display',serif] text-[var(--thrifti-dark)]"
+            className="vogue-font uppercase leading-tight text-3xl sm:text-4xl lg:text-5xl text-foreground"
           >
             {pageTitle}
           </h1>
 
           {/* Filter Bar */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-4 flex-wrap mt-3">
             <button className="flex items-center gap-1.5 mr-1 p-1" aria-label="Filter options">
               <SlidersHorizontal className="w-4 h-4 text-[var(--thrifti-dark)]" />
             </button>
@@ -403,21 +408,21 @@ export default function Products() {
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors text-[var(--thrifti-red)] font-['Space_Grotesk',sans-serif]"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors text-[var(--thrifti-red)] geist-mono-font"
               >
-                <X className="w-3 h-3" /> Clear all
+                <X className="w-4 h-4" /> Clear all
               </button>
             )}
           </div>
 
           {/* Results count */}
-          <p className="text-xs mt-3 mb-2 font-['Space_Mono',monospace] text-[#6B7280]">
+          <p className="text-sm anek-devanagari-font text-foreground mt-6 ">
             {isLoading ? "Loading..." : `Results: ${totalProducts} item${totalProducts !== 1 ? "s" : ""}`}
           </p>
         </div>
 
         {/* ── Product Grid ── */}
-        <div className="px-4 sm:px-6 lg:px-10 pb-8">
+        <div className="px-4 sm:px-6 lg:px-10 lg:pb-12 pb-4 container mx-auto">
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -442,7 +447,7 @@ export default function Products() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-4">
                 {paginatedProducts.map((product) => (
                   <div
                     key={product.id}
@@ -472,11 +477,10 @@ export default function Products() {
                     <button
                       key={p}
                       onClick={() => goToPage(p)}
-                      className={`w-9 h-9 text-sm font-bold border transition-colors font-['Space_Grotesk',sans-serif] ${
-                        p === page
-                          ? "border-[var(--thrifti-dark)] bg-[var(--thrifti-dark)] text-white"
-                          : "border-gray-300 bg-transparent text-gray-500"
-                      }`}
+                      className={`w-9 h-9 text-sm font-bold border transition-colors font-['Space_Grotesk',sans-serif] ${p === page
+                        ? "border-[var(--thrifti-dark)] bg-[var(--thrifti-dark)] text-white"
+                        : "border-gray-300 bg-transparent text-gray-500"
+                        }`}
                     >
                       {p}
                     </button>
