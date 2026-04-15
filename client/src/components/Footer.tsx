@@ -39,7 +39,7 @@ const SOCIAL_LINKS = [
 export default function Footer() {
   return (
     <footer style={{ backgroundColor: "var(--thrifti-red)" }}>
-      <div className="px-9 lg:px-12 pt-11 lg:pt-16 pb-8">
+      <div className="px-9 lg:px-12 pt-11 lg:pt-16 pb-8 container mx-auto">
 
         {/* Brand block — BUY.SELL.REPEAT. above logo per Figma */}
         <div className="mb-8 flex justify-center">
