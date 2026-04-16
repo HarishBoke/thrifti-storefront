@@ -203,20 +203,29 @@ export default function ProductDetail() {
     { customerEmail: customer?.email ?? "" },
     { enabled: !!customer?.email && isAuthenticated }
   );
-  const addToWishlist = trpc.wishlist.add.useMutation();
+   const addToWishlist = trpc.wishlist.add.useMutation();
   const removeFromWishlist = trpc.wishlist.remove.useMutation();
   const utils = trpc.useUtils();
-
+  const trackView = trpc.products.trackView.useMutation();
+  const { data: viewCountData } = trpc.products.getViewCount.useQuery(
+    { productGid: product?.id ?? "" },
+    { enabled: !!product?.id }
+  );
+  const viewCount = viewCountData?.count ?? 0;
   useEffect(() => {
     if (wishlistItems && product) setWishlisted(wishlistItems.some((w) => w.productId === product.id));
   }, [wishlistItems, product]);
-
   useEffect(() => {
     if (handle) trackRecentlyViewed(handle);
   }, [handle]);
-
   useEffect(() => {
     setIsDescriptionExpanded(false);
+  }, [product?.id]);
+  useEffect(() => {
+    if (product?.id) {
+      trackView.mutate({ productGid: product.id });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);
 
   if (isLoading) {
@@ -473,7 +482,18 @@ export default function ProductDetail() {
               <h1 className="mb-1 text-2xl font-black leading-tight text-[var(--thrifti-dark)] font-['Playfair_Display',serif] sm:text-3xl">
                 {product.title}
               </h1>
-
+              {/* View count */}
+              {viewCount > 0 && (
+                <div className="flex items-center gap-1.5 mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#9CA3AF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <span className="text-xs text-[#9CA3AF]" style={{ fontFamily: "'Space Mono', monospace" }}>
+                    {viewCount.toLocaleString()} {viewCount === 1 ? "person" : "people"} viewed this
+                  </span>
+                </div>
+              )}
               {/* Wishlist + Share */}
               <div className="flex items-center gap-3 mb-4">
                 <button onClick={handleWishlist} className="p-1 -ml-1" aria-label="Wishlist">

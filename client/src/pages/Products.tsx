@@ -144,6 +144,11 @@ function ListingProductCard({
   const addToWishlist = trpc.wishlist.add.useMutation();
   const removeFromWishlist = trpc.wishlist.remove.useMutation();
   const utils = trpc.useUtils();
+  const { data: viewCountData } = trpc.products.getViewCount.useQuery(
+    { productGid: product.id },
+    { enabled: !!product.id }
+  );
+  const viewCount = viewCountData?.count ?? 0;
 
   useEffect(() => {
     if (wishlistItems) setWishlisted(wishlistItems.some((w) => w.productId === product.id));
@@ -216,6 +221,17 @@ function ListingProductCard({
         >
           {priceStr}
         </p>
+        {viewCount > 0 && (
+          <div className="flex items-center gap-1 mt-1">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-[#9CA3AF] transition-colors duration-300 group-hover:text-white/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <span className="text-[10px] text-[#9CA3AF] transition-colors duration-300 group-hover:text-white/70" style={{ fontFamily: "'Space Mono', monospace" }}>
+              {viewCount.toLocaleString()} views
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   );

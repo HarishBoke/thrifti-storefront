@@ -26,6 +26,7 @@ import {
   setDefaultCustomerAddress,
 } from "./shopify";
 import { invokeLLM } from "./_core/llm";
+import { incrementProductViewCount, getProductViewCount } from "./shopifyAdmin";
 import { notifyOwner } from "./_core/notification";
 import { getDb } from "./db";
 import { users, wishlists } from "../drizzle/schema";
@@ -71,6 +72,31 @@ export const appRouter = router({
       .input(z.object({ handle: z.string() }))
       .query(async ({ input }) => {
         return getProductByHandle(input.handle);
+      }),
+
+    // Track a product view — increments the thrifti.view_count metafield in Shopify
+    trackView: publicProcedure
+      .input(z.object({ productGid: z.string() }))
+      .mutation(async ({ input }) => {
+        try {
+          const count = await incrementProductViewCount(input.productGid);
+          return { success: true, count };
+        } catch (err) {
+          console.error("[ViewCount] Failed to increment:", err);
+          return { success: false, count: 0 };
+        }
+      }),
+
+    // Get current view count for a product
+    getViewCount: publicProcedure
+      .input(z.object({ productGid: z.string() }))
+      .query(async ({ input }) => {
+        try {
+          const count = await getProductViewCount(input.productGid);
+          return { count };
+        } catch {
+          return { count: 0 };
+        }
       }),
   }),
 
