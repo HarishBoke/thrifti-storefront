@@ -189,6 +189,7 @@ export default function ProductDetail() {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [adding, setAdding] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const { data: product, isLoading, error } = trpc.products.byHandle.useQuery(
     { handle: handle! },
@@ -211,6 +212,10 @@ export default function ProductDetail() {
   useEffect(() => {
     if (handle) trackRecentlyViewed(handle);
   }, [handle]);
+
+  useEffect(() => {
+    setIsDescriptionExpanded(false);
+  }, [product?.id]);
 
   if (isLoading) {
     return (
@@ -304,12 +309,21 @@ export default function ProductDetail() {
     toast.success("Link copied!");
   };
 
-  const breadcrumbParts = [
-    product.productType ? product.productType.split("/")[0] : null,
-    product.productType ? product.productType.split("/")[1] : null,
-    product.productType ? product.productType.split("/")[2] : null,
-    product.title,
-  ].filter(Boolean) as string[];
+  const productTypeParts = (product.productType ?? "")
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const baseBreadcrumb = productTypeParts.length > 0 ? productTypeParts : ["Women"];
+  const breadcrumbItems = [...baseBreadcrumb, product.title].map((label, index, arr) => {
+    const isLast = index === arr.length - 1;
+    if (isLast) return { label, href: null as string | null };
+
+    if (index === 0) {
+      return { label, href: `/collections/${label.toLowerCase().replace(/\s+/g, "-")}` };
+    }
+
+    return { label, href: `/products` };
+  });
 
   const moreBySeller = allProducts.filter((p) => p.vendor === product.vendor && p.id !== product.id).slice(0, 4);
   const similarItems = allProducts.filter((p) => p.productType === product.productType && p.id !== product.id).slice(0, 4);
@@ -327,8 +341,10 @@ export default function ProductDetail() {
   const lengthTag = product.tags?.find((t) => /^length:/i.test(t));
   const shoulderTag = product.tags?.find((t) => /^shoulder:/i.test(t));
   const musicTag = product.tags?.find((t) => /^music:/i.test(t));
+  const productDescription = product.description?.trim();
+  const COLLAPSED_DESCRIPTION_CHARS = 138;
 
-  const conditionLabel = conditionTag ?? "Like New";
+  const conditionLabel = conditionTag ?? "Barely Worn";
   const isBarelyWorn = /barely worn/i.test(conditionLabel);
 
   return (
@@ -337,61 +353,101 @@ export default function ProductDetail() {
 
         {/* ── Breadcrumb ── */}
         <div className="px-4 sm:px-6 lg:px-10 pt-5 pb-3">
-          <nav className="flex items-center gap-1 flex-wrap" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            {["Women", ...breadcrumbParts].map((part, i, arr) => (
+          <nav className="flex flex-wrap items-center gap-1 font-['Space_Grotesk',sans-serif]">
+            {breadcrumbItems.map((item, i, arr) => (
               <span key={i} className="flex items-center gap-1">
-                <span className="text-xs" style={{ color: i === arr.length - 1 ? "var(--thrifti-dark)" : "#9CA3AF", fontWeight: i === arr.length - 1 ? 500 : 400 }}>
-                  {part}
-                </span>
-                {i < arr.length - 1 && <ChevronRight className="w-3 h-3 text-gray-300" />}
+                {item.href ? (
+                  <Link
+                    href={item.href}
+                    className="geist-mono-font text-sm font-normal text-[#9CA3AF] transition-colors hover:text-[var(--thrifti-dark)]"
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span className="geist-mono-font text-sm font-medium text-[var(--thrifti-dark)]">
+                    {item.label}
+                  </span>
+                )}
+                {i < arr.length - 1 &&
+                  <span className="geist-mono-font text-sm text-[#9CA3AF]">/</span>
+                }
               </span>
             ))}
           </nav>
         </div>
 
         {/* ── Main Product Section ── */}
-        <div className="px-4 sm:px-6 lg:px-10 pb-10">
+        <div className="px-4 sm:px-6 lg:px-10 pb-10 mt-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
 
             {/* ── Left: Image Gallery ── */}
             <div>
               {/* Main image */}
-              <div className="relative mb-3 aspect-[3/4] overflow-hidden bg-[#EDEAE4]">
-                {currentImage ? (
-                  <img src={currentImage.url} alt={currentImage.altText ?? product.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ShoppingBag className="w-16 h-16 text-gray-300" />
-                  </div>
-                )}
+              <div className="relative mb-4 border border-[#d7d3cc] bg-[#F2F2F2] shadow-[0_2px_8px_#00000040] p-5">
+                <div className="absolute -left-3 -top-6 z-20 rotate-[-8deg] border-[1.5px] border-[#EAEAD1] bg-white px-4 py-3 text-base font-black uppercase tracking-[0.05em] text-[var(--thrifti-red)] geist-mono-font shadow-md">
+                  {isBarelyWorn ? "BARELY WORN" : conditionLabel.toUpperCase()}
+                </div>
+                <div className="relative aspect-[3/4] overflow-hidden bg-[#EDEAE4]">
+                  {currentImage ? (
+                    <img src={currentImage.url} alt={currentImage.altText ?? product.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ShoppingBag className="w-16 h-16 text-gray-300" />
+                    </div>
+                  )}
 
-                {/* Image counter — top right */}
-                {images.length > 1 && (
-                  <div className="absolute right-3 top-3 bg-white/90 px-2 py-1 text-xs font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
-                    {selectedImageIndex + 1}/{images.length}
-                  </div>
-                )}
+                  {/* Image counter — top right */}
+                  {images.length > 1 && (
+                    <div className="absolute right-3 top-3 bg-white/90 px-2 py-1 text-xs font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
+                      {selectedImageIndex + 1}/{images.length}
+                    </div>
+                  )}
 
-                {/* "REAL PHOTO FROM SELLER" stamp — bottom left */}
-                <div className="absolute bottom-4 left-4 rotate-[-4deg]">
-                  <div className="border-[1.5px] border-[var(--thrifti-dark)] bg-white px-2 py-1 text-[10px] font-black uppercase leading-tight tracking-[0.05em] text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
-                    REAL PHOTO<br />FROM SELLER
-                  </div>
+                  {/* Sold out overlay */}
+                  {!isAvailable && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <span className="text-xl font-black uppercase tracking-widest text-white font-['Space_Grotesk',sans-serif]">Sold Out</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Condition badge — bottom right */}
-                <div className="absolute bottom-4 right-4 rotate-[3deg]">
-                  <div className={`border-[1.5px] bg-white px-2 py-1 text-[10px] font-black uppercase tracking-[0.05em] font-['Space_Grotesk',sans-serif] ${isBarelyWorn ? "border-[var(--thrifti-red)] text-[var(--thrifti-red)]" : "border-[var(--thrifti-dark)] text-[var(--thrifti-dark)]"}`}>
-                    {isBarelyWorn ? "BARELY WORN" : conditionLabel.toUpperCase()}
-                  </div>
-                </div>
-
-                {/* Sold out overlay */}
-                {!isAvailable && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                    <span className="text-xl font-black uppercase tracking-widest text-white font-['Space_Grotesk',sans-serif]">Sold Out</span>
+                {productDescription && (
+                  <div className="mb-5">
+                    {isDescriptionExpanded ? (
+                      <>
+                        <p className="text-sm leading-relaxed text-[#1f1f22] font-['Space_Mono',monospace]">
+                          {productDescription}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setIsDescriptionExpanded(false)}
+                          className="mt-2 text-xs font-semibold text-[var(--thrifti-dark)] underline underline-offset-2 font-['Space_Grotesk',sans-serif]"
+                        >
+                          Read less
+                        </button>
+                      </>
+                    ) : (
+                      <p className="text-sm leading-relaxed text-[#1f1f22] font-['Space_Mono',monospace]">
+                        {(productDescription.length > COLLAPSED_DESCRIPTION_CHARS
+                          ? `${productDescription.slice(0, COLLAPSED_DESCRIPTION_CHARS).trimEnd()}... `
+                          : `${productDescription} `)}
+                        {productDescription.length > COLLAPSED_DESCRIPTION_CHARS && (
+                          <button
+                            type="button"
+                            onClick={() => setIsDescriptionExpanded(true)}
+                            className="inline text-xs font-semibold text-[var(--thrifti-dark)] underline underline-offset-2 font-['Space_Grotesk',sans-serif]"
+                          >
+                            Read more
+                          </button>
+                        )}
+                      </p>
+                    )}
                   </div>
                 )}
+
+                <div className="absolute -bottom-3 right-3 z-20 rotate-[-8deg] border-[1.5px] border-[var(--thrifti-dark)] bg-white px-2 py-1 text-[10px] font-black uppercase leading-tight tracking-[0.05em] text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif] shadow-sm">
+                  REAL PHOTO<br />FROM SELLER
+                </div>
               </div>
 
               {/* Horizontal thumbnail strip */}
@@ -454,6 +510,8 @@ export default function ProductDetail() {
                   </div>
                 ))}
               </div>
+
+
 
               {/* Variant options */}
               {product.options
@@ -531,16 +589,6 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {/* Description */}
-              {product.description && (
-                <div className="mb-5">
-                  <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">DESCRIPTION</p>
-                  <p className="text-sm leading-relaxed text-[#6B7280] font-['Space_Mono',monospace]">
-                    {product.description}
-                  </p>
-                </div>
-              )}
-
               {/* THIS OUTFIT SOUNDS LIKE — Spotify section */}
               <div className="mb-5">
                 <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">THIS OUTFIT SOUNDS LIKE</p>
@@ -562,35 +610,37 @@ export default function ProductDetail() {
               </div>
 
               {/* Seller card */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--thrifti-dark)] text-sm font-black text-white">
-                    {(product.vendor ?? "T").charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
-                      {product.vendor ?? "thrifti_seller"}
-                    </p>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs text-[#6B7280] font-['Space_Mono',monospace]">4.9 (2,847)</span>
+              <div className="border-t border-gray-200 pt-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--thrifti-dark)] text-sm font-black text-white">
+                      {(product.vendor ?? "T").charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
+                        {product.vendor ?? "thrifti_seller"}
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs text-[#6B7280] font-['Space_Mono',monospace]">4.9 (2,847)</span>
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={handleWishlist} className="p-1.5" aria-label="Wishlist">
+                      <Heart className={`h-4 w-4 stroke-[1.5] ${wishlisted ? "text-[var(--thrifti-red)] fill-[var(--thrifti-red)]" : "text-[#9CA3AF] fill-none"}`} />
+                    </button>
+                    <button onClick={handleShare} className="p-1.5" aria-label="Share">
+                      <Share2 className="h-4 w-4 text-[#9CA3AF]" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={handleWishlist} className="p-1.5" aria-label="Wishlist">
-                    <Heart className={`h-4 w-4 stroke-[1.5] ${wishlisted ? "text-[var(--thrifti-red)] fill-[var(--thrifti-red)]" : "text-[#9CA3AF] fill-none"}`} />
-                  </button>
-                  <button onClick={handleShare} className="p-1.5" aria-label="Share">
-                    <Share2 className="h-4 w-4 text-[#9CA3AF]" />
-                  </button>
-                  <button
-                    onClick={() => toast.info("Seller shop coming soon!")}
-                    className="border border-[var(--thrifti-dark)] px-3 py-1.5 text-xs font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]"
-                  >
-                    View Shop
-                  </button>
-                </div>
+                <button
+                  onClick={() => toast.info("Seller shop coming soon!")}
+                  className="mt-4 border border-[var(--thrifti-dark)] px-3 py-1.5 text-xs font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]"
+                >
+                  View Shop
+                </button>
               </div>
 
             </div>
