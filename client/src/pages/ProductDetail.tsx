@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ShareSheet from "@/components/ShareSheet";
 import { useParams, Link } from "wouter";
 import { ShoppingBag, Heart, Share2, Shield, Star, ChevronRight } from "lucide-react";
 import StorefrontLayout from "@/components/StorefrontLayout";
@@ -304,10 +305,8 @@ export default function ProductDetail() {
     utils.wishlist.list.invalidate({ customerEmail: customer.email });
   };
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast.success("Link copied!");
-  };
+  const [showShare, setShowShare] = useState(false);
+  const handleShare = () => setShowShare(true);
 
   const productTypeParts = (product.productType ?? "")
     .split("/")
@@ -747,6 +746,15 @@ export default function ProductDetail() {
           stickerText="WITH THRIFTI"
         />
       </div>
+
+      {/* Share Sheet */}
+      <ShareSheet
+        open={showShare}
+        onClose={() => setShowShare(false)}
+        url={typeof window !== "undefined" ? window.location.href : ""}
+        title={product.title}
+        image={product.featuredImage?.url ?? product.images.nodes[0]?.url}
+      />
     </StorefrontLayout>
   );
 }
