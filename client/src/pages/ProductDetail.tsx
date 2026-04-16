@@ -191,6 +191,7 @@ export default function ProductDetail() {
   const [adding, setAdding] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   const { data: product, isLoading, error } = trpc.products.byHandle.useQuery(
     { handle: handle! },
@@ -305,7 +306,6 @@ export default function ProductDetail() {
     utils.wishlist.list.invalidate({ customerEmail: customer.email });
   };
 
-  const [showShare, setShowShare] = useState(false);
   const handleShare = () => setShowShare(true);
 
   const productTypeParts = (product.productType ?? "")
