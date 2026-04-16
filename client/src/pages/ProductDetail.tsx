@@ -3,12 +3,17 @@ import { useParams, Link } from "wouter";
 import { ShoppingBag, Heart, Share2, Shield, Star, ChevronRight } from "lucide-react";
 import StorefrontLayout from "@/components/StorefrontLayout";
 import AnimatedBanner from "@/components/AnimatedBanner";
+import LaunchSplitSection from "@/components/LaunchSplitSection";
 import { trpc } from "@/lib/trpc";
 import { useCart } from "@/contexts/CartContext";
 import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 import { formatPrice } from "@shared/shopifyTypes";
 import { toast } from "sonner";
-
+import launchingImage from "@/assets/img/launching.png";
+import SellBuyRepeatSection from "@/components/SellBuyRepeatSection";
+import built3 from "@/assets/img/Built3.png";
+import repeat1Polaroid from "@/assets/img/Repeat1.png";
+import repeatPolaroid from "@/assets/img/Repeat.png";
 // Launch date: 26 April 2026 midnight IST
 const LAUNCH_DATE = new Date("2026-04-26T00:00:00+05:30");
 
@@ -139,7 +144,7 @@ function NewDropsBanner() {
           </Link>
         </div>
         <div className="hidden lg:block relative overflow-hidden" style={{ minHeight: "400px" }}>
-          <img src={CDN.fashionShow} alt="New drops fashion show" className="w-full h-full object-cover" />
+          <img src={launchingImage} alt="New drops fashion show" className="w-full h-full object-cover" />
         </div>
       </div>
     </section>
@@ -216,7 +221,7 @@ export default function ProductDetail() {
               <div>
                 <div className="w-full bg-gray-200 animate-pulse mb-3" style={{ aspectRatio: "3/4" }} />
                 <div className="flex gap-2">
-                  {[0,1,2,3].map(i => <div key={i} className="w-16 h-16 bg-gray-200 animate-pulse flex-shrink-0" />)}
+                  {[0, 1, 2, 3].map(i => <div key={i} className="w-16 h-16 bg-gray-200 animate-pulse flex-shrink-0" />)}
                 </div>
               </div>
               <div className="space-y-4">
@@ -351,7 +356,7 @@ export default function ProductDetail() {
             {/* ── Left: Image Gallery ── */}
             <div>
               {/* Main image */}
-              <div className="relative overflow-hidden mb-3" style={{ aspectRatio: "3/4", backgroundColor: "#EDEAE4" }}>
+              <div className="relative mb-3 aspect-[3/4] overflow-hidden bg-[#EDEAE4]">
                 {currentImage ? (
                   <img src={currentImage.url} alt={currentImage.altText ?? product.title} className="w-full h-full object-cover" />
                 ) : (
@@ -362,29 +367,29 @@ export default function ProductDetail() {
 
                 {/* Image counter — top right */}
                 {images.length > 1 && (
-                  <div className="absolute top-3 right-3 px-2 py-1 text-xs font-bold" style={{ backgroundColor: "rgba(255,255,255,0.9)", fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+                  <div className="absolute right-3 top-3 bg-white/90 px-2 py-1 text-xs font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
                     {selectedImageIndex + 1}/{images.length}
                   </div>
                 )}
 
                 {/* "REAL PHOTO FROM SELLER" stamp — bottom left */}
-                <div className="absolute bottom-4 left-4" style={{ transform: "rotate(-4deg)" }}>
-                  <div className="px-2 py-1 text-[10px] font-black uppercase leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif", backgroundColor: "white", color: "var(--thrifti-dark)", border: "1.5px solid var(--thrifti-dark)", letterSpacing: "0.05em" }}>
+                <div className="absolute bottom-4 left-4 rotate-[-4deg]">
+                  <div className="border-[1.5px] border-[var(--thrifti-dark)] bg-white px-2 py-1 text-[10px] font-black uppercase leading-tight tracking-[0.05em] text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
                     REAL PHOTO<br />FROM SELLER
                   </div>
                 </div>
 
                 {/* Condition badge — bottom right */}
-                <div className="absolute bottom-4 right-4" style={{ transform: "rotate(3deg)" }}>
-                  <div className="px-2 py-1 text-[10px] font-black uppercase" style={{ fontFamily: "'Space Grotesk', sans-serif", backgroundColor: "white", color: isBarelyWorn ? "var(--thrifti-red)" : "var(--thrifti-dark)", border: `1.5px solid ${isBarelyWorn ? "var(--thrifti-red)" : "var(--thrifti-dark)"}`, letterSpacing: "0.05em" }}>
+                <div className="absolute bottom-4 right-4 rotate-[3deg]">
+                  <div className={`border-[1.5px] bg-white px-2 py-1 text-[10px] font-black uppercase tracking-[0.05em] font-['Space_Grotesk',sans-serif] ${isBarelyWorn ? "border-[var(--thrifti-red)] text-[var(--thrifti-red)]" : "border-[var(--thrifti-dark)] text-[var(--thrifti-dark)]"}`}>
                     {isBarelyWorn ? "BARELY WORN" : conditionLabel.toUpperCase()}
                   </div>
                 </div>
 
                 {/* Sold out overlay */}
                 {!isAvailable && (
-                  <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.4)" }}>
-                    <span className="text-white font-black text-xl uppercase tracking-widest" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Sold Out</span>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <span className="text-xl font-black uppercase tracking-widest text-white font-['Space_Grotesk',sans-serif]">Sold Out</span>
                   </div>
                 )}
               </div>
@@ -396,8 +401,7 @@ export default function ProductDetail() {
                     <button
                       key={i}
                       onClick={() => setSelectedImageIndex(i)}
-                      className="flex-shrink-0 overflow-hidden transition-all"
-                      style={{ width: "72px", height: "72px", border: i === selectedImageIndex ? "2px solid var(--thrifti-dark)" : "2px solid transparent", backgroundColor: "#EDEAE4" }}
+                      className={`h-[72px] w-[72px] shrink-0 overflow-hidden border-2 bg-[#EDEAE4] transition-all ${i === selectedImageIndex ? "border-[var(--thrifti-dark)]" : "border-transparent"}`}
                       aria-label={`View image ${i + 1}`}
                     >
                       <img src={img.url} alt={img.altText ?? `Image ${i + 1}`} className="w-full h-full object-cover" />
@@ -411,27 +415,27 @@ export default function ProductDetail() {
             <div className="flex flex-col">
 
               {/* Title */}
-              <h1 className="text-2xl sm:text-3xl font-black leading-tight mb-1" style={{ fontFamily: "'Playfair Display', serif", color: "var(--thrifti-dark)" }}>
+              <h1 className="mb-1 text-2xl font-black leading-tight text-[var(--thrifti-dark)] font-['Playfair_Display',serif] sm:text-3xl">
                 {product.title}
               </h1>
 
               {/* Wishlist + Share */}
               <div className="flex items-center gap-3 mb-4">
                 <button onClick={handleWishlist} className="p-1 -ml-1" aria-label="Wishlist">
-                  <Heart className="w-5 h-5" style={{ color: wishlisted ? "var(--thrifti-red)" : "#9CA3AF", fill: wishlisted ? "var(--thrifti-red)" : "none", strokeWidth: 1.5 }} />
+                  <Heart className={`h-5 w-5 stroke-[1.5] ${wishlisted ? "text-[var(--thrifti-red)] fill-[var(--thrifti-red)]" : "text-[#9CA3AF] fill-none"}`} />
                 </button>
                 <button onClick={handleShare} className="p-1" aria-label="Share">
-                  <Share2 className="w-5 h-5" style={{ color: "#9CA3AF", strokeWidth: 1.5 }} />
+                  <Share2 className="h-5 w-5 stroke-[1.5] text-[#9CA3AF]" />
                 </button>
               </div>
 
               {/* Price */}
               <div className="flex items-baseline gap-3 mb-5">
-                <p className="text-3xl font-black" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+                <p className="text-3xl font-black text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
                   {formatPrice(price.amount, price.currencyCode)}
                 </p>
                 {compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount) && (
-                  <p className="text-base line-through" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "#9CA3AF" }}>
+                  <p className="text-base line-through text-[#9CA3AF] font-['Space_Grotesk',sans-serif]">
                     {formatPrice(compareAtPrice.amount, compareAtPrice.currencyCode)}
                   </p>
                 )}
@@ -445,8 +449,8 @@ export default function ProductDetail() {
                   { label: "Location", value: locationTag ?? "India" },
                 ].map(({ label, value }) => (
                   <div key={label}>
-                    <p className="text-xs mb-0.5" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "#9CA3AF" }}>{label}</p>
-                    <p className="text-sm font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>{value}</p>
+                    <p className="mb-0.5 text-xs text-[#9CA3AF] font-['Space_Grotesk',sans-serif]">{label}</p>
+                    <p className="text-sm font-semibold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">{value}</p>
                   </div>
                 ))}
               </div>
@@ -456,7 +460,7 @@ export default function ProductDetail() {
                 .filter((opt) => opt.values.length > 1 || opt.values[0] !== "Default Title")
                 .map((option) => (
                   <div key={option.name} className="mb-4">
-                    <p className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "#6B7280" }}>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#6B7280] font-['Space_Grotesk',sans-serif]">
                       {option.name}: <span className="font-normal normal-case tracking-normal">{selectedOptions[option.name] ?? option.values[0]}</span>
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -469,8 +473,7 @@ export default function ProductDetail() {
                             key={value}
                             onClick={() => handleOptionSelect(option.name, value)}
                             disabled={!isOptionAvailable}
-                            className="px-3 py-1.5 text-xs border transition-all"
-                            style={{ fontFamily: "'Space Grotesk', sans-serif", borderColor: isSelected ? "var(--thrifti-dark)" : "#D1D5DB", backgroundColor: isSelected ? "var(--thrifti-dark)" : "transparent", color: isSelected ? "#fff" : isOptionAvailable ? "var(--thrifti-dark)" : "#9CA3AF", opacity: isOptionAvailable ? 1 : 0.5, cursor: isOptionAvailable ? "pointer" : "not-allowed", textDecoration: isOptionAvailable ? "none" : "line-through" }}
+                            className={`border px-3 py-1.5 text-xs transition-all font-['Space_Grotesk',sans-serif] ${isSelected ? "border-[var(--thrifti-dark)] bg-[var(--thrifti-dark)] text-white" : "border-[#D1D5DB] bg-transparent"} ${!isSelected && isOptionAvailable ? "text-[var(--thrifti-dark)]" : ""} ${!isOptionAvailable ? "cursor-not-allowed text-[#9CA3AF] opacity-50 line-through" : "cursor-pointer"}`}
                           >
                             {value}
                           </button>
@@ -486,8 +489,7 @@ export default function ProductDetail() {
                 <button
                   onClick={handleAddToCart}
                   disabled={!isAvailable || adding || cartLoading}
-                  className="w-full py-4 font-black text-sm uppercase tracking-widest text-white transition-opacity disabled:opacity-50"
-                  style={{ backgroundColor: "var(--thrifti-red)", fontFamily: "'Space Grotesk', sans-serif" }}
+                  className="w-full bg-[var(--thrifti-red)] py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-50 font-['Space_Grotesk',sans-serif]"
                 >
                   {adding ? "Adding..." : !isAvailable ? "Sold Out" : "BUY NOW"}
                 </button>
@@ -496,15 +498,13 @@ export default function ProductDetail() {
                   <button
                     onClick={handleAddToCart}
                     disabled={!isAvailable || adding || cartLoading}
-                    className="py-3.5 font-black text-xs uppercase tracking-wider text-white transition-colors disabled:opacity-50"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif", backgroundColor: "var(--thrifti-dark)" }}
+                    className="bg-[var(--thrifti-dark)] py-3.5 text-xs font-black uppercase tracking-wider text-white transition-colors disabled:opacity-50 font-['Space_Grotesk',sans-serif]"
                   >
                     ADD TO BAG
                   </button>
                   <button
                     onClick={() => toast.info("Offers coming soon!")}
-                    className="py-3.5 font-black text-xs uppercase tracking-wider border transition-colors"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif", borderColor: "var(--thrifti-dark)", color: "var(--thrifti-dark)", backgroundColor: "transparent" }}
+                    className="border border-[var(--thrifti-dark)] bg-transparent py-3.5 text-xs font-black uppercase tracking-wider text-[var(--thrifti-dark)] transition-colors font-['Space_Grotesk',sans-serif]"
                   >
                     MAKE AN OFFER
                   </button>
@@ -513,8 +513,8 @@ export default function ProductDetail() {
 
               {/* Buyer Protection */}
               <div className="flex items-center gap-2 py-3 border-t border-b border-gray-200 mb-5">
-                <Shield className="w-4 h-4 flex-shrink-0" style={{ color: "#6B7280" }} />
-                <p className="text-xs" style={{ fontFamily: "'Space Mono', monospace", color: "#6B7280" }}>
+                <Shield className="h-4 w-4 shrink-0 text-[#6B7280]" />
+                <p className="text-xs text-[#6B7280] font-['Space_Mono',monospace]">
                   All purchases are covered by Buyer Protection.
                 </p>
               </div>
@@ -522,8 +522,8 @@ export default function ProductDetail() {
               {/* Measurements */}
               {(bustTag || lengthTag || shoulderTag) && (
                 <div className="mb-5">
-                  <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>MEASUREMENTS</p>
-                  <p className="text-sm" style={{ fontFamily: "'Space Mono', monospace", color: "#6B7280" }}>
+                  <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">MEASUREMENTS</p>
+                  <p className="text-sm text-[#6B7280] font-['Space_Mono',monospace]">
                     {bustTag && <span className="mr-4">Bust {bustTag.replace(/^bust:/i, "").trim()}</span>}
                     {lengthTag && <span className="mr-4">Length {lengthTag.replace(/^length:/i, "").trim()}</span>}
                     {shoulderTag && <span>Shoulders {shoulderTag.replace(/^shoulder:/i, "").trim()}</span>}
@@ -534,8 +534,8 @@ export default function ProductDetail() {
               {/* Description */}
               {product.description && (
                 <div className="mb-5">
-                  <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>DESCRIPTION</p>
-                  <p className="text-sm leading-relaxed" style={{ fontFamily: "'Space Mono', monospace", color: "#6B7280" }}>
+                  <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">DESCRIPTION</p>
+                  <p className="text-sm leading-relaxed text-[#6B7280] font-['Space_Mono',monospace]">
                     {product.description}
                   </p>
                 </div>
@@ -543,18 +543,18 @@ export default function ProductDetail() {
 
               {/* THIS OUTFIT SOUNDS LIKE — Spotify section */}
               <div className="mb-5">
-                <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>THIS OUTFIT SOUNDS LIKE</p>
-                <div className="flex items-center gap-3 px-4 py-3" style={{ backgroundColor: "#FFD6CC" }}>
-                  <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "#1DB954", borderRadius: "50%" }}>
+                <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">THIS OUTFIT SOUNDS LIKE</p>
+                <div className="flex items-center gap-3 bg-[#FFD6CC] px-4 py-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1DB954]">
                     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.623.623 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.519-.972c3.632-1.102 8.147-.568 11.234 1.328a.78.78 0 01.257 1.072zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.533-1.073 9.404-.866 13.115 1.337a.935.935 0 11-.954 1.609z"/>
+                      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.623.623 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.519-.972c3.632-1.102 8.147-.568 11.234 1.328a.78.78 0 01.257 1.072zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.533-1.073 9.404-.866 13.115 1.337a.935.935 0 11-.954 1.609z" />
                     </svg>
                   </div>
                   <div>
-                    <p className="text-xs font-black uppercase tracking-wide" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+                    <p className="text-xs font-black uppercase tracking-wide text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
                       {musicTag ? `"${musicTag.replace(/^music:/i, "").trim()}"` : '"SMELL LIKE TEEN SPIRIT"'}
                     </p>
-                    <p className="text-xs" style={{ fontFamily: "'Space Mono', monospace", color: "#6B7280" }}>
+                    <p className="text-xs text-[#6B7280] font-['Space_Mono',monospace]">
                       {musicTag ? "" : "NIRVANA"}
                     </p>
                   </div>
@@ -564,30 +564,29 @@ export default function ProductDetail() {
               {/* Seller card */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center text-white font-black text-sm" style={{ backgroundColor: "var(--thrifti-dark)" }}>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--thrifti-dark)] text-sm font-black text-white">
                     {(product.vendor ?? "T").charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-sm font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
+                    <p className="text-sm font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
                       {product.vendor ?? "thrifti_seller"}
                     </p>
                     <div className="flex items-center gap-1">
                       <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs" style={{ fontFamily: "'Space Mono', monospace", color: "#6B7280" }}>4.9 (2,847)</span>
+                      <span className="text-xs text-[#6B7280] font-['Space_Mono',monospace]">4.9 (2,847)</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={handleWishlist} className="p-1.5" aria-label="Wishlist">
-                    <Heart className="w-4 h-4" style={{ color: wishlisted ? "var(--thrifti-red)" : "#9CA3AF", fill: wishlisted ? "var(--thrifti-red)" : "none", strokeWidth: 1.5 }} />
+                    <Heart className={`h-4 w-4 stroke-[1.5] ${wishlisted ? "text-[var(--thrifti-red)] fill-[var(--thrifti-red)]" : "text-[#9CA3AF] fill-none"}`} />
                   </button>
                   <button onClick={handleShare} className="p-1.5" aria-label="Share">
-                    <Share2 className="w-4 h-4" style={{ color: "#9CA3AF" }} />
+                    <Share2 className="h-4 w-4 text-[#9CA3AF]" />
                   </button>
                   <button
                     onClick={() => toast.info("Seller shop coming soon!")}
-                    className="px-3 py-1.5 text-xs font-bold border"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif", borderColor: "var(--thrifti-dark)", color: "var(--thrifti-dark)" }}
+                    className="border border-[var(--thrifti-dark)] px-3 py-1.5 text-xs font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]"
                   >
                     View Shop
                   </button>
@@ -609,17 +608,17 @@ export default function ProductDetail() {
         )}
 
         {/* ── Similar Items You May Like ── */}
-        {similarItems.length > 0 && (
+        {/* {similarItems.length > 0 && (
           <div className="px-4 sm:px-6 lg:px-10 py-10 border-t border-gray-200">
             <h2 className="text-xl font-black mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>Similar Items You May Like</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {similarItems.map((p) => <MiniProductCard key={p.id} product={p} customerEmail={customer?.email} />)}
             </div>
           </div>
-        )}
+        )} */}
 
         {/* ── Looking for more [category] ── */}
-        {lookingForMore.length > 0 && (
+        {/* {lookingForMore.length > 0 && (
           <div className="px-4 sm:px-6 lg:px-10 py-10 border-t border-gray-200">
             <h2 className="text-xl font-black mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>
               Looking for more {product.productType?.split("/").pop() ?? "items"}
@@ -628,27 +627,75 @@ export default function ProductDetail() {
               {lookingForMore.map((p) => <MiniProductCard key={p.id} product={p} customerEmail={customer?.email} />)}
             </div>
           </div>
-        )}
+        )} */}
 
         {/* ── Animated Ticker Banner ── */}
-        <AnimatedBanner />
+        {/* <AnimatedBanner /> */}
 
         {/* ── Recently Viewed ── */}
-        {recentlyViewed.length > 0 && (
+        {/* {recentlyViewed.length > 0 && (
           <div className="px-4 sm:px-6 lg:px-10 py-10">
             <h2 className="text-xl font-black mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>Recently Viewed</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {recentlyViewed.map((p) => <MiniProductCard key={p.id} product={p} customerEmail={customer?.email} />)}
             </div>
           </div>
-        )}
+        )} */}
 
         {/* ── New Drops Banner ── */}
-        <NewDropsBanner />
+        <div className="my-10">
+          <LaunchSplitSection
+            pretitle="LAUNCHING 26 APRIL 2026"
+            title={
+              <>
+                NEW DROPS,
+                <br />
+                JUST IN
+              </>
+            }
+            description="Curated pieces, limited time. Once they're gone,they're gone. Experience the shift in modern Indian fashion culture."
+            ctaLabel="Claim Mine"
+            ctaHref="/products"
+            imageSrc={launchingImage}
+            imageAlt="New drops fashion show"
+          />
+        </div>
 
         {/* ── Sell / Buy / Evolve Polaroids ── */}
-        <PolaroidSection />
-
+        {/* <PolaroidSection /> */}
+        <SellBuyRepeatSection
+          leftCard={{
+            heading: "BUY",
+            imageSrc: built3,
+            imageAlt: "Sell the old you",
+            caption: "SELL THE OLD YOU",
+            wrapperClassName: "w-full rotate-[-8deg] lg:rotate-[-12deg] pl-8 lg:pl-0",
+            imageClassName: "block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center",
+            captionClassName:
+              "geist-mono-font mt-1.5 lg:mt-3 text-center 2xl:text-2xl text-sm lg:text-xl uppercase leading-none tracking-wide text-[var(--thrifti-dark)]",
+          }}
+          centerCard={{
+            heading: "SELL",
+            imageSrc: repeat1Polaroid,
+            imageAlt: "Wear the new you",
+            caption: "WEAR THE NEW YOU",
+            wrapperClassName: "w-full -mt-10 sm:mt-2 lg:mt-10 relative lg:static pr-8 lg:pr-0",
+            imageClassName: "block aspect-[4/5] w-full object-cover h-[238px] sm:h-[270px] md:h-[302px] lg:h-[400px] object-center",
+            captionClassName:
+              "geist-mono-font mt-1.5 lg:mt-3 text-center uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl",
+          }}
+          rightCard={{
+            heading: "REPEAT",
+            imageSrc: repeatPolaroid,
+            imageAlt: "Be new you with Thrifti",
+            caption: "BE NEW YOU",
+            wrapperClassName: "w-full rotate-[-10deg] lg:rotate-[14deg] -mt-7 lg:mt-0 pr-8 lg:pr-0",
+            imageClassName: "block aspect-[4/5] w-full object-cover h-[218px] sm:h-[250px] md:h-[282px] lg:h-[400px] object-center",
+            captionClassName:
+              "geist-mono-font uppercase leading-none tracking-wide text-[var(--thrifti-dark)] 2xl:text-2xl text-sm lg:text-xl",
+          }}
+          stickerText="WITH THRIFTI"
+        />
       </div>
     </StorefrontLayout>
   );
