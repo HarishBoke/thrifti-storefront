@@ -15,6 +15,10 @@ import SellBuyRepeatSection from "@/components/SellBuyRepeatSection";
 import built3 from "@/assets/img/Built3.png";
 import repeat1Polaroid from "@/assets/img/Repeat1.png";
 import repeatPolaroid from "@/assets/img/Repeat.png";
+import heartIcon from "@/assets/img/Heart.svg";
+import shareIcon from "@/assets/img/share-icon.svg";
+import shieldIcon from "@/assets/img/shield-icon.svg";
+import spotifyIcon from "@/assets/img/spotify.png";
 // Launch date: 26 April 2026 midnight IST
 const LAUNCH_DATE = new Date("2026-04-26T00:00:00+05:30");
 
@@ -204,7 +208,7 @@ export default function ProductDetail() {
     { customerEmail: customer?.email ?? "" },
     { enabled: !!customer?.email && isAuthenticated }
   );
-   const addToWishlist = trpc.wishlist.add.useMutation();
+  const addToWishlist = trpc.wishlist.add.useMutation();
   const removeFromWishlist = trpc.wishlist.remove.useMutation();
   const utils = trpc.useUtils();
   const trackView = trpc.products.trackView.useMutation();
@@ -226,7 +230,7 @@ export default function ProductDetail() {
     if (product?.id) {
       trackView.mutate({ productGid: product.id });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);
 
   if (isLoading) {
@@ -341,8 +345,8 @@ export default function ProductDetail() {
   const isMobileNumber = /^[\+]?[\d\s\-]{10,14}$/.test(sellerVendor.replace(/\s/g, ""));
   const sellerDisplayName = isMobileNumber
     ? sellerVendor.replace(/\s/g, "").replace(/^(\+?\d{1,3})?(\d{2,3})(\d{4})(\d{2,4})$/, (_full, cc, p1, _mid, p3) =>
-        `${cc ? cc + " " : ""}${p1} \u2022\u2022\u2022\u2022\u2022 ${p3}`
-      ) || (sellerVendor.slice(0, 3) + " \u2022\u2022\u2022\u2022\u2022 " + sellerVendor.slice(-2))
+      `${cc ? cc + " " : ""}${p1} \u2022\u2022\u2022\u2022\u2022 ${p3}`
+    ) || (sellerVendor.slice(0, 3) + " \u2022\u2022\u2022\u2022\u2022 " + sellerVendor.slice(-2))
     : sellerVendor || "Thrifti Seller";
 
   // Dynamic View Shop: count all products by this vendor
@@ -350,9 +354,9 @@ export default function ProductDetail() {
   const otherBySellerCount = allBySellerCount - 1; // exclude current product
   const viewShopLabel =
     otherBySellerCount <= 0 ? null
-    : otherBySellerCount === 1 ? "View 1 more item"
-    : otherBySellerCount <= 4 ? `View ${otherBySellerCount} items`
-    : "View all products";
+      : otherBySellerCount === 1 ? "View 1 more item"
+        : otherBySellerCount <= 4 ? `View ${otherBySellerCount} items`
+          : "View all products";
   const viewShopUrl = `/products?vendor=${encodeURIComponent(product.vendor ?? "")}`;
   const similarItems = allProducts.filter((p) => p.productType === product.productType && p.id !== product.id).slice(0, 4);
   const lookingForMore = allProducts.filter((p) => p.productType?.split("/").pop() === product.productType?.split("/").pop() && p.id !== product.id && !similarItems.find(s => s.id === p.id)).slice(0, 4);
@@ -370,7 +374,7 @@ export default function ProductDetail() {
   const shoulderTag = product.tags?.find((t) => /^shoulder:/i.test(t));
   const musicTag = product.tags?.find((t) => /^music:/i.test(t));
   const productDescription = product.description?.trim();
-  const COLLAPSED_DESCRIPTION_CHARS = 138;
+  const COLLAPSED_DESCRIPTION_CHARS = 180;
 
   const conditionLabel = conditionTag ?? "Barely Worn";
   const isBarelyWorn = /barely worn/i.test(conditionLabel);
@@ -380,7 +384,7 @@ export default function ProductDetail() {
       <div style={{ backgroundColor: "var(--thrifti-cream)", minHeight: "100vh" }}>
 
         {/* ── Breadcrumb ── */}
-        <div className="px-4 sm:px-6 lg:px-10 pt-5 pb-3">
+        <div className="px-4 sm:px-6 lg:px-10 pt-5 pb-3 container mx-auto">
           <nav className="flex flex-wrap items-center gap-1 font-['Space_Grotesk',sans-serif]">
             {breadcrumbItems.map((item, i, arr) => (
               <span key={i} className="flex items-center gap-1">
@@ -405,14 +409,14 @@ export default function ProductDetail() {
         </div>
 
         {/* ── Main Product Section ── */}
-        <div className="px-4 sm:px-6 lg:px-10 pb-10 mt-10">
+        <div className="px-6 lg:px-10 lg:pb-10 pb-2 mt-16 container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
 
             {/* ── Left: Image Gallery ── */}
-            <div>
+            <div className="px-4 lg:px-0">
               {/* Main image */}
               <div className="relative mb-4 border border-[#d7d3cc] bg-[#F2F2F2] shadow-[0_2px_8px_#00000040] p-5">
-                <div className="absolute -left-3 -top-6 z-20 rotate-[-8deg] border-[1.5px] border-[#EAEAD1] bg-white px-4 py-3 text-base font-black uppercase tracking-[0.05em] text-[var(--thrifti-red)] geist-mono-font shadow-md">
+                <div className="absolute -left-6 -top-10 z-20 rotate-[-8deg] border-[1.5px] border-[#EAEAD1] bg-white lg:px-4 lg:py-3 px-3 py-2 text-sm lg:text-base font-bold uppercase tracking-[0.05em] text-[var(--thrifti-red)] geist-mono-font shadow-md">
                   {isBarelyWorn ? "BARELY WORN" : conditionLabel.toUpperCase()}
                 </div>
                 <div className="relative aspect-[3/4] overflow-hidden bg-[#EDEAE4]">
@@ -440,10 +444,10 @@ export default function ProductDetail() {
                 </div>
 
                 {productDescription && (
-                  <div className="mb-5">
+                  <div className=" lg:mb-5">
                     {isDescriptionExpanded ? (
                       <>
-                        <p className="text-sm leading-relaxed text-[#1f1f22] font-['Space_Mono',monospace]">
+                        <p className="text-sm lg:text-base leading-relaxed text-[#1F1F22] geist-mono-font mt-3">
                           {productDescription}
                         </p>
                         <button
@@ -455,7 +459,7 @@ export default function ProductDetail() {
                         </button>
                       </>
                     ) : (
-                      <p className="text-sm leading-relaxed text-[#1f1f22] font-['Space_Mono',monospace]">
+                      <p className="text-sm lg:text-base leading-relaxed text-[#1F1F22] geist-mono-font mt-3">
                         {(productDescription.length > COLLAPSED_DESCRIPTION_CHARS
                           ? `${productDescription.slice(0, COLLAPSED_DESCRIPTION_CHARS).trimEnd()}... `
                           : `${productDescription} `)}
@@ -473,19 +477,19 @@ export default function ProductDetail() {
                   </div>
                 )}
 
-                <div className="absolute -bottom-3 right-3 z-20 rotate-[-8deg] border-[1.5px] border-[var(--thrifti-dark)] bg-white px-2 py-1 text-[10px] font-black uppercase leading-tight tracking-[0.05em] text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif] shadow-sm">
+                <div className="absolute -bottom-9 -right-3 z-20 rotate-[-8deg] border-[1.5px] bg-white lg:px-6 lg:py-3 px-4 py-2 text-sm  lg:text-base lg:font-bold font-semibold uppercase leading-tight tracking-[0.05em] text-[#1F1F22] geist-mono-font shadow-xl border-none">
                   REAL PHOTO<br />FROM SELLER
                 </div>
               </div>
 
               {/* Horizontal thumbnail strip */}
               {images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="flex gap-4.5 overflow-x-auto pb-1 mt-15">
                   {images.slice(0, 8).map((img, i) => (
                     <button
                       key={i}
                       onClick={() => setSelectedImageIndex(i)}
-                      className={`h-[72px] w-[72px] shrink-0 overflow-hidden border-2 bg-[#EDEAE4] transition-all ${i === selectedImageIndex ? "border-[var(--thrifti-dark)]" : "border-transparent"}`}
+                      className={`h-[72px] w-[72px] shrink-0 overflow-hidden bg-[#EDEAE4] transition-all ${i === selectedImageIndex ? "border-[var(--thrifti-dark)]" : "border-transparent"}`}
                       aria-label={`View image ${i + 1}`}
                     >
                       <img src={img.url} alt={img.altText ?? `Image ${i + 1}`} className="w-full h-full object-cover" />
@@ -499,7 +503,7 @@ export default function ProductDetail() {
             <div className="flex flex-col">
 
               {/* Title */}
-              <h1 className="mb-1 text-2xl font-black leading-tight text-[var(--thrifti-dark)] font-['Playfair_Display',serif] sm:text-3xl">
+              <h1 className="anek-devanagari-font text-3xl lg:text-[40px] font-medium leading-tight text-[var(--thrifti-dark)] ">
                 {product.title}
               </h1>
               {/* View count */}
@@ -515,37 +519,47 @@ export default function ProductDetail() {
                 </div>
               )}
               {/* Wishlist + Share */}
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center lg:gap-3 gap-2 mb-3">
                 <button onClick={handleWishlist} className="p-1 -ml-1" aria-label="Wishlist">
-                  <Heart className={`h-5 w-5 stroke-[1.5] ${wishlisted ? "text-[var(--thrifti-red)] fill-[var(--thrifti-red)]" : "text-[#9CA3AF] fill-none"}`} />
+                  <img
+                    src={heartIcon}
+                    alt="wishlisted"
+                    aria-hidden="true"
+                    className="h-4.5 w-4.5 lg:h-5 lg:w-5"
+                    style={{
+                      filter: wishlisted
+                        ? "invert(24%) sepia(96%) saturate(3051%) hue-rotate(349deg) brightness(99%) contrast(99%)"
+                        : "none",
+                    }}
+                  />
                 </button>
                 <button onClick={handleShare} className="p-1" aria-label="Share">
-                  <Share2 className="h-5 w-5 stroke-[1.5] text-[#9CA3AF]" />
+                  <img src={shareIcon} alt="" aria-hidden="true" className="h-4.5 w-4.5 lg:h-5 lg:w-5" />
                 </button>
               </div>
 
               {/* Price */}
-              <div className="flex items-baseline gap-3 mb-5">
-                <p className="text-3xl font-black text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
+              <div className="flex items-baseline gap-3 lg:mb-6 mb-5">
+                <p className="text-3xl lg:text-[40px] font-semibold text-[#1F1F22] geist-mono-font">
                   {formatPrice(price.amount, price.currencyCode)}
                 </p>
                 {compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount) && (
-                  <p className="text-base line-through text-[#9CA3AF] font-['Space_Grotesk',sans-serif]">
+                  <p className="text-base line-through text-[#9CA3AF] geist-mono-font">
                     {formatPrice(compareAtPrice.amount, compareAtPrice.currencyCode)}
                   </p>
                 )}
               </div>
 
               {/* Attributes: Size | Brand | Location */}
-              <div className="grid grid-cols-3 gap-4 mb-5 pb-5 border-b border-gray-200">
+              <div className="grid grid-cols-3 gap-4 lg:mb-5 mb-3 py-2 lg:px-2.5 px-2 border-t border-[#E5E7EB]">
                 {[
                   { label: "Size", value: sizeTag ?? activeVariant?.selectedOptions?.find((o) => o.name === "Size")?.value ?? "M" },
                   { label: "Brand", value: product.vendor ?? "Vintage" },
                   { label: "Location", value: locationTag ?? "India" },
                 ].map(({ label, value }) => (
                   <div key={label}>
-                    <p className="mb-0.5 text-xs text-[#9CA3AF] font-['Space_Grotesk',sans-serif]">{label}</p>
-                    <p className="text-sm font-semibold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">{value}</p>
+                    <p className="text-sm text-[#1F1F22] geist-mono-font lg:mb-1.5 mb-2.5">{label}</p>
+                    <p className="text-base font-semibold text-[#1F1F22] geist-mono-font">{value}</p>
                   </div>
                 ))}
               </div>
@@ -557,8 +571,8 @@ export default function ProductDetail() {
                 .filter((opt) => opt.values.length > 1 || opt.values[0] !== "Default Title")
                 .map((option) => (
                   <div key={option.name} className="mb-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#6B7280] font-['Space_Grotesk',sans-serif]">
-                      {option.name}: <span className="font-normal normal-case tracking-normal">{selectedOptions[option.name] ?? option.values[0]}</span>
+                    <p className="text-sm text-[#1F1F22] geist-mono-font mb-1.5">
+                      {option.name}: <span className="text-sm font-semibold text-[#1F1F22] geist-mono-font">{selectedOptions[option.name] ?? option.values[0]}</span>
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {option.values.map((value) => {
@@ -581,27 +595,27 @@ export default function ProductDetail() {
                 ))}
 
               {/* CTA Buttons */}
-              <div className="flex flex-col gap-2 mb-5">
+              <div className="flex flex-col gap-3 lg:my-6 mt-1 mb-5">
                 {/* BUY NOW — full width, RED */}
                 <button
                   onClick={handleAddToCart}
                   disabled={!isAvailable || adding || cartLoading}
-                  className="w-full bg-[var(--thrifti-red)] py-4 text-sm font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-50 font-['Space_Grotesk',sans-serif]"
+                  className="w-full bg-[#F42824] text-white pt-4 pb-2 lg:text-2xl text-xl font-semibold uppercase hover:bg-[#aa1a00] transition-colors disabled:opacity-60 anek-devanagari-font"
                 >
                   {adding ? "Adding..." : !isAvailable ? "Sold Out" : "BUY NOW"}
                 </button>
                 {/* ADD TO BAG + MAKE AN OFFER */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleAddToCart}
                     disabled={!isAvailable || adding || cartLoading}
-                    className="bg-[var(--thrifti-dark)] py-3.5 text-xs font-black uppercase tracking-wider text-white transition-colors disabled:opacity-50 font-['Space_Grotesk',sans-serif]"
+                    className="bg-[#1F1F22] text-white pt-4 pb-2 lg:text-2xl text-lg font-semibold uppercase hover:bg-[#1f1f22] transition-colors disabled:opacity-60 anek-devanagari-font"
                   >
                     ADD TO BAG
                   </button>
                   <button
                     onClick={() => toast.info("Offers coming soon!")}
-                    className="border border-[var(--thrifti-dark)] bg-transparent py-3.5 text-xs font-black uppercase tracking-wider text-[var(--thrifti-dark)] transition-colors font-['Space_Grotesk',sans-serif]"
+                    className="bg-[#1F1F22] text-white pt-4 pb-2 lg:text-2xl text-lg font-semibold uppercase hover:bg-[#1f1f22] transition-colors disabled:opacity-60 anek-devanagari-font"
                   >
                     MAKE AN OFFER
                   </button>
@@ -609,9 +623,9 @@ export default function ProductDetail() {
               </div>
 
               {/* Buyer Protection */}
-              <div className="flex items-center gap-2 py-3 border-t border-b border-gray-200 mb-5">
-                <Shield className="h-4 w-4 shrink-0 text-[#6B7280]" />
-                <p className="text-xs text-[#6B7280] font-['Space_Mono',monospace]">
+              <div className="flex items-center gap-2 py-3 border-t border-b border-[#1F1F224D] lg:mb-6 mb-4">
+                <img src={shieldIcon} alt="" aria-hidden="true" className="h-4.5 w-4.5 shrink-0" />
+                <p className="text-sm text-[#1F1F22] geist-mono-font">
                   All purchases are covered by Buyer Protection.
                 </p>
               </div>
@@ -629,19 +643,15 @@ export default function ProductDetail() {
               )}
 
               {/* THIS OUTFIT SOUNDS LIKE — Spotify section */}
-              <div className="mb-5">
-                <p className="mb-2 text-xs font-black uppercase tracking-wider text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">THIS OUTFIT SOUNDS LIKE</p>
-                <div className="flex items-center gap-3 bg-[#FFD6CC] px-4 py-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1DB954]">
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.623.623 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.519-.972c3.632-1.102 8.147-.568 11.234 1.328a.78.78 0 01.257 1.072zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.533-1.073 9.404-.866 13.115 1.337a.935.935 0 11-.954 1.609z" />
-                    </svg>
-                  </div>
+              <div className="lg:mb-6 mb-4">
+                <p className="lg:text-base text-sm font-semibold text-[#1F1F22] geist-mono-font mb-2">THIS OUTFIT SOUNDS LIKE</p>
+                <div className="flex items-center gap-3 bg-[#F428244D] px-3 py-3">
+                  <img src={spotifyIcon} alt="" aria-hidden="true" className="h-9 w-9 shrink-0 object-contain  rotate-[25deg]" />
                   <div>
-                    <p className="text-xs font-black uppercase tracking-wide text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
+                    <p className="lg:text-base text-sm font-semibold uppercase tracking-wide geist-mono-font">
                       {musicTag ? `"${musicTag.replace(/^music:/i, "").trim()}"` : '"SMELL LIKE TEEN SPIRIT"'}
                     </p>
-                    <p className="text-xs text-[#6B7280] font-['Space_Mono',monospace]">
+                    <p className="lg:text-base text-sm geist-mono-font">
                       {musicTag ? "" : "NIRVANA"}
                     </p>
                   </div>
@@ -649,39 +659,37 @@ export default function ProductDetail() {
               </div>
 
               {/* Seller card */}
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex items-center justify-between">
+              <div className="border-t border-[#1F1F224D] pt-4">
+                <div className="flex items-center justify-between lg:mb-6 mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--thrifti-dark)] text-sm font-black text-white">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--thrifti-dark)] text-sm font-black text-white">
                       {(product.vendor ?? "T").charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
+                      <p className="text-lg font-semibold text-[#1F1F22] anek-devanagari-font">
                         {sellerDisplayName}
                       </p>
                       <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs text-[#6B7280] font-['Space_Mono',monospace]">4.9 (2,847)</span>
+                        <Star className="w-5 h-5 fill-yellow-400 text-yellow-400 pb-1.5" />
+                        <span className="text-base font-semibold anek-devanagari-font">4.9 (2,847)</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={handleWishlist} className="p-1.5" aria-label="Wishlist">
-                      <Heart className={`h-4 w-4 stroke-[1.5] ${wishlisted ? "text-[var(--thrifti-red)] fill-[var(--thrifti-red)]" : "text-[#9CA3AF] fill-none"}`} />
+                      <img src={heartIcon} alt="" aria-hidden="true" className="h-4.5 w-4.5 lg:h-5 lg:w-5" />
                     </button>
                     <button onClick={handleShare} className="p-1.5" aria-label="Share">
-                      <Share2 className="h-4 w-4 text-[#9CA3AF]" />
+                      <img src={shareIcon} alt="" aria-hidden="true" className="h-4.5 w-4.5 lg:h-5 lg:w-5" />
                     </button>
                   </div>
                 </div>
-                {viewShopLabel && (
-                  <button
-                    onClick={() => navigate(viewShopUrl)}
-                    className="mt-4 border border-[var(--thrifti-dark)] px-3 py-1.5 text-xs font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif] hover:bg-[var(--thrifti-dark)] hover:text-white transition-colors"
-                  >
-                    {viewShopLabel}
-                  </button>
-                )}
+                <button
+                  onClick={() => navigate(viewShopUrl)}
+                  className="border border-[var(--thrifti-dark)] px-6 pt-1.5 pb-0.5 text-base font-semibold hover:bg-[var(--thrifti-dark)] hover:text-white transition-colors anek-devanagari-font"
+                >
+                  {viewShopLabel ?? "View Shop"}
+                </button>
               </div>
 
             </div>
