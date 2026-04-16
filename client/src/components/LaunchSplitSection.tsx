@@ -23,7 +23,7 @@ export default function LaunchSplitSection({
   return (
     <section className="bg-[var(--thrifti-red)]">
       <div className="container mx-auto flex flex-col lg:min-h-[430px] lg:flex-row">
-        <div className="flex w-full flex-col justify-center px-7 py-10 sm:px-10 lg:w-[40%] lg:px-12 lg:py-12">
+        <div className="flex w-full flex-col justify-center  py-10  lg:w-[40%] lg:px-12 lg:py-12">
           <p className="anek-devanagari-font mb-1 text-base font-medium uppercase tracking-[0.16em] text-white lg:font-bold 2xl:text-xl">
             {pretitle}
           </p>
