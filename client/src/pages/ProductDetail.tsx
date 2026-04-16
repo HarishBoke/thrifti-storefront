@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ShareSheet from "@/components/ShareSheet";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { ShoppingBag, Heart, Share2, Shield, Star, ChevronRight } from "lucide-react";
 import StorefrontLayout from "@/components/StorefrontLayout";
 import AnimatedBanner from "@/components/AnimatedBanner";
@@ -183,6 +183,7 @@ function PolaroidSection() {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ProductDetail() {
   const { handle } = useParams<{ handle: string }>();
+  const [, navigate] = useLocation();
   const { addToCart, isLoading: cartLoading } = useCart();
   const { customer, isAuthenticated } = useShopifyAuth();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -334,6 +335,25 @@ export default function ProductDetail() {
   });
 
   const moreBySeller = allProducts.filter((p) => p.vendor === product.vendor && p.id !== product.id).slice(0, 4);
+
+  // Seller display: mask mobile numbers, show name otherwise
+  const sellerVendor = product.vendor ?? "";
+  const isMobileNumber = /^[\+]?[\d\s\-]{10,14}$/.test(sellerVendor.replace(/\s/g, ""));
+  const sellerDisplayName = isMobileNumber
+    ? sellerVendor.replace(/\s/g, "").replace(/^(\+?\d{1,3})?(\d{2,3})(\d{4})(\d{2,4})$/, (_full, cc, p1, _mid, p3) =>
+        `${cc ? cc + " " : ""}${p1} \u2022\u2022\u2022\u2022\u2022 ${p3}`
+      ) || (sellerVendor.slice(0, 3) + " \u2022\u2022\u2022\u2022\u2022 " + sellerVendor.slice(-2))
+    : sellerVendor || "Thrifti Seller";
+
+  // Dynamic View Shop: count all products by this vendor
+  const allBySellerCount = allProducts.filter((p) => p.vendor === product.vendor).length;
+  const otherBySellerCount = allBySellerCount - 1; // exclude current product
+  const viewShopLabel =
+    otherBySellerCount <= 0 ? null
+    : otherBySellerCount === 1 ? "View 1 more item"
+    : otherBySellerCount <= 4 ? `View ${otherBySellerCount} items`
+    : "View all products";
+  const viewShopUrl = `/products?vendor=${encodeURIComponent(product.vendor ?? "")}`;
   const similarItems = allProducts.filter((p) => p.productType === product.productType && p.id !== product.id).slice(0, 4);
   const lookingForMore = allProducts.filter((p) => p.productType?.split("/").pop() === product.productType?.split("/").pop() && p.id !== product.id && !similarItems.find(s => s.id === p.id)).slice(0, 4);
 
@@ -637,7 +657,7 @@ export default function ProductDetail() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]">
-                        {product.vendor ?? "thrifti_seller"}
+                        {sellerDisplayName}
                       </p>
                       <div className="flex items-center gap-1">
                         <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
@@ -654,12 +674,14 @@ export default function ProductDetail() {
                     </button>
                   </div>
                 </div>
-                <button
-                  onClick={() => toast.info("Seller shop coming soon!")}
-                  className="mt-4 border border-[var(--thrifti-dark)] px-3 py-1.5 text-xs font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif]"
-                >
-                  View Shop
-                </button>
+                {viewShopLabel && (
+                  <button
+                    onClick={() => navigate(viewShopUrl)}
+                    className="mt-4 border border-[var(--thrifti-dark)] px-3 py-1.5 text-xs font-bold text-[var(--thrifti-dark)] font-['Space_Grotesk',sans-serif] hover:bg-[var(--thrifti-dark)] hover:text-white transition-colors"
+                  >
+                    {viewShopLabel}
+                  </button>
+                )}
               </div>
 
             </div>
