@@ -684,14 +684,15 @@ export default function ProductDetail() {
                     </button>
                   </div>
                 </div>
-                <button
-                  onClick={() => navigate(viewShopUrl)}
-                  className="border border-[var(--thrifti-dark)] px-6 pt-1.5 pb-0.5 text-base font-semibold hover:bg-[var(--thrifti-dark)] hover:text-white transition-colors anek-devanagari-font"
-                >
-                  {viewShopLabel ?? "View Shop"}
-                </button>
+                {viewShopLabel && (
+                  <button
+                    onClick={() => navigate(viewShopUrl)}
+                    className="border border-[var(--thrifti-dark)] px-6 pt-1.5 pb-0.5 text-base font-semibold hover:bg-[var(--thrifti-dark)] hover:text-white transition-colors anek-devanagari-font"
+                  >
+                    {viewShopLabel}
+                  </button>
+                )}
               </div>
-
             </div>
           </div>
         </div>
