@@ -18,7 +18,7 @@ export default function RecentlyViewedGrid<T>({
       <h2 className="anek-devanagari-font mb-2 text-3xl font-medium lg:text-[40px]">
         {title}
       </h2>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
         {items.map((item) => renderItem(item))}
       </div>
     </div>
