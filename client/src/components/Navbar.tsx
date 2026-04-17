@@ -5,6 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 import { trpc } from "@/lib/trpc";
 import ThriftiLogo from "@/components/ThriftiLogo";
+import clothesHangerIcon from "@/assets/img/clothes-hanger.svg";
 const WHATSAPP_NUMBER = "918065253722";
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Hey!%20I%20want%20to%20sell%20on%20Thrifti`;
 
@@ -15,20 +16,59 @@ const AMBIENT_TRACK_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663413686
 const CATEGORY_LINKS = [
   { label: "WOMEN", href: "/collections/women" },
   { label: "MEN", href: "/collections/men" },
-  { label: "KIDS", href: "/collections/kids" },
-  { label: "ACCESSORIES", href: "/collections/accessories" },
+  // { label: "KIDS", href: "/collections/kids" },
+  // { label: "ACCESSORIES", href: "/collections/accessories" },
 ];
 
 // Mobile menu links
 const MOBILE_NAV_LINKS = [
   { label: "WOMEN", href: "/collections/women" },
   { label: "MEN", href: "/collections/men" },
-  { label: "KIDS", href: "/collections/kids" },
-  { label: "ACCESSORIES", href: "/collections/accessories" },
-  { label: "COLLECTIONS", href: "/collections" },
-  { label: "SELL", href: "/sell" },
-  { label: "ABOUT", href: "/about" },
+  // { label: "KIDS", href: "/collections/kids" },
+  // { label: "ACCESSORIES", href: "/collections/accessories" },
+  // { label: "COLLECTIONS", href: "/collections" },
+  // { label: "SELL", href: "/sell" },
+  // { label: "ABOUT", href: "/about" },
 ];
+
+type MegaMenuKey = "women" | "men";
+
+const MEGA_MENU_ITEMS: Record<MegaMenuKey, string[]> = {
+  women: [
+    "Indian & Fusion Wear",
+    "Dresses",
+    "Swimwear",
+    "Footwear",
+    "Tops",
+    "Co-Ord Sets",
+    "Activewear",
+    "Accessories",
+    "Bottoms",
+    "Outerwear",
+    "Maternity Wear",
+    "Backpacks & Luggages",
+    "Jumpsuits & Playsuits",
+    "Formals & Blazers",
+    "Costumes & Special Outfits",
+  ],
+  men: [
+    "Shirts",
+    "T-Shirts",
+    "Denim",
+    "Footwear",
+    "Sweatshirts",
+    "Activewear",
+    "Ethnic Wear",
+    "Accessories",
+    "Trousers",
+    "Jackets",
+    "Co-Ord Sets",
+    "Backpacks & Luggages",
+    "Suits & Blazers",
+    "Shorts",
+    "Swimwear",
+  ],
+};
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -37,6 +77,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [musicOn, setMusicOn] = useState(false);
+  const [activeMegaMenu, setActiveMegaMenu] = useState<MegaMenuKey | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -129,6 +170,7 @@ export default function Navbar() {
   useEffect(() => {
     setMobileOpen(false);
     setSearchOpen(false);
+    setActiveMegaMenu(null);
   }, [location]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -145,7 +187,7 @@ export default function Navbar() {
   return (
     <>
       <header
-        className="sticky top-0 z-50 transition-all duration-200"
+        className={`sticky top-0 z-50 transition-all duration-200 ${activeMegaMenu ? "py-0" : "py-1"}`}
         style={{
           backgroundColor: "var(--thrifti-cream)",
           boxShadow: scrolled ? "0 1px 0 rgba(0,0,0,0.1)" : "none",
@@ -165,6 +207,9 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   className="text-sm font-black uppercase tracking-wider transition-colors hover:opacity-70"
+                  onMouseEnter={() =>
+                    setActiveMegaMenu(link.label === "WOMEN" ? "women" : link.label === "MEN" ? "men" : null)
+                  }
                   style={{
                     fontFamily: "'Space Grotesk', sans-serif",
                     color: "var(--thrifti-dark)",
@@ -344,6 +389,75 @@ export default function Navbar() {
             </div>
           )}
         </div>
+
+        {/* Page Overlay Behind Mega Menu */}
+        {activeMegaMenu && (
+          <div
+            className="hidden lg:block fixed left-0 right-0 bottom-0 z-[40] bg-black/35"
+            style={{ top: `${desktopHeaderHeight}px` }}
+            onMouseEnter={() => setActiveMegaMenu(activeMegaMenu)}
+            onClick={() => setActiveMegaMenu(null)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Desktop Mega Menu */}
+        {activeMegaMenu && (
+          <div
+            className="hidden lg:block absolute left-0 right-0 top-full z-[60] bg-[var(--thrifti-cream)]"
+            onMouseEnter={() => setActiveMegaMenu(activeMegaMenu)}
+            onMouseLeave={() => setActiveMegaMenu(null)}
+          >
+            <div className="container relative mx-auto px-24 py-18">
+              <div className="grid grid-cols-4 gap-x-10 gap-y-6">
+                {MEGA_MENU_ITEMS[activeMegaMenu].map((label, idx) => (
+                  <Link
+                    key={label}
+                    href={`/products?category=${encodeURIComponent(label)}`}
+                    className="group flex items-center gap-4 px-6 py-2.5 transition-colors hover:bg-black/5 rounded-[8px]"
+                  >
+                    <div
+                      className={`relative h-14 w-14 shrink-0 rounded-[8px] ${idx % 5 === 0
+                        ? "bg-[#e74f2b]"
+                        : idx % 5 === 1
+                          ? "bg-[#f2b426]"
+                          : idx % 5 === 2
+                            ? "bg-[#2f7f7b]"
+                            : idx % 5 === 3
+                              ? "bg-[#1c3f33]"
+                              : "bg-[#e7b55a]"
+                        }`}
+                    >
+                      <span className="absolute inset-[7px] flex items-center justify-center rounded bg-white/80">
+                        <img
+                          src={clothesHangerIcon}
+                          alt=""
+                          aria-hidden="true"
+                          className="h-8 w-8 object-contain"
+                          style={{
+                            filter:
+                              idx % 5 === 0
+                                ? "invert(47%) sepia(88%) saturate(3028%) hue-rotate(347deg) brightness(94%) contrast(93%)"
+                                : idx % 5 === 1
+                                  ? "invert(84%) sepia(45%) saturate(2704%) hue-rotate(344deg) brightness(98%) contrast(91%)"
+                                  : idx % 5 === 2
+                                    ? "invert(41%) sepia(26%) saturate(1237%) hue-rotate(128deg) brightness(89%) contrast(89%)"
+                                    : idx % 5 === 3
+                                      ? "invert(18%) sepia(20%) saturate(1184%) hue-rotate(112deg) brightness(92%) contrast(94%)"
+                                      : "invert(74%) sepia(42%) saturate(704%) hue-rotate(352deg) brightness(95%) contrast(89%)",
+                          }}
+                        />
+                      </span>
+                    </div>
+                    <span className="text-base leading-tight text-[#1F1F22CC] font-medium geist-mono-font">
+                      {label}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Mobile Menu */}
         {mobileOpen && (
