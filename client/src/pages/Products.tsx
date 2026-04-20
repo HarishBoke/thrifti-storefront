@@ -210,7 +210,7 @@ function ListingProductCard({
             {attrLine}
           </p>
           <button onClick={handleWishlist} className="flex-shrink-0 p-0.5 -mt-0.5 transition-transform hover:scale-110" aria-label="Wishlist">
-            <HeartSvg className={`h-4 w-4 transition-colors duration-300 group-hover:text-white ${wishlisted ? "text-[var(--thrifti-red)]" : "text-[#9CA3AF] hover:text-[var(--thrifti-red)]"}`} />
+            <HeartSvg className={`h-4 w-4 transition-colors duration-300 group-hover:text-white ${wishlisted ? "text-[var(--thrifti-red)]" : "text-[#9CA3AF]"}`} />
           </button>
         </div>
         <p className="font-medium text-sm lg:text-lg text-[#1F1F22] geist-mono-font transition-colors duration-300 group-hover:text-white">
