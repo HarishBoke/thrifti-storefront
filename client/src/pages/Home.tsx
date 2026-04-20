@@ -125,23 +125,31 @@ const WATERMARK = [
 
 function AnimatedTicker({ className = "" }: { className?: string }) {
   const items = ["SELL", "★", "REPEAT", "★", "BUY", "★", "SELL", "★", "REPEAT", "★", "BUY", "★", "SELL", "★", "REPEAT", "★", "BUY", "★"];
+  const tickerItems = [...items, ...items, ...items];
   return (
     <div className={`overflow-hidden py-3 relative md:absolute md:-top-10 md:left-0 md:w-full z-[5] ${className}`} style={{ backgroundColor: "var(--thrifti-red)" }}>
       <style>{`
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes tickerLoop {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
       `}</style>
       <div
-        className="flex gap-6 whitespace-nowrap"
-        style={{ animation: "ticker 20s linear infinite", width: "max-content" }}
+        className="flex w-max whitespace-nowrap"
+        style={{ animation: "tickerLoop 60s linear infinite" }}
       >
-        {[...items, ...items].map((item, i) => (
-          <span
-            key={i}
-            className="text-white font-black text-sm tracking-[0.3em] uppercase"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-          >
-            {item}
-          </span>
+        {[0, 1].map((groupIndex) => (
+          <div key={groupIndex} className="flex shrink-0 items-center gap-6 pr-6">
+            {tickerItems.map((item, i) => (
+              <span
+                key={`${groupIndex}-${i}`}
+                className="text-white font-black text-sm tracking-[0.3em] uppercase"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                {item}
+              </span>
+            ))}
+          </div>
         ))}
       </div>
     </div>
@@ -227,11 +235,12 @@ export default function Home() {
     setActiveBuiltSlide((prev) => (prev >= maxStart ? 0 : prev + 1));
   };
   const currentHeroSlide = HERO_BANNER_SLIDES[activeHeroSlide];
+  const isThirdHeroSlide = activeHeroSlide === 2;
   return (
     <StorefrontLayout>
 
       {/* ===== SECTION 1: HERO — Full-bleed with BANNER11-2 image ===== */}
-      <section className="bg-[var(--thrifti-cream)] md:mt-24 lg:mt-32 xl:mt-44 md:relative">
+      <section className="bg-[var(--thrifti-cream)] md:mt-24 lg:mt-28 xl:mt-44 md:relative">
         <div className="relative min-h-[560px] md:min-h-[360px] xl:min-h-[680px] flex items-end ">
           <div className="container mx-auto">
             {HERO_BANNER_SLIDES.map((slide, index) => (
@@ -253,34 +262,45 @@ export default function Home() {
                   src={slide.model}
                   alt=""
                   aria-hidden="true"
-                  className={`absolute z-[20] object-contain pointer-events-none hidden md:block ${slide.modelClass}`}
+                  className={`absolute z-[20] object-contain pointer-events-none hidden md:block lg:pt-7  ${slide.modelClass}`}
                 />
               </div>
             ))}
             <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/45 via-black/15 to-transparent pointer-events-none" />
 
-            <div className="relative z-[30] flex h-full min-h-[560px] md:min-h-[360px] xl:min-h-[680px] w-full items-end">
-              <div className="px-6 sm:px-10 md:px-20 pb-14 sm:pb-4 lg:pb-20 max-w-[720px]">
+            <div
+              className={`relative z-[30] flex h-full min-h-[560px] md:min-h-[360px] xl:min-h-[680px] w-full ${isThirdHeroSlide ? "items-end md:items-start md:justify-end" : "items-end"
+                }`}
+            >
+              <div
+                className={`px-6 sm:px-10 md:px-20 max-w-[720px] ${isThirdHeroSlide
+                  ? "pb-14 sm:pb-4 md:pt-14 md:pb-0 lg:pt-20 text-left"
+                  : "pb-14 sm:pb-4 lg:pb-20"
+                  }`}
+              >
                 <h1 className="vogue-font text-white uppercase leading-tight tracking-[-0.01em] text-[52px] sm:text-[60px] md:text-[52px] 2xl:text-[64px]">
-                  {currentHeroSlide.title[0]}
-                  <br />
-                  {currentHeroSlide.title[1]}
-                  <br />
-                  {currentHeroSlide.title[2]}
+                  {currentHeroSlide.title.map((line, index) => (
+                    <span key={`${line}-${index}`}>
+                      {line}
+                      {index !== currentHeroSlide.title.length - 1 && <br />}
+                    </span>
+                  ))}
                 </h1>
                 <p className="geist-mono-font mt-3 sm:mt-4 text-white uppercase tracking-[0.08em] text-sm sm:text-xl md:text-xl max-w-[52ch]">
                   {currentHeroSlide.subtitle}
                 </p>
-                <div className="mt-10">
-                  <a
-                    href={currentHeroSlide.ctaHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="thrifti-btn-red inline-flex anek-devanagari-font text-sm md:text-base 2xl:text-2xl pb-1"
-                  >
-                    {currentHeroSlide.ctaLabel}
-                  </a>
-                </div>
+                {!isThirdHeroSlide && (
+                  <div className="mt-10">
+                    <a
+                      href={currentHeroSlide.ctaHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="thrifti-btn-red inline-flex anek-devanagari-font text-sm md:text-base 2xl:text-2xl pb-1"
+                    >
+                      {currentHeroSlide.ctaLabel}
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
 
