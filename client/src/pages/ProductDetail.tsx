@@ -263,7 +263,7 @@ export default function ProductDetail() {
         <div style={{ backgroundColor: "var(--thrifti-cream)", minHeight: "100vh" }} className="flex items-center justify-center">
           <div className="text-center py-20">
             <p className="text-4xl mb-4">🔍</p>
-            <h1 className="text-2xl font-black mb-2" style={{ fontFamily: "'Playfair Display', serif", color: "var(--thrifti-dark)" }}>Product Not Found</h1>
+            <h2 className="text-2xl font-black mb-2" style={{ fontFamily: "'Playfair Display', serif", color: "var(--thrifti-dark)" }}>Product Not Found</h2>
             <p className="text-sm mb-6" style={{ fontFamily: "'Space Mono', monospace", color: "#6B7280" }}>This product may have been sold or removed.</p>
             <Link href="/products"><button className="thrifti-btn-dark text-sm">Browse All Products</button></Link>
           </div>

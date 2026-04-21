@@ -63,18 +63,16 @@ export default function Contact() {
       <div className="bg-[oklch(0.12_0.01_260)] text-white py-16 sm:py-24 text-center">
         <div className="container max-w-2xl mx-auto">
           <p
-            className="text-white/50 text-xs font-bold tracking-[0.35em] uppercase mb-4"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            className="text-white/50 text-xs font-bold tracking-[0.35em] uppercase mb-4 font-['Space_Grotesk']"
           >
             We'd Love to Hear From You
           </p>
           <h1
-            className="text-5xl sm:text-7xl font-black mb-5 leading-none"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-5xl sm:text-7xl font-black mb-5 leading-none font-['Playfair_Display']"
           >
             Contact Us
           </h1>
-          <p className="text-white/70 leading-relaxed" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <p className="text-white/70 leading-relaxed font-['Inter']">
             Whether you have a question about selling, an order issue, or just want to say hi —
             we're here and happy to help.
           </p>
@@ -87,8 +85,7 @@ export default function Contact() {
           {/* Contact Info */}
           <div>
             <h2
-              className="text-2xl font-black mb-8"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-2xl font-black mb-8 font-['Playfair_Display']"
             >
               Get in Touch
             </h2>
@@ -103,18 +100,16 @@ export default function Contact() {
                     </div>
                     <div>
                       <p
-                        className="font-bold text-sm mb-0.5"
-                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                        className="font-bold text-sm mb-0.5 font-['Space_Grotesk']"
                       >
                         {item.title}
                       </p>
                       <p
-                        className="text-base font-semibold"
-                        style={{ fontFamily: "'Inter', sans-serif" }}
+                        className="text-base font-semibold font-['Inter']"
                       >
                         {item.value}
                       </p>
-                      <p className="text-muted-foreground text-xs mt-0.5" style={{ fontFamily: "'Inter', sans-serif" }}>
+                      <p className="text-muted-foreground text-xs mt-0.5 font-['Inter']">
                         {item.sub}
                       </p>
                     </div>
@@ -139,18 +134,16 @@ export default function Contact() {
             {/* WhatsApp CTA */}
             <div className="bg-[oklch(0.52_0.22_25)] rounded-sm p-6 text-white">
               <h3
-                className="font-black text-lg mb-2"
-                style={{ fontFamily: "'Playfair Display', serif" }}
+                className="font-black text-lg mb-2 font-['Playfair_Display']"
               >
                 Fastest Way to Reach Us
               </h3>
-              <p className="text-white/80 text-sm mb-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <p className="text-white/80 text-sm mb-4 font-['Inter']">
                 For quick answers, WhatsApp is the best channel. Our team responds within a few hours during business hours.
               </p>
               <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
                 <Button
-                  className="bg-white text-[oklch(0.52_0.22_25)] hover:bg-white/90 font-bold gap-2 w-full sm:w-auto"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  className="bg-white text-[oklch(0.52_0.22_25)] hover:bg-white/90 font-bold gap-2 w-full sm:w-auto font-['Space_Grotesk']"
                 >
                   <MessageCircle className="w-4 h-4" />
                   Chat on WhatsApp
@@ -162,8 +155,7 @@ export default function Contact() {
           {/* Contact Form */}
           <div>
             <h2
-              className="text-2xl font-black mb-8"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-2xl font-black mb-8 font-['Playfair_Display']"
             >
               Send Us a Message
             </h2>
@@ -171,8 +163,7 @@ export default function Contact() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label
-                    className="block text-sm font-semibold mb-1.5"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                    className="block text-sm font-semibold mb-1.5 font-['Space_Grotesk']"
                   >
                     Name <span className="text-[oklch(0.52_0.22_25)]">*</span>
                   </label>
@@ -186,8 +177,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <label
-                    className="block text-sm font-semibold mb-1.5"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                    className="block text-sm font-semibold mb-1.5 font-['Space_Grotesk']"
                   >
                     Email <span className="text-[oklch(0.52_0.22_25)]">*</span>
                   </label>
@@ -203,8 +193,7 @@ export default function Contact() {
               </div>
               <div>
                 <label
-                  className="block text-sm font-semibold mb-1.5"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  className="block text-sm font-semibold mb-1.5 font-['Space_Grotesk']"
                 >
                   Subject
                 </label>
@@ -217,8 +206,7 @@ export default function Contact() {
               </div>
               <div>
                 <label
-                  className="block text-sm font-semibold mb-1.5"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  className="block text-sm font-semibold mb-1.5 font-['Space_Grotesk']"
                 >
                   Message <span className="text-[oklch(0.52_0.22_25)]">*</span>
                 </label>
@@ -234,8 +222,7 @@ export default function Contact() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-[oklch(0.12_0.01_260)] hover:bg-[oklch(0.2_0.01_260)] text-white font-bold py-5"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                className="w-full bg-[oklch(0.12_0.01_260)] hover:bg-[oklch(0.2_0.01_260)] text-white font-bold py-5 font-['Space_Grotesk']"
               >
                 {submitting ? "Sending..." : "Send Message"}
               </Button>

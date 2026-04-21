@@ -79,18 +79,16 @@ export default function HowItWorks() {
       <div className="bg-[oklch(0.12_0.01_260)] text-white py-16 sm:py-24 text-center">
         <div className="container max-w-3xl mx-auto">
           <p
-            className="text-white/50 text-xs font-bold tracking-[0.35em] uppercase mb-4"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            className="text-white/50 text-xs font-bold tracking-[0.35em] uppercase mb-4 font-['Space_Grotesk']"
           >
             The Thrifti Way
           </p>
           <h1
-            className="text-5xl sm:text-7xl font-black mb-6 leading-none"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-5xl sm:text-7xl font-black mb-6 leading-none font-['Playfair_Display']"
           >
             How Thrifti<br />Works
           </h1>
-          <p className="text-white/70 text-lg leading-relaxed" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <p className="text-white/70 text-lg leading-relaxed font-['Inter']">
             Circular fashion made simple. Sell your pre-loved clothes in minutes,
             buy curated pieces at honest prices. No complicated listings, no middlemen — just style that keeps moving.
           </p>
@@ -101,14 +99,12 @@ export default function HowItWorks() {
       <div className="container max-w-4xl mx-auto py-14 sm:py-20">
         <div className="text-center mb-12">
           <p
-            className="text-[oklch(0.52_0.22_25)] text-xs font-bold tracking-[0.35em] uppercase mb-3"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            className="text-[oklch(0.52_0.22_25)] text-xs font-bold tracking-[0.35em] uppercase mb-3 font-['Space_Grotesk']"
           >
             For Sellers
           </p>
           <h2
-            className="text-3xl sm:text-5xl font-black"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-3xl sm:text-5xl font-black font-['Playfair_Display']"
           >
             Sell in 5 Easy Steps
           </h2>
@@ -128,19 +124,17 @@ export default function HowItWorks() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <span
-                      className="text-[oklch(0.52_0.22_25)] text-xs font-bold tracking-widest"
-                      style={{ fontFamily: "'Space Mono', monospace" }}
+                      className="text-[oklch(0.52_0.22_25)] text-xs font-bold tracking-widest font-['Space_Mono']"
                     >
                       {step.number}
                     </span>
                     <h3
-                      className="text-lg font-black"
-                      style={{ fontFamily: "'Playfair Display', serif" }}
+                      className="text-lg font-black font-['Playfair_Display']"
                     >
                       {step.title}
                     </h3>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  <p className="text-muted-foreground leading-relaxed text-sm font-['Inter']">
                     {step.desc}
                   </p>
                 </div>
@@ -152,8 +146,7 @@ export default function HowItWorks() {
         <div className="mt-10 text-center">
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
             <Button
-              className="bg-[oklch(0.52_0.22_25)] hover:bg-[oklch(0.45_0.22_25)] text-white font-bold px-10 py-6 text-base gap-2"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              className="bg-[oklch(0.52_0.22_25)] hover:bg-[oklch(0.45_0.22_25)] text-white font-bold px-10 py-6 text-base gap-2 font-['Space_Grotesk']"
             >
               <MessageCircle className="w-5 h-5" />
               Start Selling on WhatsApp
@@ -168,8 +161,7 @@ export default function HowItWorks() {
           {Array(12).fill(null).map((_, i) => (
             <span
               key={i}
-              className="text-white font-bold text-sm tracking-widest uppercase flex-shrink-0"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              className="text-white font-bold text-sm tracking-widest uppercase flex-shrink-0 font-['Space_Grotesk']"
             >
               SELL * EVOLVE * BUY
             </span>
@@ -182,14 +174,12 @@ export default function HowItWorks() {
         <div className="container max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <p
-              className="text-[oklch(0.52_0.22_25)] text-xs font-bold tracking-[0.35em] uppercase mb-3"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              className="text-[oklch(0.52_0.22_25)] text-xs font-bold tracking-[0.35em] uppercase mb-3 font-['Space_Grotesk']"
             >
               For Buyers
             </p>
             <h2
-              className="text-3xl sm:text-5xl font-black"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-3xl sm:text-5xl font-black font-['Playfair_Display']"
             >
               Buy Bold, Buy Smart
             </h2>
@@ -208,19 +198,17 @@ export default function HowItWorks() {
                       <Icon className="w-4 h-4 text-white" />
                     </div>
                     <span
-                      className="text-[oklch(0.52_0.22_25)] text-xs font-bold tracking-widest"
-                      style={{ fontFamily: "'Space Mono', monospace" }}
+                      className="text-[oklch(0.52_0.22_25)] text-xs font-bold tracking-widest font-['Space_Mono']"
                     >
                       {step.number}
                     </span>
                   </div>
                   <h3
-                    className="text-lg font-black mb-2"
-                    style={{ fontFamily: "'Playfair Display', serif" }}
+                    className="text-lg font-black mb-2 font-['Playfair_Display']"
                   >
                     {step.title}
                   </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  <p className="text-muted-foreground text-sm leading-relaxed font-['Inter']">
                     {step.desc}
                   </p>
                 </div>
@@ -231,8 +219,7 @@ export default function HowItWorks() {
           <div className="mt-10 text-center">
             <Link href="/products">
               <Button
-                className="bg-[oklch(0.12_0.01_260)] hover:bg-[oklch(0.2_0.01_260)] text-white font-bold px-10 py-6 text-base"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                className="bg-[oklch(0.12_0.01_260)] hover:bg-[oklch(0.2_0.01_260)] text-white font-bold px-10 py-6 text-base font-['Space_Grotesk']"
               >
                 Browse the Collection
               </Button>
@@ -244,8 +231,7 @@ export default function HowItWorks() {
       {/* Quick FAQs */}
       <div className="container max-w-3xl mx-auto py-14 sm:py-20">
         <h2
-          className="text-2xl sm:text-3xl font-black text-center mb-10"
-          style={{ fontFamily: "'Playfair Display', serif" }}
+          className="text-2xl sm:text-3xl font-black text-center mb-10 font-['Playfair_Display']"
         >
           Quick Answers
         </h2>
@@ -253,12 +239,11 @@ export default function HowItWorks() {
           {FAQS_PREVIEW.map((faq) => (
             <div key={faq.q} className="border border-border rounded-sm p-6">
               <h3
-                className="font-black text-base mb-2"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                className="font-black text-base mb-2 font-['Space_Grotesk']"
               >
                 {faq.q}
               </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <p className="text-muted-foreground text-sm leading-relaxed font-['Inter']">
                 {faq.a}
               </p>
             </div>
@@ -266,7 +251,7 @@ export default function HowItWorks() {
         </div>
         <div className="text-center mt-8">
           <Link href="/faqs">
-            <Button variant="outline" className="border-foreground font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <Button variant="outline" className="border-foreground font-semibold font-['Space_Grotesk']">
               View All FAQs
             </Button>
           </Link>

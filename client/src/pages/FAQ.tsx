@@ -115,8 +115,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
         onClick={() => setOpen(!open)}
       >
         <span
-          className="font-semibold text-sm sm:text-base leading-snug group-hover:text-[oklch(0.52_0.22_25)] transition-colors"
-          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          className="font-semibold text-sm sm:text-base leading-snug group-hover:text-[oklch(0.52_0.22_25)] transition-colors font-['Space_Grotesk']"
         >
           {q}
         </span>
@@ -126,8 +125,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
       </button>
       {open && (
         <p
-          className="text-muted-foreground text-sm leading-relaxed pb-5"
-          style={{ fontFamily: "'Inter', sans-serif" }}
+          className="text-muted-foreground text-sm leading-relaxed pb-5 font-['Inter']"
         >
           {a}
         </p>
@@ -143,18 +141,16 @@ export default function FAQ() {
       <div className="bg-[oklch(0.12_0.01_260)] text-white py-16 sm:py-24 text-center">
         <div className="container max-w-2xl mx-auto">
           <p
-            className="text-white/50 text-xs font-bold tracking-[0.35em] uppercase mb-4"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            className="text-white/50 text-xs font-bold tracking-[0.35em] uppercase mb-4 font-['Space_Grotesk']"
           >
             Got Questions?
           </p>
           <h1
-            className="text-5xl sm:text-7xl font-black mb-5 leading-none"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-5xl sm:text-7xl font-black mb-5 leading-none font-['Playfair_Display']"
           >
             FAQ's
           </h1>
-          <p className="text-white/70 leading-relaxed" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <p className="text-white/70 leading-relaxed font-['Inter']">
             Everything you need to know about buying and selling on Thrifti.
             Can't find your answer? Message us on WhatsApp.
           </p>
@@ -166,8 +162,7 @@ export default function FAQ() {
         {FAQ_CATEGORIES.map((cat) => (
           <div key={cat.category}>
             <h2
-              className="text-xl font-black mb-6 pb-3 border-b-2 border-[oklch(0.52_0.22_25)]"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-xl font-black mb-6 pb-3 border-b-2 border-[oklch(0.52_0.22_25)] font-['Playfair_Display']"
             >
               {cat.category}
             </h2>
@@ -184,20 +179,18 @@ export default function FAQ() {
       <div className="bg-[oklch(0.52_0.22_25)] py-14 text-center text-white">
         <div className="container max-w-2xl mx-auto">
           <h2
-            className="text-3xl sm:text-4xl font-black mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-3xl sm:text-4xl font-black mb-4 font-['Playfair_Display']"
           >
             Still Have Questions?
           </h2>
-          <p className="text-white/80 mb-8 leading-relaxed" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <p className="text-white/80 mb-8 leading-relaxed font-['Inter']">
             Our team is available on WhatsApp from 10am–7pm IST, Monday to Saturday.
             We typically respond within a few hours.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
               <Button
-                className="bg-white text-[oklch(0.52_0.22_25)] hover:bg-white/90 font-bold px-8 py-5"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                className="bg-white text-[oklch(0.52_0.22_25)] hover:bg-white/90 font-bold px-8 py-5 font-['Space_Grotesk']"
               >
                 Chat on WhatsApp
               </Button>
@@ -205,8 +198,7 @@ export default function FAQ() {
             <Link href="/contact">
               <Button
                 variant="outline"
-                className="border-white text-white hover:bg-white/10 font-bold px-8 py-5"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                className="border-white text-white hover:bg-white/10 font-bold px-8 py-5 font-['Space_Grotesk']"
               >
                 Contact Us
               </Button>

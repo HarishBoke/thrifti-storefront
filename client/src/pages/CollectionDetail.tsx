@@ -53,7 +53,7 @@ export default function CollectionDetail() {
       <div className="bg-[oklch(0.97_0.01_80)] py-10 sm:py-14">
         <div className="container">
           <Link href="/collections">
-            <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors font-['Space_Grotesk']">
               <ArrowLeft className="w-4 h-4" /> All Collections
             </button>
           </Link>
@@ -63,23 +63,21 @@ export default function CollectionDetail() {
             </div>
           )}
           <p
-            className="text-[oklch(0.52_0.22_25)] text-xs font-semibold tracking-[0.3em] uppercase mb-2"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            className="text-[oklch(0.52_0.22_25)] text-xs font-semibold tracking-[0.3em] uppercase mb-2 font-['Space_Grotesk']"
           >
             Collection
           </p>
-          <h1
-            className="text-3xl sm:text-5xl font-black text-foreground"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+          <h2
+            className="text-3xl sm:text-5xl font-black text-foreground font-['Playfair_Display']"
           >
             {data.title}
-          </h1>
+          </h2>
           {data.description && (
-            <p className="text-muted-foreground mt-2 max-w-lg" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <p className="text-muted-foreground mt-2 max-w-lg font-['Inter']">
               {data.description}
             </p>
           )}
-          <p className="text-sm text-muted-foreground mt-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+          <p className="text-sm text-muted-foreground mt-1 font-['Space_Grotesk']">
             {products.length} {products.length === 1 ? "item" : "items"}
           </p>
         </div>
@@ -89,7 +87,7 @@ export default function CollectionDetail() {
       <div className="container py-8 sm:py-12">
         {products.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-muted-foreground" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <p className="text-muted-foreground font-['Inter']">
               No products in this collection yet.
             </p>
             <Link href="/products">

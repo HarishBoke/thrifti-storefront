@@ -213,10 +213,7 @@ export default function Account() {
         {/* Hero header */}
         <div className="bg-black text-white py-16 px-4 text-center">
           <p className="text-xs tracking-widest uppercase text-gray-400 mb-2">My Account</p>
-          <h1
-            className="text-3xl md:text-4xl font-black uppercase"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-          >
+          <h1 className="text-3xl md:text-4xl font-black uppercase font-['Space_Grotesk']">
             {fullName}
           </h1>
           <p className="text-gray-400 text-sm mt-1">{customer?.email}</p>

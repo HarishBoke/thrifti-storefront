@@ -61,18 +61,16 @@ export default function Partner() {
       <div className="bg-[oklch(0.12_0.01_260)] text-white py-16 sm:py-24 text-center">
         <div className="container max-w-3xl mx-auto">
           <p
-            className="text-white/50 text-xs font-bold tracking-[0.35em] uppercase mb-4"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            className="text-white/50 text-xs font-bold tracking-[0.35em] uppercase mb-4 font-['Space_Grotesk']"
           >
             Grow With Us
           </p>
           <h1
-            className="text-5xl sm:text-7xl font-black mb-5 leading-none"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-5xl sm:text-7xl font-black mb-5 leading-none font-['Playfair_Display']"
           >
             Partner Up
           </h1>
-          <p className="text-white/70 text-lg leading-relaxed" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <p className="text-white/70 text-lg leading-relaxed font-['Inter']">
             Join the Thrifti ecosystem. Whether you're a boutique, a stylist, a brand, or a bulk seller —
             there's a place for you in India's circular fashion movement.
           </p>
@@ -86,12 +84,11 @@ export default function Partner() {
             {BENEFITS.map((b) => (
               <div key={b.label}>
                 <p
-                  className="text-3xl sm:text-4xl font-black mb-1"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
+                  className="text-3xl sm:text-4xl font-black mb-1 font-['Playfair_Display']"
                 >
                   {b.stat}
                 </p>
-                <p className="text-white/70 text-xs font-semibold tracking-wider uppercase" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <p className="text-white/70 text-xs font-semibold tracking-wider uppercase font-['Space_Grotesk']">
                   {b.label}
                 </p>
               </div>
@@ -104,8 +101,7 @@ export default function Partner() {
       <div className="container max-w-5xl mx-auto py-14 sm:py-20">
         <div className="text-center mb-12">
           <h2
-            className="text-3xl sm:text-4xl font-black"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-3xl sm:text-4xl font-black font-['Playfair_Display']"
           >
             Who We Partner With
           </h2>
@@ -119,12 +115,11 @@ export default function Partner() {
                   <Icon className="w-5 h-5 text-white" />
                 </div>
                 <h3
-                  className="text-lg font-black mb-3"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
+                  className="text-lg font-black mb-3 font-['Playfair_Display']"
                 >
                   {p.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed" style={{ fontFamily: "'Inter', sans-serif" }}>
+                <p className="text-muted-foreground text-sm leading-relaxed font-['Inter']">
                   {p.desc}
                 </p>
               </div>
@@ -138,12 +133,11 @@ export default function Partner() {
         <div className="container max-w-2xl mx-auto">
           <div className="text-center mb-10">
             <h2
-              className="text-3xl sm:text-4xl font-black mb-3"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-3xl sm:text-4xl font-black mb-3 font-['Playfair_Display']"
             >
               Apply to Partner
             </h2>
-            <p className="text-muted-foreground" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <p className="text-muted-foreground font-['Inter']">
               Fill out the form below and our partnerships team will reach out within 48 hours.
               Or message us directly on WhatsApp for a faster response.
             </p>
@@ -152,7 +146,7 @@ export default function Partner() {
           <form onSubmit={handleSubmit} className="space-y-5 bg-white rounded-sm p-8 border border-border">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold mb-1.5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <label className="block text-sm font-semibold mb-1.5 font-['Space_Grotesk']">
                   Name <span className="text-[oklch(0.52_0.22_25)]">*</span>
                 </label>
                 <Input
@@ -164,7 +158,7 @@ export default function Partner() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1.5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <label className="block text-sm font-semibold mb-1.5 font-['Space_Grotesk']">
                   Email <span className="text-[oklch(0.52_0.22_25)]">*</span>
                 </label>
                 <Input
@@ -178,7 +172,7 @@ export default function Partner() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <label className="block text-sm font-semibold mb-1.5 font-['Space_Grotesk']">
                 Phone
               </label>
               <Input
@@ -189,7 +183,7 @@ export default function Partner() {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <label className="block text-sm font-semibold mb-1.5 font-['Space_Grotesk']">
                 Partnership Type <span className="text-[oklch(0.52_0.22_25)]">*</span>
               </label>
               <select
@@ -207,7 +201,7 @@ export default function Partner() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1.5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <label className="block text-sm font-semibold mb-1.5 font-['Space_Grotesk']">
                 Tell Us More
               </label>
               <textarea
@@ -222,16 +216,14 @@ export default function Partner() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 bg-[oklch(0.12_0.01_260)] hover:bg-[oklch(0.2_0.01_260)] text-white font-bold py-5"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                className="flex-1 bg-[oklch(0.12_0.01_260)] hover:bg-[oklch(0.2_0.01_260)] text-white font-bold py-5 font-['Space_Grotesk']"
               >
                 {submitting ? "Submitting..." : "Submit Application"}
               </Button>
               <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="flex-1">
                 <Button
                   type="button"
-                  className="w-full bg-[oklch(0.52_0.22_25)] hover:bg-[oklch(0.45_0.22_25)] text-white font-bold py-5 gap-2"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  className="w-full bg-[oklch(0.52_0.22_25)] hover:bg-[oklch(0.45_0.22_25)] text-white font-bold py-5 gap-2 font-['Space_Grotesk']"
                 >
                   <MessageCircle className="w-4 h-4" />
                   WhatsApp Us
