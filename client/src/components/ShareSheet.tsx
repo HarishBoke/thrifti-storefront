@@ -125,14 +125,12 @@ export default function ShareSheet({ open, onClose, url, title, image }: ShareSh
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ background: "rgba(0,0,0,0.5)" }}
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
       {/* Bottom Sheet */}
       <div
-        className="w-full max-w-lg bg-white rounded-t-2xl pb-8 pt-4 px-5 animate-slide-up"
-        style={{ animation: "slideUp 0.25s ease-out" }}
+        className="w-full max-w-lg bg-white rounded-t-2xl pb-8 pt-4 px-5 animate-[slideUp_0.25s_ease-out]"
       >
         {/* Handle bar */}
         <div className="flex justify-center mb-3">

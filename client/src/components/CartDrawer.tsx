@@ -35,7 +35,7 @@ export default function CartDrawer() {
         <div className="flex items-center justify-between p-5 border-b border-border">
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5" />
-            <h2 className="text-lg font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h2 className="text-lg font-semibold font-['Space_Grotesk']">
               Your Cart
               {cart && cart.totalQuantity > 0 && (
                 <span className="ml-2 text-sm text-muted-foreground font-normal">
@@ -59,7 +59,7 @@ export default function CartDrawer() {
             <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
               <ShoppingBag className="w-16 h-16 text-muted-foreground/30" />
               <div>
-                <p className="text-lg font-medium mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <p className="text-lg font-medium mb-1 font-['Space_Grotesk']">
                   Your cart is empty
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -94,7 +94,7 @@ export default function CartDrawer() {
 
                   {/* Product Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm line-clamp-2 mb-0.5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    <p className="font-medium text-sm line-clamp-2 mb-0.5 font-['Space_Grotesk']">
                       {line.merchandise.product.title}
                     </p>
                     {line.merchandise.title !== "Default Title" && (
@@ -166,8 +166,7 @@ export default function CartDrawer() {
             <Button
               onClick={goToCheckout}
               disabled={isLoading}
-              className="w-full bg-[oklch(0.52_0.22_25)] hover:bg-[oklch(0.45_0.22_25)] text-white font-semibold py-3 text-base"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              className="w-full bg-[oklch(0.52_0.22_25)] hover:bg-[oklch(0.45_0.22_25)] text-white font-semibold py-3 text-base font-['Space_Grotesk']"
             >
               {isLoading ? "Updating..." : "Checkout on Shopify →"}
             </Button>
