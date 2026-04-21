@@ -112,16 +112,14 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             {!product.availableForSale && (
               <span
-                className="text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-wider"
-                style={{ backgroundColor: "var(--thrifti-dark)", fontFamily: "'Space Grotesk', sans-serif" }}
+                className="text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-wider bg-[var(--thrifti-dark)] font-['Space_Grotesk']"
               >
                 Sold Out
               </span>
             )}
             {hasDiscount && (
               <span
-                className="text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-wider"
-                style={{ backgroundColor: "var(--thrifti-red)", fontFamily: "'Space Grotesk', sans-serif" }}
+                className="text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-wider bg-[var(--thrifti-red)] font-['Space_Grotesk']"
               >
                 Sale
               </span>
@@ -133,8 +131,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <button
               onClick={handleAddToCart}
               disabled={cartLoading}
-              className="absolute bottom-0 left-0 right-0 text-white text-[10px] font-black py-2.5 tracking-[0.15em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-300 disabled:opacity-50"
-              style={{ backgroundColor: "var(--thrifti-dark)", fontFamily: "'Space Grotesk', sans-serif" }}
+              className="absolute bottom-0 left-0 right-0 text-white text-[10px] font-black py-2.5 tracking-[0.15em] uppercase translate-y-full group-hover:translate-y-0 transition-transform duration-300 disabled:opacity-50 bg-[var(--thrifti-dark)] font-['Space_Grotesk']"
             >
               {cartLoading ? "Adding..." : "Quick Add"}
             </button>
@@ -152,9 +149,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
             <Heart
-              className="w-3.5 h-3.5 transition-colors"
               fill={isWishlisted ? "var(--thrifti-red)" : "none"}
-              style={{ color: isWishlisted ? "var(--thrifti-red)" : "var(--thrifti-dark)" }}
+              className={`w-3.5 h-3.5 transition-colors ${isWishlisted ? "text-[var(--thrifti-red)]" : "text-[var(--thrifti-dark)]"}`}
             />
           </button>
         </div>
@@ -163,29 +159,25 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="px-0.5">
           {product.vendor && (
             <p
-              className="text-[10px] uppercase tracking-widest mb-0.5"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-red)" }}
+              className="text-[10px] uppercase tracking-widest mb-0.5 font-['Space_Grotesk'] text-[var(--thrifti-red)]"
             >
               {product.vendor}
             </p>
           )}
           <h3
-            className="text-xs sm:text-sm font-bold line-clamp-2 mb-1 leading-snug"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}
+            className="text-xs sm:text-sm font-bold line-clamp-2 mb-1 leading-snug font-['Space_Grotesk'] text-[var(--thrifti-dark)]"
           >
             {product.title}
           </h3>
           <div className="flex items-center gap-2">
             <span
-              className="text-sm font-black"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}
+              className="text-sm font-black font-['Space_Grotesk'] text-[var(--thrifti-dark)]"
             >
               {priceDisplay}
             </span>
             {hasDiscount && firstVariant?.compareAtPrice && (
               <span
-                className="text-xs line-through text-muted-foreground"
-                style={{ fontFamily: "'Space Mono', monospace" }}
+                className="text-xs line-through text-muted-foreground font-['Space_Mono']"
               >
                 {formatPrice(firstVariant.compareAtPrice.amount, firstVariant.compareAtPrice.currencyCode)}
               </span>

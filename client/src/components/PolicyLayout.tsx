@@ -15,18 +15,17 @@ export default function PolicyLayout({ title, subtitle, lastUpdated, children }:
       <div className="bg-[oklch(0.12_0.01_260)] text-white py-14 sm:py-20">
         <div className="container max-w-3xl mx-auto text-center">
           <h1
-            className="text-4xl sm:text-6xl font-black mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-4xl sm:text-6xl font-black mb-4 font-['Playfair_Display']"
           >
             {title}
           </h1>
           {subtitle && (
-            <p className="text-white/70 text-lg" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <p className="text-white/70 text-lg font-['Inter']">
               {subtitle}
             </p>
           )}
           {lastUpdated && (
-            <p className="text-white/40 text-xs mt-3 tracking-widest uppercase" style={{ fontFamily: "'Space Mono', monospace" }}>
+            <p className="text-white/40 text-xs mt-3 tracking-widest uppercase font-['Space_Mono']">
               Last updated: {lastUpdated}
             </p>
           )}
@@ -43,8 +42,7 @@ export default function PolicyLayout({ title, subtitle, lastUpdated, children }:
             prose-p:text-muted-foreground prose-p:leading-relaxed
             prose-li:text-muted-foreground prose-li:leading-relaxed
             prose-strong:text-foreground
-            prose-a:text-[oklch(0.52_0.22_25)] prose-a:underline"
-          style={{ fontFamily: "'Inter', sans-serif" }}
+            prose-a:text-[oklch(0.52_0.22_25)] prose-a:underline font-['Inter']"
         >
           {children}
         </div>
