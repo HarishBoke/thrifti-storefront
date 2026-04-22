@@ -378,9 +378,9 @@ export const appRouter = router({
       )
       .mutation(async ({ input }) => {
         const crypto = await import("crypto");
-        // Generate a secure random password — the user never needs to know it
-        // because they always log in via OTP.
-        const initialPassword = crypto.randomBytes(24).toString("hex");
+        // Generate a secure random password (max 40 chars per Shopify limit).
+        // The user never needs to know it — they always log in via OTP.
+        const initialPassword = crypto.randomBytes(16).toString("hex"); // 32 hex chars, well under 40
 
         // Create the Shopify customer account
         const result = await customerRegister(
