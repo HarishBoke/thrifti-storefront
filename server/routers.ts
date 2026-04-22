@@ -336,12 +336,14 @@ export const appRouter = router({
         );
 
         // Shopify Admin API password changes take a moment to propagate to the
-        // Storefront API. Retry up to 4 times with a 600ms delay between attempts.
+        // Storefront API. Retry up to 4 times with a 300ms delay between attempts.
         const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        // Initial 200ms wait before first attempt to let Shopify sync
+        await sleep(200);
         let loginResult = await customerLogin(loginEmail, tempPassword);
         for (let attempt = 1; attempt <= 3 && !loginResult.accessToken; attempt++) {
           console.log(`[loginWithPhone] Login attempt ${attempt + 1} — waiting for password propagation...`);
-          await sleep(600);
+          await sleep(300);
           loginResult = await customerLogin(loginEmail, tempPassword);
         }
 
@@ -400,38 +402,37 @@ export const appRouter = router({
         const customerId = result.customer.id; // GID format
         const numericId = parseInt(customerId.split("/").pop() ?? "0", 10);
 
-        // Set phone number via Admin REST API
-        if (numericId) {
-          const domain = (await import("./_core/env")).ENV.shopifyStoreDomain;
-          const token = (await import("./_core/env")).ENV.shopifyAdminToken;
-          if (domain && token) {
-            await fetch(`https://${domain}/admin/api/2024-01/customers/${numericId}.json`, {
-              method: "PUT",
-              headers: { "X-Shopify-Access-Token": token, "Content-Type": "application/json" },
-              body: JSON.stringify({ customer: { id: numericId, phone: input.phone } }),
-            }).catch((err) => console.error("[registerWithPhone] Failed to set phone:", err));
-          }
-        }
-
-        // Set app.role = seller metafield + seller tag
-        try {
-          await setCustomerSellerRole(customerId);
-        } catch (roleErr) {
-          console.error("[registerWithPhone] Failed to set seller role:", roleErr);
-        }
-
-        // Auto-login: set temp password and get Shopify access token
+        // Generate temp password early so we can set it in parallel with other Admin calls
         const tempPassword = crypto
           .createHmac("sha256", input.otpVerifiedToken)
           .update(`${numericId}-${Date.now()}`)
           .digest("hex")
           .slice(0, 32);
-        await setCustomerTempPassword(numericId, tempPassword, input.email, input.phone);
+
+        // Run all Admin API calls in parallel: set phone + set seller role + set temp password
+        const { ENV } = await import("./_core/env");
+        const adminPhonePromise = (ENV.shopifyStoreDomain && ENV.shopifyAdminToken && numericId)
+          ? fetch(`https://${ENV.shopifyStoreDomain}/admin/api/2024-01/customers/${numericId}.json`, {
+              method: "PUT",
+              headers: { "X-Shopify-Access-Token": ENV.shopifyAdminToken, "Content-Type": "application/json" },
+              body: JSON.stringify({ customer: { id: numericId, phone: input.phone } }),
+            }).catch((err) => console.error("[registerWithPhone] Failed to set phone:", err))
+          : Promise.resolve();
+
+        const sellerRolePromise = setCustomerSellerRole(customerId)
+          .catch((err) => console.error("[registerWithPhone] Failed to set seller role:", err));
+
+        const tempPasswordPromise = setCustomerTempPassword(numericId, tempPassword, input.email, input.phone);
+
+        // Wait for all three in parallel — saves ~2 sequential round-trips
+        await Promise.all([adminPhonePromise, sellerRolePromise, tempPasswordPromise]);
 
         const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        // Initial 200ms wait before first attempt to let Shopify sync
+        await sleep(200);
         let loginResult = await customerLogin(input.email, tempPassword);
         for (let attempt = 1; attempt <= 3 && !loginResult.accessToken; attempt++) {
-          await sleep(600);
+          await sleep(300);
           loginResult = await customerLogin(input.email, tempPassword);
         }
         if (!loginResult.accessToken) {

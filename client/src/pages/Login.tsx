@@ -10,6 +10,7 @@ import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 import StorefrontLayout from "@/components/StorefrontLayout";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle } from "lucide-react";
+import ThriftiLoader from "@/components/ThriftiLoader";
 
 type View = "login" | "register" | "forgot";
 
@@ -28,6 +29,10 @@ export default function Login() {
   const [view, setView] = useState<View>("login");
   const [, navigate] = useLocation();
   const { setTokenAndFetch, isAuthenticated, isLoading } = useShopifyAuth();
+
+  // Full-screen loader state — shown during OTP verification + Shopify login
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loaderMessage, setLoaderMessage] = useState<string | undefined>(undefined);
 
   // After a successful login/register, we set this flag and wait for
   // isAuthenticated to become true before navigating to /account.
@@ -144,16 +149,20 @@ export default function Login() {
       flow_uid: flowUid,
     };
 
+    setIsSubmitting(true);
+    setLoaderMessage("Verifying your OTP...");
     try {
       const verifyResponse = await verifyOtp(otpPayload).unwrap();
       const resolvedOtpVerifiedToken = verifyResponse.otp_verified_token ?? otpVerifiedToken;
 
       if (!resolvedOtpVerifiedToken) {
         toast.error("Verification succeeded but otp_verified_token is missing. Please resend OTP.");
+        setIsSubmitting(false);
         return;
       }
 
       setOtpVerifiedToken(resolvedOtpVerifiedToken);
+      setLoaderMessage("Signing you in...");
 
       // Also persist the Setoo session token (non-fatal if it fails)
       try {
@@ -175,6 +184,7 @@ export default function Login() {
 
       // Phone not found in Shopify → show registration form to collect details
       if (shopifyAuth.notFound) {
+        setIsSubmitting(false);
         setShowOtpRegister(true);
         toast.info("Welcome! Please complete your profile to create your account.");
         return;
@@ -183,7 +193,9 @@ export default function Login() {
       setTokenAndFetch(shopifyAuth.accessToken!, shopifyAuth.expiresAt!);
       toast.success("Signed in successfully.");
       pendingRedirect.current = true;
+      // Keep loader visible until redirect fires
     } catch (error) {
+      setIsSubmitting(false);
       toast.error(getApiErrorMessage(error, "OTP verification/login failed. Please check details and try again."));
     }
   };
@@ -204,6 +216,8 @@ export default function Login() {
 
     const normalizedPhone = normalizePhoneNumber(mobileNumber);
 
+    setIsSubmitting(true);
+    setLoaderMessage("Creating your account...");
     try {
       const result = await registerWithPhoneMutation.mutateAsync({
         phone: normalizedPhone,
@@ -212,10 +226,13 @@ export default function Login() {
         email: otpRegEmail,
         otpVerifiedToken,
       });
+      setLoaderMessage("Almost there...");
       setTokenAndFetch(result.accessToken, result.expiresAt);
       toast.success("Account created! Welcome to Thrifti.");
       pendingRedirect.current = true;
+      // Keep loader visible until redirect fires
     } catch (error) {
+      setIsSubmitting(false);
       toast.error(getApiErrorMessage(error, "Registration failed. Please try again."));
     }
   };
@@ -292,6 +309,7 @@ export default function Login() {
 
   return (
     <StorefrontLayout>
+      <ThriftiLoader visible={isSubmitting} message={loaderMessage} />
       <div className=" flex items-center justify-center flex-col px-4 py-16">
         <div className="text-[40px] font-semibold mb-3 text-center anek-devanagari-font">
           SIGN IN / SIGN UP
