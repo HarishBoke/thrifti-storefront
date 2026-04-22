@@ -51,7 +51,13 @@ export default function Login() {
   const [otpVerifiedToken, setOtpVerifiedToken] = useState("");
   const [flowUid, setFlowUid] = useState("");
 
-  // Register form
+  // OTP new-user registration form (shown when phone not found in Shopify)
+  const [showOtpRegister, setShowOtpRegister] = useState(false);
+  const [otpRegFirstName, setOtpRegFirstName] = useState("");
+  const [otpRegLastName, setOtpRegLastName] = useState("");
+  const [otpRegEmail, setOtpRegEmail] = useState("");
+
+  // Email/password register form (legacy, kept for admin use)
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [regEmail, setRegEmail] = useState("");
@@ -61,6 +67,7 @@ export default function Login() {
   // Forgot password form
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
+
   const [requestOtp, { isLoading: isRequestingOtp }] = useRequestOtpMutation();
   const [verifyOtp, { isLoading: isVerifyingOtp }] = useVerifyOtpMutation();
   const [loginWithOtp, { isLoading: isLoggingInWithOtp }] = useLoginWithOtpMutation();
@@ -90,6 +97,7 @@ export default function Login() {
   };
 
   const loginWithPhoneMutation = trpc.customer.loginWithPhone.useMutation();
+  const registerWithPhoneMutation = trpc.customer.registerWithPhone.useMutation();
 
   const registerMutation = trpc.customer.register.useMutation({
     onSuccess: (data) => {
@@ -160,18 +168,55 @@ export default function Login() {
       }
 
       // Exchange the OTP verified token for a Shopify customer access token
-      // via our server-side tRPC procedure (Admin credentials never leave the server)
       const shopifyAuth = await loginWithPhoneMutation.mutateAsync({
         phone: normalizedPhone,
         otpVerifiedToken: resolvedOtpVerifiedToken,
       });
-      setTokenAndFetch(shopifyAuth.accessToken, shopifyAuth.expiresAt);
+
+      // Phone not found in Shopify → show registration form to collect details
+      if (shopifyAuth.notFound) {
+        setShowOtpRegister(true);
+        toast.info("Welcome! Please complete your profile to create your account.");
+        return;
+      }
+
+      setTokenAndFetch(shopifyAuth.accessToken!, shopifyAuth.expiresAt!);
       toast.success("Signed in successfully.");
-      // Set flag — the useEffect above will navigate to /account once
-      // isAuthenticated becomes true (after fetchCustomer completes)
       pendingRedirect.current = true;
     } catch (error) {
       toast.error(getApiErrorMessage(error, "OTP verification/login failed. Please check details and try again."));
+    }
+  };
+
+  // Called when the new-user registration form is submitted after OTP verification
+  const handleOtpRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpRegFirstName || !otpRegLastName || !otpRegEmail) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+    if (!otpVerifiedToken) {
+      toast.error("OTP session expired. Please start over.");
+      setShowOtpRegister(false);
+      setIsOtpRequested(false);
+      return;
+    }
+
+    const normalizedPhone = normalizePhoneNumber(mobileNumber);
+
+    try {
+      const result = await registerWithPhoneMutation.mutateAsync({
+        phone: normalizedPhone,
+        firstName: otpRegFirstName,
+        lastName: otpRegLastName,
+        email: otpRegEmail,
+        otpVerifiedToken,
+      });
+      setTokenAndFetch(result.accessToken, result.expiresAt);
+      toast.success("Account created! Welcome to Thrifti.");
+      pendingRedirect.current = true;
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Registration failed. Please try again."));
     }
   };
 
@@ -201,6 +246,7 @@ export default function Login() {
       setVerificationToken(response.verification_token);
       setOtpVerifiedToken("");
       setIsOtpRequested(true);
+      setShowOtpRegister(false);
       setOtpCode("");
       setResendCountdown(40);
       toast.success(response.message || "OTP sent.");
@@ -251,10 +297,6 @@ export default function Login() {
           SIGN IN / SIGN UP
         </div>
         <div className="w-full max-w-lg bg-[#F9FAFB] md:p-8 p-4 shadow-lg rounded-[12px]">
-          {/* Header */}
-          {/* <div className="text-center mb-8">
-              <ThriftiLogo height={64} className="mx-auto" />
-          </div> */}
 
           {/* Forgot Password View */}
           {view === "forgot" && (
@@ -313,26 +355,8 @@ export default function Login() {
           {/* Sign In / Register Tabs */}
           {view !== "forgot" && (
             <>
-              {/* Tab switcher */}
-              {/* <div className="flex border-2 border-black mb-8 rounded-[6px]">
-                <button
-                  onClick={() => setView("login")}
-                  className={`flex-1 py-2.5 lg:text-lg font-semibold geist-mono-font uppercase transition-colors ${view === "login" ? "bg-black text-white" : "bg-transparent text-black hover:bg-gray-100"
-                    }`}
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => setView("register")}
-                  className={`flex-1 py-2.5 lg:text-lg font-semibold geist-mono-font uppercase transition-colors ${view === "register" ? "bg-black text-white" : "bg-transparent text-black hover:bg-gray-100"
-                    }`}
-                >
-                  Create Account
-                </button>
-              </div> */}
-
-              {/* Login Form */}
-              {view === "login" && (
+              {/* OTP Login Form */}
+              {view === "login" && !showOtpRegister && (
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div>
                     <label className={labelClass}>Mobile Number</label>
@@ -392,26 +416,81 @@ export default function Login() {
                   {isOtpRequested && (
                     <button
                       type="submit"
-                      disabled={isVerifyingOtp || isLoggingInWithOtp}
+                      disabled={isVerifyingOtp || isLoggingInWithOtp || loginWithPhoneMutation.isPending}
                       className={btnRed}
                     >
-                      {isVerifyingOtp || isLoggingInWithOtp ? "Signing In..." : "Sign In"}
+                      {isVerifyingOtp || isLoggingInWithOtp || loginWithPhoneMutation.isPending
+                        ? "Signing In..."
+                        : "Sign In"}
                     </button>
                   )}
-                  {/* <p className="text-center text-sm text-[#1F1F22] font-geist-mono font-medium mt-2">
-                    Don't have an account?{" "}
-                    <button
-                      type="button"
-                      onClick={() => setView("register")}
-                      className="text-[#F42824] font-geist-mono font-medium"
-                    >
-                      Create one
-                    </button>
-                  </p> */}
                 </form>
               )}
 
-              {/* Register Form */}
+              {/* OTP New-User Registration Form */}
+              {/* Shown when OTP is verified but phone is not found in Shopify */}
+              {view === "login" && showOtpRegister && (
+                <form onSubmit={handleOtpRegister} className="space-y-4">
+                  <button
+                    type="button"
+                    onClick={() => { setShowOtpRegister(false); setIsOtpRequested(false); setOtpCode(""); }}
+                    className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#CC2200] transition-colors mb-2"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" /> Back
+                  </button>
+                  <div>
+                    <h2 className="text-lg font-black uppercase tracking-tight mb-1">Complete Your Profile</h2>
+                    <p className="text-xs text-gray-500 mb-4">
+                      Your number <span className="font-bold text-black">{mobileNumber}</span> is verified.
+                      Please enter your details to create your Thrifti account.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={labelClass}>First Name</label>
+                      <input
+                        type="text"
+                        value={otpRegFirstName}
+                        onChange={(e) => setOtpRegFirstName(e.target.value)}
+                        placeholder="Priya"
+                        required
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Last Name</label>
+                      <input
+                        type="text"
+                        value={otpRegLastName}
+                        onChange={(e) => setOtpRegLastName(e.target.value)}
+                        placeholder="Sharma"
+                        required
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Email</label>
+                    <input
+                      type="email"
+                      value={otpRegEmail}
+                      onChange={(e) => setOtpRegEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      required
+                      className={inputClass}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={registerWithPhoneMutation.isPending}
+                    className={btnRed}
+                  >
+                    {registerWithPhoneMutation.isPending ? "Creating Account..." : "Create Account"}
+                  </button>
+                </form>
+              )}
+
+              {/* Email/Password Register Form */}
               {view === "register" && (
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">

@@ -312,8 +312,10 @@ export const appRouter = router({
       )
       .mutation(async ({ input }) => {
         const shopifyCustomer = await getCustomerByPhone(input.phone);
+        // If the phone number is not found, return a signal to the client
+        // to show the registration form rather than throwing an error.
         if (!shopifyCustomer) {
-          throw new Error("No account found for this phone number. Please register first.");
+          return { notFound: true, accessToken: null, expiresAt: null } as const;
         }
         // Generate a secure one-time password derived from the verified OTP token.
         // It is never stored permanently — rotated immediately after login.
@@ -354,6 +356,93 @@ export const appRouter = router({
         setCustomerTempPassword(shopifyCustomer.id, newRandom, loginEmail, input.phone).catch((err) =>
           console.error("[loginWithPhone] Failed to rotate temp password:", err)
         );
+        return {
+          notFound: false as const,
+          accessToken: loginResult.accessToken.accessToken,
+          expiresAt: loginResult.accessToken.expiresAt,
+        };
+      }),
+
+    // Register a brand-new customer via OTP flow:
+    // Creates the Shopify account with phone + email + name, sets app.role=seller,
+    // then immediately logs in and returns a Shopify access token.
+    registerWithPhone: publicProcedure
+      .input(
+        z.object({
+          phone: z.string().min(10, "Invalid phone number"),
+          firstName: z.string().min(1, "First name is required"),
+          lastName: z.string().min(1, "Last name is required"),
+          email: z.string().email("Valid email is required"),
+          otpVerifiedToken: z.string().min(1, "OTP verified token is required"),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const crypto = await import("crypto");
+        // Generate a secure random password — the user never needs to know it
+        // because they always log in via OTP.
+        const initialPassword = crypto.randomBytes(24).toString("hex");
+
+        // Create the Shopify customer account
+        const result = await customerRegister(
+          input.firstName,
+          input.lastName,
+          input.email,
+          initialPassword
+        );
+        if (result.errors.length > 0) {
+          throw new Error(result.errors[0]?.message || "Registration failed");
+        }
+        if (!result.customer) {
+          throw new Error("Could not create account");
+        }
+
+        // Update the customer with their phone number + set app.role=seller metafield
+        const customerId = result.customer.id; // GID format
+        const numericId = parseInt(customerId.split("/").pop() ?? "0", 10);
+
+        // Set phone number via Admin REST API
+        if (numericId) {
+          const domain = (await import("./_core/env")).ENV.shopifyStoreDomain;
+          const token = (await import("./_core/env")).ENV.shopifyAdminToken;
+          if (domain && token) {
+            await fetch(`https://${domain}/admin/api/2024-01/customers/${numericId}.json`, {
+              method: "PUT",
+              headers: { "X-Shopify-Access-Token": token, "Content-Type": "application/json" },
+              body: JSON.stringify({ customer: { id: numericId, phone: input.phone } }),
+            }).catch((err) => console.error("[registerWithPhone] Failed to set phone:", err));
+          }
+        }
+
+        // Set app.role = seller metafield + seller tag
+        try {
+          await setCustomerSellerRole(customerId);
+        } catch (roleErr) {
+          console.error("[registerWithPhone] Failed to set seller role:", roleErr);
+        }
+
+        // Auto-login: set temp password and get Shopify access token
+        const tempPassword = crypto
+          .createHmac("sha256", input.otpVerifiedToken)
+          .update(`${numericId}-${Date.now()}`)
+          .digest("hex")
+          .slice(0, 32);
+        await setCustomerTempPassword(numericId, tempPassword, input.email, input.phone);
+
+        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        let loginResult = await customerLogin(input.email, tempPassword);
+        for (let attempt = 1; attempt <= 3 && !loginResult.accessToken; attempt++) {
+          await sleep(600);
+          loginResult = await customerLogin(input.email, tempPassword);
+        }
+        if (!loginResult.accessToken) {
+          // Account created but auto-login failed — ask user to log in manually
+          throw new Error("Account created! Please sign in with your phone number.");
+        }
+
+        // Rotate password
+        const newRandom = crypto.randomBytes(32).toString("hex");
+        setCustomerTempPassword(numericId, newRandom, input.email, input.phone).catch(() => {});
+
         return {
           accessToken: loginResult.accessToken.accessToken,
           expiresAt: loginResult.accessToken.expiresAt,
