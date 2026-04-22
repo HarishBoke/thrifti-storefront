@@ -432,7 +432,7 @@ export default function Navbar() {
               {/* Wishlist */}
               {isAuthenticated && (
                 <Link
-                  href="/account"
+                  href="/wishlist"
                   className="p-2.5 hover:bg-black/5 rounded-full transition-colors relative"
                   aria-label={`Wishlist (${wishlistCount} items)`}
                 >

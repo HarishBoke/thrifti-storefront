@@ -25,6 +25,7 @@ import Shipping from "./pages/Shipping";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Cart from "./pages/Cart";
+import Wishlist from "./pages/Wishlist";
 
 function Router() {
   return (
@@ -58,6 +59,7 @@ function Router() {
 
         {/* Cart page */}
         <Route path="/cart" component={Cart} />
+        <Route path="/wishlist" component={Wishlist} />
 
         {/* Fallback */}
         <Route path="/404" component={NotFound} />
