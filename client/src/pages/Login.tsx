@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import {
+  useLoginWithOtpMutation,
+  useRequestOtpMutation,
+  useVerifyOtpMutation,
+} from "@/lib/otpAuthApi";
 import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
 import StorefrontLayout from "@/components/StorefrontLayout";
-import ThriftiLogo from "@/components/ThriftiLogo";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 
@@ -15,14 +19,24 @@ const labelClass = "block text-sm font-medium geist-mono-font text-[#1F1F22] mb-
 const btnRed =
   "w-full bg-[#F42824] text-white pt-4 pb-2 text-2xl font-semibold uppercase hover:bg-[#aa1a00] transition-colors disabled:opacity-60 rounded-[6px] anek-devanagari-font mt-2 mb-4";
 
+const OTP_PURPOSE = "LOGIN" as const;
+const OTP_TOKEN_KEY = "setoo_session_token";
+const OTP_USER_KEY = "setoo_session_user";
+const OTP_FLOW_UID = import.meta.env.VITE_SETOO_FLOW_UID;
+
 export default function Login() {
   const [view, setView] = useState<View>("login");
   const [, navigate] = useLocation();
   const { setTokenAndFetch } = useShopifyAuth();
 
-  // Login form
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
+  // OTP Login form
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [isOtpRequested, setIsOtpRequested] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(20);
+  const [verificationToken, setVerificationToken] = useState("");
+  const [otpVerifiedToken, setOtpVerifiedToken] = useState("");
+  const [flowUid, setFlowUid] = useState("");
 
   // Register form
   const [firstName, setFirstName] = useState("");
@@ -34,17 +48,33 @@ export default function Login() {
   // Forgot password form
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
+  const [requestOtp, { isLoading: isRequestingOtp }] = useRequestOtpMutation();
+  const [verifyOtp, { isLoading: isVerifyingOtp }] = useVerifyOtpMutation();
+  const [loginWithOtp, { isLoading: isLoggingInWithOtp }] = useLoginWithOtpMutation();
 
-  const loginMutation = trpc.customer.login.useMutation({
-    onSuccess: (data) => {
-      setTokenAndFetch(data.accessToken, data.expiresAt);
-      toast.success("Welcome back!");
-      navigate("/account");
-    },
-    onError: (err) => {
-      toast.error(err.message || "Login failed. Please check your credentials.");
-    },
-  });
+  const normalizePhoneNumber = (rawValue: string) => {
+    const trimmedValue = rawValue.trim();
+    const digitsOnly = trimmedValue.replace(/\D/g, "");
+    if (!digitsOnly) return "";
+    if (trimmedValue.startsWith("+")) return `+${digitsOnly}`;
+    return digitsOnly.length === 10 ? `+91${digitsOnly}` : `+${digitsOnly}`;
+  };
+
+  const getApiErrorMessage = (error: unknown, fallbackMessage: string) => {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "data" in error &&
+      typeof (error as { data?: unknown }).data === "object" &&
+      (error as { data?: unknown }).data !== null &&
+      "message" in ((error as { data: { message?: unknown } }).data)
+    ) {
+      const maybeMessage = (error as { data: { message?: unknown } }).data.message;
+      if (typeof maybeMessage === "string") return maybeMessage;
+    }
+    if (error instanceof Error && error.message) return error.message;
+    return fallbackMessage;
+  };
 
   const registerMutation = trpc.customer.register.useMutation({
     onSuccess: (data) => {
@@ -66,10 +96,87 @@ export default function Login() {
     },
   });
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginEmail || !loginPassword) return;
-    loginMutation.mutate({ email: loginEmail, password: loginPassword });
+    const cleanedMobile = mobileNumber.replace(/\D/g, "");
+    if (cleanedMobile.length < 10) {
+      toast.error("Please enter a valid mobile number.");
+      return;
+    }
+    if (!/^\d{6}$/.test(otpCode)) {
+      toast.error("Please enter a valid 6-digit OTP.");
+      return;
+    }
+    if (!verificationToken || !flowUid) {
+      toast.error("Please send OTP first.");
+      return;
+    }
+
+    const normalizedPhone = normalizePhoneNumber(mobileNumber);
+    const otpPayload = {
+      phone_number: normalizedPhone,
+      purpose: OTP_PURPOSE,
+      verification_token: verificationToken,
+      otp: otpCode,
+      flow_uid: flowUid,
+    };
+
+    try {
+      const verifyResponse = await verifyOtp(otpPayload).unwrap();
+      const resolvedOtpVerifiedToken = verifyResponse.otp_verified_token ?? otpVerifiedToken;
+
+      if (!resolvedOtpVerifiedToken) {
+        toast.error("Verification succeeded but otp_verified_token is missing. Please resend OTP.");
+        return;
+      }
+
+      setOtpVerifiedToken(resolvedOtpVerifiedToken);
+      const loginResponse = await loginWithOtp({
+        ...otpPayload,
+        otp_verified_token: resolvedOtpVerifiedToken,
+      }).unwrap();
+
+      localStorage.setItem(OTP_TOKEN_KEY, loginResponse.token);
+      localStorage.setItem(OTP_USER_KEY, JSON.stringify(loginResponse.user));
+      toast.success("Signed in successfully.");
+      navigate("/account");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "OTP verification/login failed. Please check details and try again."));
+    }
+  };
+
+  const handleSendOtp = async () => {
+    const cleanedMobile = mobileNumber.replace(/\D/g, "");
+    if (cleanedMobile.length < 10) {
+      toast.error("Please enter a valid mobile number.");
+      return;
+    }
+    const resolvedFlowUid = OTP_FLOW_UID?.trim();
+    if (!resolvedFlowUid) {
+      toast.error("Missing OTP flow UID. Set VITE_SETOO_FLOW_UID in your environment.");
+      return;
+    }
+
+    const normalizedPhone = normalizePhoneNumber(mobileNumber);
+
+    try {
+      const response = await requestOtp({
+        phone_number: normalizedPhone,
+        purpose: OTP_PURPOSE,
+        flow_uid: resolvedFlowUid,
+        metadata: {},
+      }).unwrap();
+
+      setFlowUid(resolvedFlowUid);
+      setVerificationToken(response.verification_token);
+      setOtpVerifiedToken("");
+      setIsOtpRequested(true);
+      setOtpCode("");
+      setResendCountdown(20);
+      toast.success(response.message || "OTP sent.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Unable to send OTP."));
+    }
   };
 
   const handleRegister = (e: React.FormEvent) => {
@@ -88,9 +195,31 @@ export default function Login() {
     recoverMutation.mutate({ email: forgotEmail });
   };
 
+  useEffect(() => {
+    if (view !== "login" || !isOtpRequested) return;
+    if (resendCountdown <= 0) return;
+
+    const countdownInterval = window.setInterval(() => {
+      setResendCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => window.clearInterval(countdownInterval);
+  }, [view, resendCountdown, isOtpRequested]);
+
+  const handleResendOtp = async () => {
+    if (!mobileNumber.replace(/\D/g, "")) {
+      toast.error("Enter your mobile number first.");
+      return;
+    }
+    await handleSendOtp();
+  };
+
   return (
     <StorefrontLayout>
-      <div className=" flex items-center justify-center px-4 py-16">
+      <div className=" flex items-center justify-center flex-col px-4 py-16">
+        <div className="text-[40px] font-semibold mb-3 text-center anek-devanagari-font">
+          SIGN IN / SIGN UP
+        </div>
         <div className="w-full max-w-lg bg-[#F9FAFB] md:p-8 p-4 shadow-lg rounded-[12px]">
           {/* Header */}
           {/* <div className="text-center mb-8">
@@ -155,7 +284,7 @@ export default function Login() {
           {view !== "forgot" && (
             <>
               {/* Tab switcher */}
-              <div className="flex border-2 border-black mb-8 rounded-[6px]">
+              {/* <div className="flex border-2 border-black mb-8 rounded-[6px]">
                 <button
                   onClick={() => setView("login")}
                   className={`flex-1 py-2.5 lg:text-lg font-semibold geist-mono-font uppercase transition-colors ${view === "login" ? "bg-black text-white" : "bg-transparent text-black hover:bg-gray-100"
@@ -170,50 +299,76 @@ export default function Login() {
                 >
                   Create Account
                 </button>
-              </div>
+              </div> */}
 
               {/* Login Form */}
               {view === "login" && (
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div>
-                    <label className={labelClass}>Email Address</label>
+                    <label className={labelClass}>Mobile Number</label>
                     <input
-                      type="email"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="your@email.com"
+                      type="tel"
+                      value={mobileNumber}
+                      onChange={(e) => setMobileNumber(e.target.value)}
+                      placeholder="Enter your mobile number"
                       required
+                      inputMode="numeric"
                       className={inputClass}
                     />
                   </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className={labelClass}>Password</label>
-                    </div>
-                    <input
-                      type="password"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="••••••••"
-                      required
-                      className={inputClass}
-                    />
+                  {!isOtpRequested ? (
                     <button
                       type="button"
-                      onClick={() => setView("forgot")}
-                      className="text-sm text-[#F42824] font-medium geist-mono-font hover:underline"
+                      onClick={handleSendOtp}
+                      disabled={isRequestingOtp}
+                      className={btnRed}
                     >
-                      Forgot password
+                      {isRequestingOtp ? "Sending OTP..." : "Send OTP"}
                     </button>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={loginMutation.isPending}
-                    className={btnRed}
-                  >
-                    {loginMutation.isPending ? "Signing In..." : "Sign In"}
-                  </button>
-                  <p className="text-center text-sm text-[#1F1F22] font-geist-mono font-medium mt-2">
+                  ) : (
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className={labelClass}>Enter OTP (6 DIGITS)</label>
+                      </div>
+                      <input
+                        type="text"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        placeholder=""
+                        required={isOtpRequested}
+                        inputMode="numeric"
+                        maxLength={6}
+                        className={inputClass}
+                      />
+                      <div className="mt-2 text-center text-sm font-geist-mono font-medium text-[#1F1F22]">
+                        {resendCountdown > 0 ? (
+                          <span>
+                            Resend OTP{" "}
+                            <span className="text-[#F42824]">{resendCountdown} secs</span>
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleResendOtp}
+                            disabled={isRequestingOtp}
+                            className="text-[#F42824] hover:underline"
+                          >
+                            {isRequestingOtp ? "Sending..." : "Resend OTP"}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {isOtpRequested && (
+                    <button
+                      type="submit"
+                      disabled={isVerifyingOtp || isLoggingInWithOtp}
+                      className={btnRed}
+                    >
+                      {isVerifyingOtp || isLoggingInWithOtp ? "Signing In..." : "Sign In"}
+                    </button>
+                  )}
+                  {/* <p className="text-center text-sm text-[#1F1F22] font-geist-mono font-medium mt-2">
                     Don't have an account?{" "}
                     <button
                       type="button"
@@ -222,7 +377,7 @@ export default function Login() {
                     >
                       Create one
                     </button>
-                  </p>
+                  </p> */}
                 </form>
               )}
 
@@ -310,7 +465,7 @@ export default function Login() {
           )}
 
           {/* Footer */}
-          <div className="mt-8 pt-6 text-center font-geist-mono text-xs text-[#1F1F22]">
+          <div className=" pt-6 text-center font-geist-mono text-xs text-[#1F1F22]">
             <p className="">
               By continuing, you agree to Thrifti's{" "}
               <a href="/terms" className=" hover:text-[#CC2200]">Terms of Use</a>{" "}
