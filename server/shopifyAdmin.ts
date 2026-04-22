@@ -35,6 +35,49 @@ async function adminFetch<T>(query: string, variables?: Record<string, unknown>)
   return json.data;
 }
 
+// ── Set app.role = 'seller' metafield + 'seller' tag on a new customer ────────
+/**
+ * Called immediately after customerCreate (Storefront API) succeeds.
+ * Uses the Admin API to:
+ *   1. Append the `seller` tag to the customer.
+ *   2. Set the `app.role` metafield to `seller` (single_line_text_field).
+ *
+ * The Storefront API cannot write protected metafields, so this MUST run
+ * server-side using the Admin access token — never exposed to the browser.
+ *
+ * @param customerGid  Shopify customer GID, e.g. "gid://shopify/Customer/12345"
+ */
+export async function setCustomerSellerRole(customerGid: string): Promise<void> {
+  await adminFetch<{
+    customerUpdate: { userErrors: { field: string[]; message: string }[] };
+    metafieldsSet: { userErrors: { field: string[]; message: string }[] };
+  }>(
+    `mutation SetSellerRole($customerId: ID!, $tags: [String!]!, $metafields: [MetafieldsSetInput!]!) {
+      customerUpdate(input: { id: $customerId, tags: $tags }) {
+        customer { id tags }
+        userErrors { field message }
+      }
+      metafieldsSet(metafields: $metafields) {
+        metafields { id namespace key value }
+        userErrors { field message }
+      }
+    }`,
+    {
+      customerId: customerGid,
+      tags: ["seller"],
+      metafields: [
+        {
+          ownerId: customerGid,
+          namespace: "app",
+          key: "role",
+          value: "seller",
+          type: "single_line_text_field",
+        },
+      ],
+    }
+  );
+}
+
 // ── Get current view count for a product ─────────────────────────────────────
 export async function getProductViewCount(productGid: string): Promise<number> {
   const data = await adminFetch<{

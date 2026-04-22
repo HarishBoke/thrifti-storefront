@@ -26,7 +26,7 @@ import {
   setDefaultCustomerAddress,
 } from "./shopify";
 import { invokeLLM } from "./_core/llm";
-import { incrementProductViewCount, getProductViewCount } from "./shopifyAdmin";
+import { incrementProductViewCount, getProductViewCount, setCustomerSellerRole } from "./shopifyAdmin";
 import { notifyOwner } from "./_core/notification";
 import { getDb } from "./db";
 import { users, wishlists } from "../drizzle/schema";
@@ -282,6 +282,16 @@ export const appRouter = router({
         }
         if (!result.customer) {
           throw new Error("Could not create account");
+        }
+        // Assign seller role via Admin API (server-side only — never exposed to browser).
+        // Sets: app.role metafield = 'seller' + adds 'seller' tag.
+        // This keeps the headless storefront in sync with the WhatsApp bot system.
+        try {
+          await setCustomerSellerRole(result.customer.id);
+        } catch (roleErr) {
+          // Non-fatal: log the error but don't block registration.
+          // The customer account is already created; role assignment can be retried.
+          console.error("[register] Failed to set seller role metafield:", roleErr);
         }
         // Auto-login after registration
         const loginResult = await customerLogin(input.email, input.password);
