@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import {
@@ -27,13 +27,26 @@ const OTP_FLOW_UID = import.meta.env.VITE_SETOO_FLOW_UID;
 export default function Login() {
   const [view, setView] = useState<View>("login");
   const [, navigate] = useLocation();
-  const { setTokenAndFetch } = useShopifyAuth();
+  const { setTokenAndFetch, isAuthenticated, isLoading } = useShopifyAuth();
+
+  // After a successful login/register, we set this flag and wait for
+  // isAuthenticated to become true before navigating to /account.
+  // This avoids the race condition where navigate() fires before
+  // fetchCustomer() completes, causing Account to redirect back to /login.
+  const pendingRedirect = useRef(false);
+
+  useEffect(() => {
+    if (pendingRedirect.current && !isLoading && isAuthenticated) {
+      pendingRedirect.current = false;
+      navigate("/account");
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   // OTP Login form
   const [mobileNumber, setMobileNumber] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [isOtpRequested, setIsOtpRequested] = useState(false);
-  const [resendCountdown, setResendCountdown] = useState(20);
+  const [resendCountdown, setResendCountdown] = useState(40);
   const [verificationToken, setVerificationToken] = useState("");
   const [otpVerifiedToken, setOtpVerifiedToken] = useState("");
   const [flowUid, setFlowUid] = useState("");
@@ -82,7 +95,7 @@ export default function Login() {
     onSuccess: (data) => {
       setTokenAndFetch(data.accessToken, data.expiresAt);
       toast.success("Account created! Welcome to Thrifti.");
-      navigate("/account");
+      pendingRedirect.current = true;
     },
     onError: (err) => {
       toast.error(err.message || "Registration failed. Please try again.");
@@ -154,7 +167,9 @@ export default function Login() {
       });
       setTokenAndFetch(shopifyAuth.accessToken, shopifyAuth.expiresAt);
       toast.success("Signed in successfully.");
-      navigate("/account");
+      // Set flag — the useEffect above will navigate to /account once
+      // isAuthenticated becomes true (after fetchCustomer completes)
+      pendingRedirect.current = true;
     } catch (error) {
       toast.error(getApiErrorMessage(error, "OTP verification/login failed. Please check details and try again."));
     }
@@ -187,7 +202,7 @@ export default function Login() {
       setOtpVerifiedToken("");
       setIsOtpRequested(true);
       setOtpCode("");
-      setResendCountdown(20);
+      setResendCountdown(40);
       toast.success(response.message || "OTP sent.");
     } catch (error) {
       toast.error(getApiErrorMessage(error, "Unable to send OTP."));
