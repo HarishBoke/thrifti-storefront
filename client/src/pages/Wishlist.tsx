@@ -39,7 +39,7 @@ interface WishlistCardProps {
   productTitle: string | null;
   productImage: string | null;
   productPrice: string | null;
-  customerEmail: string;
+  customerGid: string;
   allProducts: ShopifyProduct[];
 }
 
@@ -49,7 +49,7 @@ function WishlistCard({
   productTitle,
   productImage,
   productPrice,
-  customerEmail,
+  customerGid,
   allProducts,
 }: WishlistCardProps) {
   const { addToCart, isLoading: cartLoading } = useCart();
@@ -78,7 +78,7 @@ function WishlistCard({
   // Remove from wishlist
   const removeMutation = trpc.wishlist.remove.useMutation({
     onSuccess: () => {
-      utils.wishlist.list.invalidate();
+      utils.wishlist.list.invalidate({ customerGid });
       toast.success("Removed from wishlist");
     },
     onError: () => toast.error("Failed to remove from wishlist"),
@@ -132,7 +132,7 @@ function WishlistCard({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            removeMutation.mutate({ customerEmail, productId });
+            removeMutation.mutate({ customerGid, productId });
           }}
           className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow hover:bg-red-50 transition-colors"
           aria-label="Remove from wishlist"
@@ -185,33 +185,34 @@ function WishlistCard({
 function RecentlyViewedCard({ product }: { product: ShopifyProduct }) {
   const { customer, isAuthenticated } = useShopifyAuth();
   const utils = trpc.useUtils();
+  const customerGid = customer?.id ?? "";
   const { data: wishlistItems } = trpc.wishlist.list.useQuery(
-    { customerEmail: customer?.email ?? "" },
-    { enabled: !!customer?.email && isAuthenticated }
+    { customerGid },
+    { enabled: !!customerGid && isAuthenticated }
   );
   const isWishlisted = wishlistItems?.some((w) => w.productId === product.id) ?? false;
   const addWishlist = trpc.wishlist.add.useMutation({
-    onSuccess: () => { utils.wishlist.list.invalidate(); toast.success("Added to wishlist"); },
+    onSuccess: () => { utils.wishlist.list.invalidate({ customerGid }); toast.success("Added to wishlist"); },
     onError: () => toast.error("Failed to add to wishlist"),
   });
   const removeWishlist = trpc.wishlist.remove.useMutation({
-    onSuccess: () => { utils.wishlist.list.invalidate(); toast.success("Removed from wishlist"); },
+    onSuccess: () => { utils.wishlist.list.invalidate({ customerGid }); toast.success("Removed from wishlist"); },
     onError: () => toast.error("Failed to remove from wishlist"),
   });
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!isAuthenticated || !customer?.email) {
+    if (!isAuthenticated || !customerGid) {
       toast.info("Sign in to save items", {
         action: { label: "Sign In", onClick: () => (window.location.href = "/login") },
       });
       return;
     }
     if (isWishlisted) {
-      removeWishlist.mutate({ customerEmail: customer.email, productId: product.id });
+      removeWishlist.mutate({ customerGid, productId: product.id });
     } else {
       addWishlist.mutate({
-        customerEmail: customer.email,
+        customerGid,
         productId: product.id,
         productHandle: product.handle,
         productTitle: product.title,
@@ -318,9 +319,10 @@ export default function Wishlist() {
   const { customer, isAuthenticated } = useShopifyAuth();
 
   // Fetch wishlist items from DB
+  const customerGid = customer?.id ?? "";
   const { data: wishlistItems, isLoading: wishlistLoading } = trpc.wishlist.list.useQuery(
-    { customerEmail: customer?.email ?? "" },
-    { enabled: !!customer?.email && isAuthenticated }
+    { customerGid },
+    { enabled: !!customerGid && isAuthenticated }
   );
 
   // Fetch all products to cross-reference live data (availability, price, variant)
@@ -381,13 +383,13 @@ export default function Wishlist() {
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
               {wishlistItems!.map((item) => (
                 <WishlistCard
-                  key={item.id}
+                  key={item.productId}
                   productHandle={item.productHandle}
                   productId={item.productId}
-                  productTitle={item.productTitle}
-                  productImage={item.productImage}
-                  productPrice={item.productPrice}
-                  customerEmail={customer!.email}
+                  productTitle={item.productTitle ?? null}
+                  productImage={item.productImage ?? null}
+                  productPrice={item.productPrice ?? null}
+                  customerGid={customerGid}
                   allProducts={allProducts}
                 />
               ))}

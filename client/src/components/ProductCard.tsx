@@ -30,16 +30,18 @@ export default function ProductCard({ product }: ProductCardProps) {
       ? `${formatPrice(minPrice.amount, minPrice.currencyCode)} – ${formatPrice(maxPrice.amount, maxPrice.currencyCode)}`
       : formatPrice(minPrice.amount, minPrice.currencyCode);
 
-  // Wishlist state — check if this product is already in the wishlist
+  // Wishlist state — stored in Shopify app.wishlist customer metafield (no DB needed)
+  // Uses customer GID (e.g. "gid://shopify/Customer/12345") as the identifier
+  const customerGid = customer?.id ?? "";
   const { data: wishlistItems } = trpc.wishlist.list.useQuery(
-    { customerEmail: customer?.email ?? "" },
-    { enabled: !!customer?.email && isAuthenticated }
+    { customerGid },
+    { enabled: !!customerGid && isAuthenticated }
   );
   const isWishlisted = wishlistItems?.some((w) => w.productId === product.id) ?? false;
 
   const addWishlistMutation = trpc.wishlist.add.useMutation({
     onSuccess: () => {
-      utils.wishlist.list.invalidate();
+      utils.wishlist.list.invalidate({ customerGid });
       toast.success("Added to wishlist");
     },
     onError: (err) => toast.error(err.message || "Failed to add to wishlist"),
@@ -47,7 +49,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const removeWishlistMutation = trpc.wishlist.remove.useMutation({
     onSuccess: () => {
-      utils.wishlist.list.invalidate();
+      utils.wishlist.list.invalidate({ customerGid });
       toast.success("Removed from wishlist");
     },
     onError: (err) => toast.error(err.message || "Failed to remove from wishlist"),
@@ -68,17 +70,17 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated || !customer?.email) {
+    if (!isAuthenticated || !customerGid) {
       toast.info("Sign in to save items to your wishlist", {
         action: { label: "Sign In", onClick: () => (window.location.href = "/login") },
       });
       return;
     }
     if (isWishlisted) {
-      removeWishlistMutation.mutate({ customerEmail: customer.email, productId: product.id });
+      removeWishlistMutation.mutate({ customerGid, productId: product.id });
     } else {
       addWishlistMutation.mutate({
-        customerEmail: customer.email,
+        customerGid,
         productId: product.id,
         productHandle: product.handle,
         productTitle: product.title,

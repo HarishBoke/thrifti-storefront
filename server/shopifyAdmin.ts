@@ -200,3 +200,109 @@ export async function incrementProductViewCount(productGid: string): Promise<num
 
   return next;
 }
+
+// ── Wishlist via app.wishlist metafield (JSON array of WishlistItem) ──────────
+export interface WishlistItem {
+  productId: string;
+  productHandle: string;
+  productTitle?: string;
+  productImage?: string;
+  productPrice?: string;
+  addedAt: string; // ISO date string
+}
+
+/**
+ * Read the wishlist for a customer from the app.wishlist metafield.
+ * @param customerGid  e.g. "gid://shopify/Customer/12345"
+ */
+export async function getWishlist(customerGid: string): Promise<WishlistItem[]> {
+  const data = await adminFetch<{
+    customer: { metafield: { value: string } | null } | null;
+  }>(
+    `query GetWishlist($id: ID!) {
+      customer(id: $id) {
+        metafield(namespace: "app", key: "wishlist") {
+          value
+        }
+      }
+    }`,
+    { id: customerGid }
+  );
+  const raw = data?.customer?.metafield?.value;
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as WishlistItem[];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Add a product to the customer's wishlist metafield.
+ * No-op if the product is already in the wishlist.
+ */
+export async function addToWishlist(
+  customerGid: string,
+  item: Omit<WishlistItem, "addedAt">
+): Promise<WishlistItem[]> {
+  const current = await getWishlist(customerGid);
+  // Deduplicate by productId
+  if (current.some((w) => w.productId === item.productId)) return current;
+  const updated: WishlistItem[] = [
+    ...current,
+    { ...item, addedAt: new Date().toISOString() },
+  ];
+  await adminFetch<{ metafieldsSet: { userErrors: { message: string }[] } }>(
+    `mutation SetWishlist($metafields: [MetafieldsSetInput!]!) {
+      metafieldsSet(metafields: $metafields) {
+        metafields { id namespace key value }
+        userErrors { field message }
+      }
+    }`,
+    {
+      metafields: [
+        {
+          ownerId: customerGid,
+          namespace: "app",
+          key: "wishlist",
+          value: JSON.stringify(updated),
+          type: "json",
+        },
+      ],
+    }
+  );
+  return updated;
+}
+
+/**
+ * Remove a product from the customer's wishlist metafield.
+ */
+export async function removeFromWishlist(
+  customerGid: string,
+  productId: string
+): Promise<WishlistItem[]> {
+  const current = await getWishlist(customerGid);
+  const updated = current.filter((w) => w.productId !== productId);
+  // Only write back if something actually changed
+  if (updated.length === current.length) return current;
+  await adminFetch<{ metafieldsSet: { userErrors: { message: string }[] } }>(
+    `mutation SetWishlist($metafields: [MetafieldsSetInput!]!) {
+      metafieldsSet(metafields: $metafields) {
+        metafields { id namespace key value }
+        userErrors { field message }
+      }
+    }`,
+    {
+      metafields: [
+        {
+          ownerId: customerGid,
+          namespace: "app",
+          key: "wishlist",
+          value: JSON.stringify(updated),
+          type: "json",
+        },
+      ],
+    }
+  );
+  return updated;
+}

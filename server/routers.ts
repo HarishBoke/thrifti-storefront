@@ -26,7 +26,7 @@ import {
   setDefaultCustomerAddress,
 } from "./shopify";
 import { invokeLLM } from "./_core/llm";
-import { incrementProductViewCount, getProductViewCount, setCustomerSellerRole, getCustomerByPhone, setCustomerTempPassword } from "./shopifyAdmin";
+import { incrementProductViewCount, getProductViewCount, setCustomerSellerRole, getCustomerByPhone, setCustomerTempPassword, getWishlist, addToWishlist, removeFromWishlist } from "./shopifyAdmin";
 import { notifyOwner } from "./_core/notification";
 import { getDb } from "./db";
 import { users, wishlists } from "../drizzle/schema";
@@ -566,21 +566,20 @@ export const appRouter = router({
   }),
 
   // ---------------------------------------------------------------------------
-  // Wishlist: Saved items (stored in DB by customer email)
+  // Wishlist: Saved items (stored in Shopify app.wishlist customer metafield)
+  // No database required — persisted directly in Shopify per customer.
   // ---------------------------------------------------------------------------
   wishlist: router({
     list: publicProcedure
-      .input(z.object({ customerEmail: z.string().email() }))
+      .input(z.object({ customerGid: z.string().min(1, "Customer GID required") }))
       .query(async ({ input }) => {
-        const db = await getDb();
-        if (!db) return [];
-        return db.select().from(wishlists).where(eq(wishlists.customerEmail, input.customerEmail));
+        return getWishlist(input.customerGid);
       }),
 
     add: publicProcedure
       .input(
         z.object({
-          customerEmail: z.string().email(),
+          customerGid: z.string().min(1, "Customer GID required"),
           productId: z.string(),
           productHandle: z.string(),
           productTitle: z.string().optional(),
@@ -589,40 +588,18 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
-        const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
-        // Prevent duplicates
-        const existing = await db
-          .select()
-          .from(wishlists)
-          .where(and(eq(wishlists.customerEmail, input.customerEmail), eq(wishlists.productId, input.productId)))
-          .limit(1);
-        if (existing.length > 0) return existing[0];
-        await db.insert(wishlists).values({
-          customerEmail: input.customerEmail,
+        return addToWishlist(input.customerGid, {
           productId: input.productId,
           productHandle: input.productHandle,
-          productTitle: input.productTitle ?? null,
-          productImage: input.productImage ?? null,
-          productPrice: input.productPrice ?? null,
+          productTitle: input.productTitle,
+          productImage: input.productImage,
+          productPrice: input.productPrice,
         });
-        const inserted = await db
-          .select()
-          .from(wishlists)
-          .where(and(eq(wishlists.customerEmail, input.customerEmail), eq(wishlists.productId, input.productId)))
-          .limit(1);
-        return inserted[0];
       }),
-
     remove: publicProcedure
-      .input(z.object({ customerEmail: z.string().email(), productId: z.string() }))
+      .input(z.object({ customerGid: z.string().min(1), productId: z.string() }))
       .mutation(async ({ input }) => {
-        const db = await getDb();
-        if (!db) throw new Error("Database unavailable");
-        await db
-          .delete(wishlists)
-          .where(and(eq(wishlists.customerEmail, input.customerEmail), eq(wishlists.productId, input.productId)));
-        return { success: true };
+        return removeFromWishlist(input.customerGid, input.productId);
       }),
   }),
 

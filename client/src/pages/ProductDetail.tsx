@@ -52,20 +52,20 @@ function trackRecentlyViewed(handle: string) {
 }
 
 // ── Mini Product Card ─────────────────────────────────────────────────────────
-function MiniProductCard({ product, customerEmail }: {
+function MiniProductCard({ product, customerGid }: {
   product: {
     id: string; handle: string; title: string; productType?: string; vendor?: string;
     featuredImage?: { url: string; altText?: string | null } | null;
     images: { nodes: { url: string; altText?: string | null }[] };
     variants: { nodes: { price: { amount: string; currencyCode: string } }[] };
   };
-  customerEmail?: string;
+  customerGid?: string;
 }) {
   const { isAuthenticated } = useShopifyAuth();
   const [wishlisted, setWishlisted] = useState(false);
   const { data: wishlistItems } = trpc.wishlist.list.useQuery(
-    { customerEmail: customerEmail ?? "" },
-    { enabled: !!customerEmail && isAuthenticated }
+    { customerGid: customerGid ?? "" },
+    { enabled: !!customerGid && isAuthenticated }
   );
   const addToWishlist = trpc.wishlist.add.useMutation();
   const removeFromWishlist = trpc.wishlist.remove.useMutation();
@@ -78,15 +78,15 @@ function MiniProductCard({ product, customerEmail }: {
   const price = variant?.price ? `₹${Math.round(parseFloat(variant.price.amount)).toLocaleString("en-IN")}` : "";
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
-    if (!isAuthenticated || !customerEmail) { window.location.href = "/login"; return; }
+    if (!isAuthenticated || !customerGid) { window.location.href = "/login"; return; }
     if (wishlisted) {
       setWishlisted(false);
-      await removeFromWishlist.mutateAsync({ customerEmail, productId: product.id });
+      await removeFromWishlist.mutateAsync({ customerGid, productId: product.id });
     } else {
       setWishlisted(true);
-      await addToWishlist.mutateAsync({ customerEmail, productId: product.id, productTitle: product.title, productHandle: product.handle, productImage: image?.url ?? null, productPrice: variant?.price?.amount ?? null });
+      await addToWishlist.mutateAsync({ customerGid, productId: product.id, productTitle: product.title, productHandle: product.handle, productImage: image?.url ?? undefined, productPrice: variant?.price?.amount ?? undefined });
     }
-    utils.wishlist.list.invalidate({ customerEmail });
+    utils.wishlist.list.invalidate({ customerGid });
   };
   return (
     <Link href={`/products/${product.handle}`}>
@@ -204,8 +204,9 @@ export default function ProductDetail() {
   );
   const { data: allProductsData } = trpc.products.list.useQuery({ first: 20 });
   const allProducts = allProductsData?.products ?? [];
+  const customerGid = customer?.id ?? "";
   const { data: wishlistItems } = trpc.wishlist.list.useQuery(
-    { customerEmail: customer?.email ?? "" },
+    { customerGid },
     { enabled: !!customer?.email && isAuthenticated }
   );
   const addToWishlist = trpc.wishlist.add.useMutation();
@@ -310,14 +311,14 @@ export default function ProductDetail() {
     const image = product.featuredImage ?? product.images.nodes[0];
     if (wishlisted) {
       setWishlisted(false);
-      await removeFromWishlist.mutateAsync({ customerEmail: customer.email, productId: product.id });
+      await removeFromWishlist.mutateAsync({ customerGid, productId: product.id });
       toast.success("Removed from wishlist");
     } else {
       setWishlisted(true);
-      await addToWishlist.mutateAsync({ customerEmail: customer.email, productId: product.id, productTitle: product.title, productHandle: product.handle, productImage: image?.url ?? null, productPrice: price?.amount ?? null });
+      await addToWishlist.mutateAsync({ customerGid, productId: product.id, productTitle: product.title, productHandle: product.handle, productImage: image?.url ?? undefined, productPrice: price?.amount ?? undefined });
       toast.success("Added to wishlist!");
     }
-    utils.wishlist.list.invalidate({ customerEmail: customer.email });
+    utils.wishlist.list.invalidate({ customerGid });
   };
 
   const handleShare = () => setShowShare(true);
@@ -702,7 +703,7 @@ export default function ProductDetail() {
           <div className="px-4 sm:px-6 lg:px-10 py-10 border-t border-gray-200">
             <h2 className="text-xl font-black mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>More from this seller</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {moreBySeller.map((p) => <MiniProductCard key={p.id} product={p} customerEmail={customer?.email} />)}
+              {moreBySeller.map((p) => <MiniProductCard key={p.id} product={p} customerGid={customer?.id} />)}
             </div>
           </div>
         )}
@@ -712,7 +713,7 @@ export default function ProductDetail() {
           <div className="px-4 sm:px-6 lg:px-10 py-10 border-t border-gray-200">
             <h2 className="text-xl font-black mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>Similar Items You May Like</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {similarItems.map((p) => <MiniProductCard key={p.id} product={p} customerEmail={customer?.email} />)}
+              {similarItems.map((p) => <MiniProductCard key={p.id} product={p} customerGid={customer?.id} />)}
             </div>
           </div>
         )} */}
@@ -724,7 +725,7 @@ export default function ProductDetail() {
               Looking for more {product.productType?.split("/").pop() ?? "items"}
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {lookingForMore.map((p) => <MiniProductCard key={p.id} product={p} customerEmail={customer?.email} />)}
+              {lookingForMore.map((p) => <MiniProductCard key={p.id} product={p} customerGid={customer?.id} />)}
             </div>
           </div>
         )} */}
@@ -737,7 +738,7 @@ export default function ProductDetail() {
           <div className="px-4 sm:px-6 lg:px-10 py-10">
             <h2 className="text-xl font-black mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif", color: "var(--thrifti-dark)" }}>Recently Viewed</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {recentlyViewed.map((p) => <MiniProductCard key={p.id} product={p} customerEmail={customer?.email} />)}
+              {recentlyViewed.map((p) => <MiniProductCard key={p.id} product={p} customerGid={customer?.id} />)}
             </div>
           </div>
         )} */}

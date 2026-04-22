@@ -71,7 +71,7 @@ export default function Account() {
   );
 
   const { data: wishlistItems, isLoading: wishlistLoading } = trpc.wishlist.list.useQuery(
-    { customerEmail: customer?.email ?? "" },
+    { customerGid: customer?.id ?? "" },
     { enabled: !!customer?.email && isAuthenticated }
   );
 
@@ -114,7 +114,7 @@ export default function Account() {
 
   const removeWishlistMutation = trpc.wishlist.remove.useMutation({
     onSuccess: () => {
-      utils.wishlist.list.invalidate();
+      utils.wishlist.list.invalidate({ customerGid: customer?.id ?? "" });
     },
     onError: (err) => toast.error(err.message || "Failed to remove item."),
   });
@@ -456,7 +456,7 @@ export default function Account() {
               ) : wishlistItems && wishlistItems.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-0 divide-x divide-y divide-gray-100">
                   {wishlistItems.map((item) => (
-                    <div key={item.id} className="relative group p-3">
+                    <div key={item.productId} className="relative group p-3">
                       <a href={`/products/${item.productHandle}`} className="block">
                         <div className="aspect-square bg-gray-100 mb-2 overflow-hidden">
                           {item.productImage ? (
@@ -482,7 +482,7 @@ export default function Account() {
                         onClick={() =>
                           customer?.email &&
                           removeWishlistMutation.mutate({
-                            customerEmail: customer.email,
+                            customerGid: customer?.id ?? "",
                             productId: item.productId,
                           })
                         }

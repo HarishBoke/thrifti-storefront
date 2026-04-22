@@ -285,8 +285,8 @@ export default function Navbar() {
   const { isAuthenticated, customer } = useShopifyAuth();
 
   const { data: wishlistItems } = trpc.wishlist.list.useQuery(
-    { customerEmail: customer?.email ?? "" },
-    { enabled: !!customer?.email && isAuthenticated }
+    { customerGid: customer?.id ?? "" },
+    { enabled: !!customer?.id && isAuthenticated }
   );
   const wishlistCount = wishlistItems?.length ?? 0;
   const [location, navigate] = useLocation();

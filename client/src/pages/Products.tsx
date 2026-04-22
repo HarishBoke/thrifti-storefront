@@ -128,18 +128,18 @@ function FilterPill({
 // ── Product Card ──────────────────────────────────────────────────────────────
 function ListingProductCard({
   product,
-  customerEmail,
+  customerGid,
   isSelected,
 }: {
   product: ShopifyProduct;
-  customerEmail?: string;
+  customerGid?: string;
   isSelected?: boolean;
 }) {
   const { isAuthenticated } = useShopifyAuth();
   const [wishlisted, setWishlisted] = useState(false);
   const { data: wishlistItems } = trpc.wishlist.list.useQuery(
-    { customerEmail: customerEmail ?? "" },
-    { enabled: !!customerEmail && isAuthenticated }
+    { customerGid: customerGid ?? "" },
+    { enabled: !!customerGid && isAuthenticated }
   );
   const addToWishlist = trpc.wishlist.add.useMutation();
   const removeFromWishlist = trpc.wishlist.remove.useMutation();
@@ -162,19 +162,19 @@ function ListingProductCard({
 
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
-    if (!isAuthenticated || !customerEmail) { window.location.href = "/login"; return; }
+    if (!isAuthenticated || !customerGid) { window.location.href = "/login"; return; }
     if (wishlisted) {
       setWishlisted(false);
-      await removeFromWishlist.mutateAsync({ customerEmail, productId: product.id });
+      await removeFromWishlist.mutateAsync({ customerGid, productId: product.id });
     } else {
       setWishlisted(true);
       await addToWishlist.mutateAsync({
-        customerEmail, productId: product.id, productTitle: product.title,
+        customerGid, productId: product.id, productTitle: product.title,
         productHandle: product.handle, productImage: image?.url ?? null,
         productPrice: variant?.price?.amount ?? null,
       });
     }
-    utils.wishlist.list.invalidate({ customerEmail });
+    utils.wishlist.list.invalidate({ customerGid });
   };
 
   return (
@@ -238,7 +238,7 @@ function ListingProductCard({
 }
 
 // ── Recently Viewed ───────────────────────────────────────────────────────────
-function RecentlyViewedSection({ customerEmail }: { customerEmail?: string }) {
+function RecentlyViewedSection({ customerGid }: { customerGid?: string }) {
   const [recentHandles, setRecentHandles] = useState<string[]>([]);
   useEffect(() => {
     try {
@@ -255,7 +255,7 @@ function RecentlyViewedSection({ customerEmail }: { customerEmail?: string }) {
         <ListingProductCard
           key={product.id}
           product={product}
-          customerEmail={customerEmail}
+          customerGid={customerGid}
         />
       )}
     />
@@ -471,7 +471,7 @@ export default function Products() {
                   >
                     <ListingProductCard
                       product={product}
-                      customerEmail={customer?.email}
+                      customerGid={customer?.id}
                       isSelected={product.id === selectedProductId}
                     />
                   </div>
@@ -519,7 +519,7 @@ export default function Products() {
         <AnimatedBanner />
 
         {/* ── Recently Viewed ── */}
-        <RecentlyViewedSection customerEmail={customer?.email} />
+        <RecentlyViewedSection customerGid={customer?.id} />
 
         {/* ── New Drops Banner ── */}
         <NewDropsBanner />
