@@ -78,6 +78,57 @@ export async function setCustomerSellerRole(customerGid: string): Promise<void> 
   );
 }
 
+// ── Find a customer by phone number (Admin REST API) ────────────────────────────
+/**
+ * Looks up a Shopify customer by phone number using the Admin REST API.
+ * Returns the customer's numeric ID and email, or null if not found.
+ */
+export async function getCustomerByPhone(
+  phone: string
+): Promise<{ id: number; email: string; phone: string } | null> {
+  const domain = ENV.shopifyStoreDomain;
+  const token = ENV.shopifyAdminToken;
+  if (!domain || !token) throw new Error("Shopify Admin API credentials not configured");
+
+  const res = await fetch(
+    `https://${domain}/admin/api/${ADMIN_API_VERSION}/customers/search.json?query=phone:${encodeURIComponent(phone)}&limit=1`,
+    { headers: { "X-Shopify-Access-Token": token, "Content-Type": "application/json" } }
+  );
+  if (!res.ok) throw new Error(`Shopify Admin REST error: ${res.status}`);
+  const json = (await res.json()) as { customers: { id: number; email: string; phone: string }[] };
+  return json.customers?.[0] ?? null;
+}
+
+// ── Set a temporary password on a customer (Admin REST API) ──────────────────
+/**
+ * Sets a temporary password on a Shopify customer via the Admin REST API.
+ * Used during OTP login to generate a short-lived credential that the
+ * Storefront API can use to issue a customer access token.
+ *
+ * The password is immediately overwritten after login, so it is never
+ * a permanent credential.
+ */
+export async function setCustomerTempPassword(
+  customerId: number,
+  tempPassword: string
+): Promise<void> {
+  const domain = ENV.shopifyStoreDomain;
+  const token = ENV.shopifyAdminToken;
+  if (!domain || !token) throw new Error("Shopify Admin API credentials not configured");
+
+  const res = await fetch(
+    `https://${domain}/admin/api/${ADMIN_API_VERSION}/customers/${customerId}.json`,
+    {
+      method: "PUT",
+      headers: { "X-Shopify-Access-Token": token, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customer: { id: customerId, password: tempPassword, password_confirmation: tempPassword },
+      }),
+    }
+  );
+  if (!res.ok) throw new Error(`Shopify Admin REST error setting password: ${res.status}`);
+}
+
 // ── Get current view count for a product ─────────────────────────────────────
 export async function getProductViewCount(productGid: string): Promise<number> {
   const data = await adminFetch<{

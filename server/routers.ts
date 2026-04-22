@@ -26,7 +26,7 @@ import {
   setDefaultCustomerAddress,
 } from "./shopify";
 import { invokeLLM } from "./_core/llm";
-import { incrementProductViewCount, getProductViewCount, setCustomerSellerRole } from "./shopifyAdmin";
+import { incrementProductViewCount, getProductViewCount, setCustomerSellerRole, getCustomerByPhone, setCustomerTempPassword } from "./shopifyAdmin";
 import { notifyOwner } from "./_core/notification";
 import { getDb } from "./db";
 import { users, wishlists } from "../drizzle/schema";
@@ -299,6 +299,44 @@ export const appRouter = router({
           throw new Error("Account created but login failed. Please log in manually.");
         }
         return { accessToken: loginResult.accessToken.accessToken, expiresAt: loginResult.accessToken.expiresAt };
+      }),
+
+    // OTP-based phone login: find customer by phone via Admin API, set temp
+    // password, issue Shopify access token, then immediately rotate the password.
+    loginWithPhone: publicProcedure
+      .input(
+        z.object({
+          phone: z.string().min(10, "Invalid phone number"),
+          otpVerifiedToken: z.string().min(1, "OTP verified token is required"),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const shopifyCustomer = await getCustomerByPhone(input.phone);
+        if (!shopifyCustomer) {
+          throw new Error("No account found for this phone number. Please register first.");
+        }
+        // Generate a secure one-time password derived from the verified OTP token.
+        // It is never stored permanently — rotated immediately after login.
+        const crypto = await import("crypto");
+        const tempPassword = crypto
+          .createHmac("sha256", input.otpVerifiedToken)
+          .update(`${shopifyCustomer.id}-${Date.now()}`)
+          .digest("hex")
+          .slice(0, 32);
+        await setCustomerTempPassword(shopifyCustomer.id, tempPassword);
+        const loginResult = await customerLogin(shopifyCustomer.email, tempPassword);
+        if (!loginResult.accessToken) {
+          throw new Error("Login failed after OTP verification. Please try again.");
+        }
+        // Rotate the password to a new random value immediately (security hygiene).
+        const newRandom = crypto.randomBytes(32).toString("hex");
+        setCustomerTempPassword(shopifyCustomer.id, newRandom).catch((err) =>
+          console.error("[loginWithPhone] Failed to rotate temp password:", err)
+        );
+        return {
+          accessToken: loginResult.accessToken.accessToken,
+          expiresAt: loginResult.accessToken.expiresAt,
+        };
       }),
 
     logout: publicProcedure

@@ -76,6 +76,8 @@ export default function Login() {
     return fallbackMessage;
   };
 
+  const loginWithPhoneMutation = trpc.customer.loginWithPhone.useMutation();
+
   const registerMutation = trpc.customer.register.useMutation({
     onSuccess: (data) => {
       setTokenAndFetch(data.accessToken, data.expiresAt);
@@ -131,13 +133,26 @@ export default function Login() {
       }
 
       setOtpVerifiedToken(resolvedOtpVerifiedToken);
-      const loginResponse = await loginWithOtp({
-        ...otpPayload,
-        otp_verified_token: resolvedOtpVerifiedToken,
-      }).unwrap();
 
-      localStorage.setItem(OTP_TOKEN_KEY, loginResponse.token);
-      localStorage.setItem(OTP_USER_KEY, JSON.stringify(loginResponse.user));
+      // Also persist the Setoo session token (non-fatal if it fails)
+      try {
+        const loginResponse = await loginWithOtp({
+          ...otpPayload,
+          otp_verified_token: resolvedOtpVerifiedToken,
+        }).unwrap();
+        localStorage.setItem(OTP_TOKEN_KEY, loginResponse.token);
+        localStorage.setItem(OTP_USER_KEY, JSON.stringify(loginResponse.user));
+      } catch {
+        // Non-fatal: Setoo session token is optional for Shopify auth
+      }
+
+      // Exchange the OTP verified token for a Shopify customer access token
+      // via our server-side tRPC procedure (Admin credentials never leave the server)
+      const shopifyAuth = await loginWithPhoneMutation.mutateAsync({
+        phone: normalizedPhone,
+        otpVerifiedToken: resolvedOtpVerifiedToken,
+      });
+      setTokenAndFetch(shopifyAuth.accessToken, shopifyAuth.expiresAt);
       toast.success("Signed in successfully.");
       navigate("/account");
     } catch (error) {
