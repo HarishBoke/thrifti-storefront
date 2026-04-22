@@ -332,10 +332,23 @@ export const appRouter = router({
           shopifyCustomer.email,
           input.phone
         );
-        const loginResult = await customerLogin(loginEmail, tempPassword);
-        if (!loginResult.accessToken) {
-          throw new Error("Login failed after OTP verification. Please try again.");
+
+        // Shopify Admin API password changes take a moment to propagate to the
+        // Storefront API. Retry up to 4 times with a 600ms delay between attempts.
+        const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        let loginResult = await customerLogin(loginEmail, tempPassword);
+        for (let attempt = 1; attempt <= 3 && !loginResult.accessToken; attempt++) {
+          console.log(`[loginWithPhone] Login attempt ${attempt + 1} — waiting for password propagation...`);
+          await sleep(600);
+          loginResult = await customerLogin(loginEmail, tempPassword);
         }
+
+        if (!loginResult.accessToken) {
+          const errMsg = loginResult.errors?.[0]?.message ?? "Unknown error";
+          console.error(`[loginWithPhone] All login attempts failed. Last error: ${errMsg}`);
+          throw new Error(`Login failed after OTP verification: ${errMsg}`);
+        }
+
         // Rotate the password to a new random value immediately (security hygiene).
         const newRandom = crypto.randomBytes(32).toString("hex");
         setCustomerTempPassword(shopifyCustomer.id, newRandom, loginEmail, input.phone).catch((err) =>
