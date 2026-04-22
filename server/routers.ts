@@ -323,14 +323,22 @@ export const appRouter = router({
           .update(`${shopifyCustomer.id}-${Date.now()}`)
           .digest("hex")
           .slice(0, 32);
-        await setCustomerTempPassword(shopifyCustomer.id, tempPassword);
-        const loginResult = await customerLogin(shopifyCustomer.email, tempPassword);
+        // setCustomerTempPassword handles email-less customers (WhatsApp bot users)
+        // by auto-assigning a placeholder email (phone.{digits}@thrifti.store)
+        // and returns the email to use for Storefront API login.
+        const loginEmail = await setCustomerTempPassword(
+          shopifyCustomer.id,
+          tempPassword,
+          shopifyCustomer.email,
+          input.phone
+        );
+        const loginResult = await customerLogin(loginEmail, tempPassword);
         if (!loginResult.accessToken) {
           throw new Error("Login failed after OTP verification. Please try again.");
         }
         // Rotate the password to a new random value immediately (security hygiene).
         const newRandom = crypto.randomBytes(32).toString("hex");
-        setCustomerTempPassword(shopifyCustomer.id, newRandom).catch((err) =>
+        setCustomerTempPassword(shopifyCustomer.id, newRandom, loginEmail, input.phone).catch((err) =>
           console.error("[loginWithPhone] Failed to rotate temp password:", err)
         );
         return {

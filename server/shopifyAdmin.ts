@@ -85,7 +85,7 @@ export async function setCustomerSellerRole(customerGid: string): Promise<void> 
  */
 export async function getCustomerByPhone(
   phone: string
-): Promise<{ id: number; email: string; phone: string } | null> {
+): Promise<{ id: number; email: string | null; phone: string } | null> {
   const domain = ENV.shopifyStoreDomain;
   const token = ENV.shopifyAdminToken;
   if (!domain || !token) throw new Error("Shopify Admin API credentials not configured");
@@ -95,7 +95,7 @@ export async function getCustomerByPhone(
     { headers: { "X-Shopify-Access-Token": token, "Content-Type": "application/json" } }
   );
   if (!res.ok) throw new Error(`Shopify Admin REST error: ${res.status}`);
-  const json = (await res.json()) as { customers: { id: number; email: string; phone: string }[] };
+  const json = (await res.json()) as { customers: { id: number; email: string | null; phone: string }[] };
   return json.customers?.[0] ?? null;
 }
 
@@ -105,28 +105,53 @@ export async function getCustomerByPhone(
  * Used during OTP login to generate a short-lived credential that the
  * Storefront API can use to issue a customer access token.
  *
+ * Customers created by the WhatsApp bot may have no email address (state: disabled).
+ * Shopify requires an email to set a password, so we auto-generate a deterministic
+ * placeholder email (phone.{digits}@thrifti.store) in that case.
+ *
  * The password is immediately overwritten after login, so it is never
  * a permanent credential.
+ *
+ * @returns The email used to log in (real or generated placeholder)
  */
 export async function setCustomerTempPassword(
   customerId: number,
-  tempPassword: string
-): Promise<void> {
+  tempPassword: string,
+  existingEmail: string | null,
+  phone: string
+): Promise<string> {
   const domain = ENV.shopifyStoreDomain;
   const token = ENV.shopifyAdminToken;
   if (!domain || !token) throw new Error("Shopify Admin API credentials not configured");
+
+  // If the customer has no email, auto-assign a deterministic placeholder.
+  // Format: phone.{digits}@thrifti.store  (e.g. phone.919845461242@thrifti.store)
+  const loginEmail =
+    existingEmail ??
+    `phone.${phone.replace(/\D/g, "")}@thrifti.store`;
+
+  const customerPayload: Record<string, unknown> = {
+    id: customerId,
+    password: tempPassword,
+    password_confirmation: tempPassword,
+  };
+  if (!existingEmail) {
+    customerPayload.email = loginEmail;
+  }
 
   const res = await fetch(
     `https://${domain}/admin/api/${ADMIN_API_VERSION}/customers/${customerId}.json`,
     {
       method: "PUT",
       headers: { "X-Shopify-Access-Token": token, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customer: { id: customerId, password: tempPassword, password_confirmation: tempPassword },
-      }),
+      body: JSON.stringify({ customer: customerPayload }),
     }
   );
-  if (!res.ok) throw new Error(`Shopify Admin REST error setting password: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Shopify Admin REST error setting password (${res.status}): ${body}`);
+  }
+  return loginEmail;
 }
 
 // ── Get current view count for a product ─────────────────────────────────────
