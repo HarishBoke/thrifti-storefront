@@ -63,9 +63,9 @@ function WishlistCard({
   const firstVariant = liveProduct?.variants.nodes[0];
   const livePrice = liveProduct
     ? formatPrice(
-        liveProduct.priceRange.minVariantPrice.amount,
-        liveProduct.priceRange.minVariantPrice.currencyCode
-      )
+      liveProduct.priceRange.minVariantPrice.amount,
+      liveProduct.priceRange.minVariantPrice.currencyCode
+    )
     : productPrice ?? "—";
 
   const vendor = liveProduct?.vendor ?? "";
@@ -108,22 +108,22 @@ function WishlistCard({
   const isAvailable = !!firstVariant?.availableForSale;
 
   return (
-    <div className="group flex flex-col">
+    <div className="relative group flex flex-col bg-transparent p-3 transition-colors duration-300 hover:bg-[var(--thrifti-red)]">
       {/* Image */}
       <Link href={`/products/${productHandle}`} className="block relative overflow-hidden">
-        <div className="aspect-[3/4] w-full overflow-hidden bg-gray-100">
+        <div className="aspect-[3/4] w-full overflow-hidden bg-[#EDEAE4]">
           {productImage ? (
             <img
               src={productImage}
               alt={productTitle ?? "Wishlist item"}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
               width={300}
               height={400}
             />
           ) : (
             <div className="flex h-full items-center justify-center bg-gray-200">
-              <Heart className="h-10 w-10 text-gray-400" />
+              <Heart className="h-10 w-10 text-gray-400 transition-colors duration-300 group-hover:text-white" />
             </div>
           )}
         </div>
@@ -134,25 +134,26 @@ function WishlistCard({
             e.stopPropagation();
             removeMutation.mutate({ customerGid, productId });
           }}
-          className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow hover:bg-red-50 transition-colors"
+          className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-[6px] bg-[#F2EFEA]/80 shadow transition-colors hover:bg-white"
           aria-label="Remove from wishlist"
           disabled={removeMutation.isPending}
         >
-          <Trash2 className="h-3.5 w-3.5 text-gray-500 hover:text-red-500" />
+          {/* <Trash2 className="h-3.5 w-3.5 text-gray-500 hover:text-red-500" /> */}
+          <span className="text-3xl font-semibold text-[#1C1B1F] transition-colors">×</span>
         </button>
       </Link>
 
       {/* Meta */}
       <div className="mt-2 px-0.5">
         {metaLine && (
-          <p className="font-['Space_Mono',monospace] text-[10px] text-gray-500 uppercase tracking-wide truncate">
+          <p className="space-mono-font text-sm text-[#1F1F22] tracking-wide truncate transition-colors duration-300 group-hover:text-white/90">
             {metaLine}
           </p>
         )}
-        <p className="font-['Space_Grotesk',sans-serif] text-xs font-semibold text-[var(--thrifti-dark)] truncate mt-0.5">
+        <p className="geist-mono-font text-sm lg:text-lg font-medium truncate mt-0.5 transition-colors duration-300 group-hover:text-white">
           {productTitle ?? productHandle}
         </p>
-        <p className="font-['Space_Grotesk',sans-serif] text-sm font-black text-[var(--thrifti-dark)] mt-0.5">
+        <p className="anek-devanagari-font text-xl lg:text-3xl font-semibold mt-1.5 transition-colors duration-300 group-hover:text-white">
           {livePrice}
         </p>
       </div>
@@ -163,7 +164,7 @@ function WishlistCard({
           <button
             onClick={handleAddToCart}
             disabled={cartLoading}
-            className="flex w-full items-center justify-center gap-2 bg-[var(--thrifti-dark)] px-3 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-black transition-colors disabled:opacity-60"
+            className="bg-[#1F1F22] flex w-full items-center justify-center gap-2 px-2 py-1 md:px-3 md:py-2 lg:px-4 lg:py-4 text-base lg:text-2xl font-semibold uppercase tracking-wider text-white transition-colors group-hover:bg-white group-hover:text-[var(--thrifti-red)] hover:bg-white hover:text-[var(--thrifti-red)]"
           >
             <ShoppingBag className="h-3.5 w-3.5" />
             ADD TO BAG
@@ -171,13 +172,18 @@ function WishlistCard({
         ) : (
           <button
             onClick={handleShowSimilar}
-            className="flex w-full items-center justify-center gap-2 border border-[var(--thrifti-dark)] px-3 py-2.5 text-xs font-black uppercase tracking-wider text-[var(--thrifti-dark)] hover:bg-[var(--thrifti-dark)] hover:text-white transition-colors"
+            className="bg-[#1F1F22] flex w-full items-center justify-center gap-2 px-2 py-1 md:px-3 md:py-2 lg:px-4 lg:py-4 text-base lg:text-2xl font-semibold uppercase tracking-wider text-white transition-colors group-hover:bg-white group-hover:text-[var(--thrifti-red)] hover:bg-white hover:text-[var(--thrifti-red)]"
           >
             SHOW SIMILAR
           </button>
         )}
       </div>
-    </div>
+      {!isAvailable && (
+        <div className="absolute top-6 left-[-10px] flex items-center justify-center rounded-[2px] -rotate-12 bg-white text-[#F42824] px-4 py-2 border border-[#EAEAD1] shadow-md text-sm font-semibold z-30 geist-mono-font uppercase tracking-wider">
+          sold out
+        </div>
+      )}
+    </div >
   );
 }
 
@@ -351,11 +357,11 @@ export default function Wishlist() {
 
         {/* ── Header ── */}
         <div className="container mx-auto px-4 pt-8 pb-4 sm:px-6 lg:px-10">
-          <h1 className="font-['Space_Grotesk',sans-serif] text-3xl font-black text-[var(--thrifti-dark)] lg:text-4xl">
+          <h1 className="anek-devanagari-font text-3xl lg:text-[40px] font-semibold">
             Wishlist
           </h1>
           {isAuthenticated && !isLoading && itemCount > 0 && (
-            <p className="font-['Space_Mono',monospace] mt-1 text-xs text-gray-500">
+            <p className="anek-devanagari-font mt-2 text-sm text-[#35392D]">
               {itemCount} {itemCount === 1 ? "item" : "items"}
             </p>
           )}
