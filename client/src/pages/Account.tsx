@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useShopifyAuth } from "@/contexts/ShopifyAuthContext";
@@ -8,7 +8,6 @@ import {
   Package,
   MapPin,
   LogOut,
-  ChevronRight,
   ShoppingBag,
   Plus,
   Pencil,
@@ -16,6 +15,13 @@ import {
   Star,
   X,
   Heart,
+  Search,
+  ShieldCheck,
+  Users,
+  User,
+  Phone,
+  Mail,
+  Bell,
 } from "lucide-react";
 
 type AddressForm = {
@@ -46,12 +52,71 @@ const inputClass =
   "w-full border-2 border-black px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-[#CC2200] transition-colors";
 const labelClass = "block text-xs font-bold uppercase tracking-widest text-gray-600 mb-1";
 
-type ActiveTab = "orders" | "addresses" | "wishlist";
+type ActiveTab =
+  | "account-overview"
+  | "my-listings"
+  | "earnings"
+  | "my-orders"
+  | "wishlist"
+  | "personal-information"
+  | "saved-addresses"
+  | "account-details"
+  | "notifications"
+  | "settings"
+  | "buyer-protection"
+  | "terms-of-use"
+  | "privacy-center";
+type OrderStatusTab = "ongoing" | "completed" | "pending-review";
+type ListingStatusTab = "active" | "sold" | "draft";
+type PersonalInfoForm = {
+  firstName: string;
+  lastName: string;
+  username: string;
+  phone: string;
+  email: string;
+};
+type NotificationSettings = {
+  orderUpdatesWhatsapp: boolean;
+  orderUpdatesEmail: boolean;
+  messagesWhatsapp: boolean;
+  messagesEmail: boolean;
+  offersWhatsapp: boolean;
+  offersEmail: boolean;
+  promotionsWhatsapp: boolean;
+  promotionsEmail: boolean;
+  directMessagesWhatsapp: boolean;
+  directMessagesEmail: boolean;
+  soldAlertsWhatsapp: boolean;
+  soldAlertsEmail: boolean;
+};
 
 export default function Account() {
   const { customer, accessToken, isLoading, isAuthenticated, logout } = useShopifyAuth();
   const [, navigate] = useLocation();
-  const [activeTab, setActiveTab] = useState<ActiveTab>("orders");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("account-overview");
+  const [orderStatusTab, setOrderStatusTab] = useState<OrderStatusTab>("completed");
+  const [listingStatusTab, setListingStatusTab] = useState<ListingStatusTab>("active");
+  const [personalInfoForm, setPersonalInfoForm] = useState<PersonalInfoForm>({
+    firstName: "",
+    lastName: "",
+    username: "",
+    phone: "",
+    email: "",
+  });
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
+    orderUpdatesWhatsapp: true,
+    orderUpdatesEmail: true,
+    messagesWhatsapp: true,
+    messagesEmail: true,
+    offersWhatsapp: true,
+    offersEmail: true,
+    promotionsWhatsapp: true,
+    promotionsEmail: true,
+    directMessagesWhatsapp: true,
+    directMessagesEmail: true,
+    soldAlertsWhatsapp: false,
+    soldAlertsEmail: true,
+  });
 
   // Address modal state
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -125,6 +190,23 @@ export default function Account() {
     }
   }, [isLoading, isAuthenticated, navigate]);
 
+  useEffect(() => {
+    if (!customer) return;
+    const generatedUsername = [customer.firstName, customer.lastName]
+      .filter(Boolean)
+      .join("_")
+      .toLowerCase()
+      .replace(/\s+/g, "_");
+
+    setPersonalInfoForm({
+      firstName: customer.firstName ?? "",
+      lastName: customer.lastName ?? "",
+      username: generatedUsername || "customer_account",
+      phone: customer.phone ?? "",
+      email: customer.email ?? "",
+    });
+  }, [customer]);
+
   const handleLogout = async () => {
     await logout();
     toast.success("You've been signed out.");
@@ -181,6 +263,68 @@ export default function Account() {
     setAddressForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const fullName =
+    [customer?.firstName, customer?.lastName].filter(Boolean).join(" ") || "Customer";
+  const initials =
+    [customer?.firstName?.[0], customer?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || "C";
+  const sidebarSections: { subtitle: string; items: { key: ActiveTab; label: string }[] }[] = [
+    {
+      subtitle: "Selling Dashboard",
+      items: [
+        { key: "my-listings", label: "My Listings" },
+        { key: "earnings", label: "Earnings" },
+      ],
+    },
+    {
+      subtitle: "Buying Dashboard",
+      items: [
+        { key: "my-orders", label: "My Orders" },
+        { key: "wishlist", label: "Wishlist" },
+      ],
+    },
+    {
+      subtitle: "Profile",
+      items: [
+        { key: "personal-information", label: "Personal Information" },
+        { key: "saved-addresses", label: "Saved Addresses" },
+        { key: "account-details", label: "Account Details" },
+        { key: "notifications", label: "Notifications" },
+        { key: "settings", label: "Settings" },
+      ],
+    },
+    {
+      subtitle: "Legal",
+      items: [
+        { key: "buyer-protection", label: "Buyer Protection" },
+        { key: "terms-of-use", label: "Terms of Use" },
+        { key: "privacy-center", label: "Privacy Center" },
+      ],
+    },
+  ];
+
+  const orderGroups = useMemo(
+    () => ({
+      ongoing:
+        orders?.filter((order) => {
+          const status = (order.financialStatus ?? "").toUpperCase();
+          return status !== "PAID" && status !== "REFUNDED";
+        }) ?? [],
+      completed:
+        orders?.filter((order) => {
+          const status = (order.financialStatus ?? "").toUpperCase();
+          return status === "PAID" || status === "REFUNDED";
+        }) ?? [],
+      "pending-review":
+        orders?.filter((order) => {
+          const status = (order.financialStatus ?? "").toUpperCase();
+          return status === "PAID";
+        }) ?? [],
+    }),
+    [orders]
+  );
+
+  const currentOrders = orderGroups[orderStatusTab];
+
   if (isLoading) {
     return (
       <StorefrontLayout>
@@ -196,330 +340,737 @@ export default function Account() {
 
   if (!isAuthenticated) return null;
 
-  const fullName =
-    [customer?.firstName, customer?.lastName].filter(Boolean).join(" ") || "Customer";
-  const initials =
-    [customer?.firstName?.[0], customer?.lastName?.[0]].filter(Boolean).join("").toUpperCase() || "C";
-
-  const tabs: { key: ActiveTab; label: string; icon: React.ReactNode }[] = [
-    { key: "orders", label: "Orders", icon: <Package size={14} /> },
-    { key: "addresses", label: "Addresses", icon: <MapPin size={14} /> },
-    { key: "wishlist", label: "Wishlist", icon: <Heart size={14} /> },
+  const myListings = [
+    {
+      id: "listing-1",
+      title: "Classic Denim Dress",
+      price: "₹1599",
+      status: "active" as const,
+      image:
+        "https://images.unsplash.com/photo-1618244972963-dbad68f19487?auto=format&fit=crop&w=300&q=80",
+      bids: 3,
+    },
+    {
+      id: "listing-2",
+      title: "Vintage Black Boots",
+      price: "₹2199",
+      status: "sold" as const,
+      image:
+        "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=300&q=80",
+      bids: 0,
+    },
+    {
+      id: "listing-3",
+      title: "Ivory Linen Co-ord",
+      price: "₹1899",
+      status: "draft" as const,
+      image:
+        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=300&q=80",
+      bids: 0,
+    },
   ];
+  const visibleListings = myListings.filter((listing) => listing.status === listingStatusTab);
 
-  return (
-    <StorefrontLayout>
-      <div className="min-h-screen bg-[#F5F0E8]">
-        {/* Hero header */}
-        <div className="bg-black text-white py-16 px-4 text-center">
-          <p className="text-xs tracking-widest uppercase text-gray-400 mb-2">My Account</p>
-          <h1 className="text-3xl md:text-4xl font-black uppercase font-['Space_Grotesk']">
-            {fullName}
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">{customer?.email}</p>
+  const renderOrdersPanel = () => (
+    <div className="bg-[#F4F3EF] border border-[#E6E2DA] p-4 lg:p-6">
+      <h2 className="anek-devanagari-font text-3xl font-semibold text-[#1F1F22]">My Orders</h2>
+      <p className="geist-mono-font mt-1 text-sm text-[#6E6A62]">
+        Track purchases, manage deliveries, and review sellers.
+      </p>
+
+      <div className="mt-5 border border-[#E6E2DA] bg-[#F8F7F4]">
+        <div className="flex items-center gap-2 border-b border-[#E6E2DA] px-4">
+          {([
+            ["ongoing", "Ongoing"],
+            ["completed", "Completed"],
+            ["pending-review", "Pending Review"],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setOrderStatusTab(key)}
+              className={`px-4 py-3 text-xs uppercase tracking-wider transition-colors ${orderStatusTab === key
+                ? "border-b-2 border-[#F42824] text-[#1F1F22] font-semibold"
+                : "text-[#7E7A74] hover:text-[#1F1F22]"
+                }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
-          {/* Profile card */}
-          <div className="bg-white border-2 border-black p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-[#CC2200] text-white flex items-center justify-center text-xl font-black shrink-0">
-                {initials}
+        {ordersLoading ? (
+          <div className="p-8 text-center">
+            <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-[#CC2200] border-t-transparent" />
+          </div>
+        ) : currentOrders.length > 0 ? (
+          <div className="divide-y divide-[#E6E2DA]">
+            {currentOrders.map((order) => (
+              <div key={order.id} className="p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <p className="geist-mono-font text-xs text-[#7E7A74]">
+                      Order #{order.orderNumber}
+                    </p>
+                    <p className="mt-1 text-sm text-[#35392D]">
+                      Placed:{" "}
+                      {new Date(order.processedAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <p className="anek-devanagari-font mt-1 text-2xl font-semibold text-[#1F1F22]">
+                      Rs {Math.round(parseFloat(order.totalPrice.amount))}
+                    </p>
+                  </div>
+                  <span className="self-start rounded-full bg-[#D7F4DE] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#1E7A3E]">
+                    {order.fulfillmentStatus ?? order.financialStatus ?? "In Progress"}
+                  </span>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {order.lineItems.nodes.slice(0, 3).map((item, index) => (
+                    <div key={index} className="h-12 w-10 overflow-hidden bg-[#EDEAE4]">
+                      {item.variant?.image ? (
+                        <img
+                          src={item.variant.image.url}
+                          alt={item.title}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <Package className="h-4 w-4 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-lg">{fullName}</p>
-                <p className="text-sm text-gray-500">{customer?.email}</p>
-                {customer?.phone && <p className="text-sm text-gray-500">{customer.phone}</p>}
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 text-center">
+            <p className="geist-mono-font text-sm text-[#7E7A74]">No orders in this section yet.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderSavedAddressesPanel = () => (
+    <div className="bg-[#F4F3EF] border border-[#E6E2DA] p-4 lg:p-6">
+      <div className="mb-4 flex items-center justify-between border-b border-[#E6E2DA] pb-3">
+        <h2 className="geist-mono-font text-xl font-semibold text-[#1F1F22]">Saved Addresses</h2>
+        <button
+          onClick={openAddAddress}
+          className="border border-[#3C3B3F] bg-[#F8F7F4] px-4 py-2 text-sm font-semibold text-[#1F1F22] hover:bg-[#ECEAE4]"
+        >
+          + Add New Address
+        </button>
+      </div>
+
+      {addressesLoading ? (
+        <div className="p-8 text-center">
+          <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-[#CC2200] border-t-transparent" />
+        </div>
+      ) : addresses && addresses.length > 0 ? (
+        <div className="space-y-4">
+          {addresses.map((addr) => (
+            <div key={addr.id} className="max-w-[420px] overflow-hidden rounded-[4px] border border-[#D8D4CC] bg-[#F8F7F4]">
+              <div className="p-4">
+                {addr.id === customer?.defaultAddress?.id && (
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7E7A74]">
+                    Default Address
+                  </p>
+                )}
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <p className="text-lg font-semibold text-[#1F1F22]">
+                    {[addr.firstName, addr.lastName].filter(Boolean).join(" ")}
+                  </p>
+                  {addr.id === customer?.defaultAddress?.id ? (
+                    <span className="text-[10px] uppercase tracking-wider text-[#7E7A74]">Home</span>
+                  ) : (
+                    <button
+                      onClick={() => accessToken && setDefaultMutation.mutate({ accessToken, addressId: addr.id })}
+                      className="text-[10px] uppercase tracking-wider text-[#F42824] hover:underline"
+                    >
+                      Set Default
+                    </button>
+                  )}
+                </div>
+                <p className="text-sm text-[#616161]">{addr.address1}</p>
+                {addr.address2 && <p className="text-sm text-[#616161]">{addr.address2}</p>}
+                <p className="text-sm text-[#616161]">
+                  {[addr.city, addr.province, addr.zip].filter(Boolean).join(" - ")}
+                </p>
+                <p className="text-sm text-[#616161]">{addr.country}</p>
+                {addr.phone && <p className="mt-3 text-sm text-[#616161]">Mobile: {addr.phone}</p>}
+              </div>
+
+              <div className="grid grid-cols-2 border-t border-[#D8D4CC]">
+                <button
+                  onClick={() => openEditAddress(addr)}
+                  className="h-10 border-r border-[#D8D4CC] text-xs font-semibold uppercase tracking-wider text-[#F42824] hover:bg-[#F0EEEA]"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => accessToken && deleteAddressMutation.mutate({ accessToken, addressId: addr.id })}
+                  className="h-10 text-xs font-semibold uppercase tracking-wider text-[#1F1F22] hover:bg-[#F0EEEA]"
+                >
+                  Remove
+                </button>
               </div>
             </div>
-          </div>
+          ))}
+        </div>
+      ) : (
+        <p className="geist-mono-font text-sm text-[#7E7A74]">No saved addresses yet.</p>
+      )}
+    </div>
+  );
 
-          {/* Quick links */}
-          <div className="grid grid-cols-2 gap-3">
-            <a
-              href="/products"
-              className="bg-[#CC2200] text-white p-4 flex items-center justify-between hover:bg-[#aa1a00] transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <ShoppingBag size={14} />
-                <span className="text-xs font-bold uppercase tracking-widest">Shop Now</span>
-              </div>
-              <ChevronRight size={16} />
-            </a>
-            <a
-              href="/sell"
-              className="bg-black text-white p-4 flex items-center justify-between hover:bg-gray-800 transition-colors"
-            >
-              <span className="text-xs font-bold uppercase tracking-widest">Sell an Item</span>
-              <ChevronRight size={16} />
-            </a>
-          </div>
+  const renderWishlistPanel = () => (
+    <div className="bg-[#F4F3EF] border border-[#E6E2DA] p-4 lg:p-6">
+      <h2 className="anek-devanagari-font text-3xl font-semibold text-[#1F1F22]">Wishlist</h2>
+      <p className="geist-mono-font mt-1 text-sm text-[#6E6A62]">Your saved products.</p>
 
-          {/* Tabs */}
-          <div className="flex border-2 border-black">
-            {tabs.map((t) => (
+      {wishlistLoading ? (
+        <div className="p-8 text-center">
+          <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-[#CC2200] border-t-transparent" />
+        </div>
+      ) : wishlistItems && wishlistItems.length > 0 ? (
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
+          {wishlistItems.map((item) => (
+            <div key={item.productId} className="group relative border border-[#E6E2DA] bg-[#FBFAF8] p-2">
+              <a href={`/products/${item.productHandle}`} className="block">
+                <div className="aspect-[3/4] overflow-hidden bg-[#EDEAE4]">
+                  {item.productImage ? (
+                    <img
+                      src={item.productImage}
+                      alt={item.productTitle ?? ""}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <ShoppingBag size={20} className="text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                <p className="mt-2 truncate text-sm font-medium text-[#1F1F22]">{item.productTitle}</p>
+                {item.productPrice && <p className="text-sm text-[#35392D]">{item.productPrice}</p>}
+              </a>
               <button
-                key={t.key}
-                onClick={() => setActiveTab(t.key)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
-                  activeTab === t.key
-                    ? "bg-black text-white"
-                    : "bg-transparent text-black hover:bg-gray-100"
-                }`}
+                onClick={() =>
+                  customer?.email &&
+                  removeWishlistMutation.mutate({
+                    customerGid: customer?.id ?? "",
+                    productId: item.productId,
+                  })
+                }
+                className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center bg-white/90 text-[#1F1F22] hover:text-red-600"
+                title="Remove from wishlist"
               >
-                {t.icon}
-                {t.label}
-                {t.key === "wishlist" && wishlistItems && wishlistItems.length > 0 && (
-                  <span className="ml-1 bg-[#CC2200] text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full">
-                    {wishlistItems.length}
-                  </span>
-                )}
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-4 text-sm text-[#7E7A74]">No saved items yet.</p>
+      )}
+    </div>
+  );
+
+  const renderMyListingsPanel = () => (
+    <div className="border border-[#E6E2DA] bg-[#F4F3EF] p-4 lg:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="anek-devanagari-font text-3xl font-semibold text-[#1F1F22]">My Listing</h2>
+          <p className="geist-mono-font mt-1 text-sm text-[#6E6A62]">
+            Track purchases, manage deliveries, and review sellers.
+          </p>
+        </div>
+        <button className="bg-[#1F1F22] px-8 py-2 text-xs font-semibold uppercase tracking-wider text-white hover:bg-black">
+          Sell Item
+        </button>
+      </div>
+
+      <div className="mt-5 border border-[#E6E2DA] bg-[#F8F7F4]">
+        <div className="flex items-center justify-between border-b border-[#E6E2DA] px-4">
+          <div className="flex items-center gap-6">
+            {([
+              ["active", "Active"],
+              ["sold", "Sold"],
+              ["draft", "Draft"],
+            ] as const).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setListingStatusTab(key)}
+                className={`px-4 py-3 text-xs uppercase tracking-wider transition-colors ${listingStatusTab === key
+                  ? "border-b-2 border-[#F42824] font-semibold text-[#1F1F22]"
+                  : "text-[#7E7A74] hover:text-[#1F1F22]"
+                  }`}
+              >
+                {label}
               </button>
             ))}
           </div>
+          <button className="p-2 text-[#1F1F22] hover:text-[#F42824]" aria-label="Search listing">
+            <Search size={15} />
+          </button>
+        </div>
 
-          {/* Orders Tab */}
-          {activeTab === "orders" && (
-            <div className="bg-white border-2 border-black">
-              <div className="flex items-center gap-2 px-6 py-4 border-b-2 border-black">
-                <Package size={16} className="text-[#CC2200]" />
-                <h2 className="font-bold text-sm uppercase tracking-widest">Order History</h2>
-              </div>
-              {ordersLoading ? (
-                <div className="p-8 text-center">
-                  <div className="w-6 h-6 border-2 border-[#CC2200] border-t-transparent rounded-full animate-spin mx-auto" />
-                </div>
-              ) : orders && orders.length > 0 ? (
-                <div className="divide-y divide-gray-100">
-                  {orders.map((order) => (
-                    <div key={order.id} className="px-6 py-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <p className="font-bold text-sm">Order #{order.orderNumber}</p>
-                          <p className="text-xs text-gray-500">
-                            {new Date(order.processedAt).toLocaleDateString("en-IN", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            })}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-sm text-[#CC2200]">
-                            ₹{parseFloat(order.totalPrice.amount).toLocaleString("en-IN")}
-                          </p>
-                          <span
-                            className={`text-xs font-bold uppercase px-2 py-0.5 ${
-                              order.financialStatus === "PAID"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-yellow-100 text-yellow-700"
-                            }`}
-                          >
-                            {order.financialStatus}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        {order.lineItems.nodes.map((item, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            {item.variant?.image && (
-                              <img
-                                src={item.variant.image.url}
-                                alt={item.title}
-                                className="w-10 h-10 object-cover border border-gray-200"
-                              />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs text-gray-700 truncate">{item.title}</p>
-                              <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+        {visibleListings.length > 0 ? (
+          <div className="divide-y divide-[#E6E2DA]">
+            {visibleListings.map((listing) => (
+              <div key={listing.id} className="p-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="flex items-start gap-3">
+                    <img
+                      src={listing.image}
+                      alt={listing.title}
+                      className="h-[92px] w-[70px] object-cover"
+                    />
+                    <div>
+                      <p className="geist-mono-font text-2xl font-semibold leading-tight text-[#1F1F22]">
+                        {listing.title}
+                      </p>
+                      <p className="anek-devanagari-font mt-3 text-3xl font-semibold text-[#1F1F22]">
+                        {listing.price}
+                      </p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-10 text-center">
-                  <Package size={32} className="text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm font-bold uppercase tracking-widest text-gray-400">No orders yet</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Your order history will appear here once you make a purchase.
-                  </p>
-                  <a
-                    href="/products"
-                    className="inline-block mt-4 bg-[#CC2200] text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#aa1a00] transition-colors"
-                  >
-                    Start Shopping
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
+                  </div>
 
-          {/* Addresses Tab */}
-          {activeTab === "addresses" && (
-            <div className="bg-white border-2 border-black">
-              <div className="flex items-center justify-between px-6 py-4 border-b-2 border-black">
-                <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-[#CC2200]" />
-                  <h2 className="font-bold text-sm uppercase tracking-widest">Saved Addresses</h2>
-                </div>
-                <button
-                  onClick={openAddAddress}
-                  className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest bg-[#CC2200] text-white px-3 py-2 hover:bg-[#aa1a00] transition-colors"
-                >
-                  <Plus size={12} /> Add New
-                </button>
-              </div>
-
-              {addressesLoading ? (
-                <div className="p-8 text-center">
-                  <div className="w-6 h-6 border-2 border-[#CC2200] border-t-transparent rounded-full animate-spin mx-auto" />
-                </div>
-              ) : addresses && addresses.length > 0 ? (
-                <div className="divide-y divide-gray-100">
-                  {addresses.map((addr) => (
-                    <div key={addr.id} className="px-6 py-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          {addr.id === customer?.defaultAddress?.id && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest bg-[#CC2200] text-white px-2 py-0.5 mb-2">
-                              <Star size={9} /> Default
-                            </span>
-                          )}
-                          <p className="font-bold text-sm">
-                            {[addr.firstName, addr.lastName].filter(Boolean).join(" ")}
-                          </p>
-                          <p className="text-sm text-gray-600">{addr.address1}</p>
-                          {addr.address2 && <p className="text-sm text-gray-600">{addr.address2}</p>}
-                          <p className="text-sm text-gray-600">
-                            {[addr.city, addr.province, addr.zip].filter(Boolean).join(", ")}
-                          </p>
-                          <p className="text-sm text-gray-600">{addr.country}</p>
-                          {addr.phone && <p className="text-sm text-gray-500 mt-1">{addr.phone}</p>}
-                        </div>
-                        <div className="flex flex-col gap-2 shrink-0">
-                          <button
-                            onClick={() => openEditAddress(addr)}
-                            className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-gray-600 hover:text-[#CC2200] transition-colors"
-                          >
-                            <Pencil size={11} /> Edit
-                          </button>
-                          {addr.id !== customer?.defaultAddress?.id && (
-                            <button
-                              onClick={() => accessToken && setDefaultMutation.mutate({ accessToken, addressId: addr.id })}
-                              className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-gray-600 hover:text-[#CC2200] transition-colors"
-                            >
-                              <Star size={11} /> Set Default
-                            </button>
-                          )}
-                          <button
-                            onClick={() => accessToken && deleteAddressMutation.mutate({ accessToken, addressId: addr.id })}
-                            className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 size={11} /> Remove
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-10 text-center">
-                  <MapPin size={32} className="text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm font-bold uppercase tracking-widest text-gray-400">No addresses saved</p>
-                  <p className="text-xs text-gray-400 mt-1">Add an address to speed up checkout.</p>
-                  <button
-                    onClick={openAddAddress}
-                    className="inline-block mt-4 bg-[#CC2200] text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#aa1a00] transition-colors"
-                  >
-                    Add Address
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Wishlist Tab */}
-          {activeTab === "wishlist" && (
-            <div className="bg-white border-2 border-black">
-              <div className="flex items-center gap-2 px-6 py-4 border-b-2 border-black">
-                <Heart size={16} className="text-[#CC2200]" />
-                <h2 className="font-bold text-sm uppercase tracking-widest">Saved Items</h2>
-              </div>
-
-              {wishlistLoading ? (
-                <div className="p-8 text-center">
-                  <div className="w-6 h-6 border-2 border-[#CC2200] border-t-transparent rounded-full animate-spin mx-auto" />
-                </div>
-              ) : wishlistItems && wishlistItems.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-0 divide-x divide-y divide-gray-100">
-                  {wishlistItems.map((item) => (
-                    <div key={item.productId} className="relative group p-3">
-                      <a href={`/products/${item.productHandle}`} className="block">
-                        <div className="aspect-square bg-gray-100 mb-2 overflow-hidden">
-                          {item.productImage ? (
-                            <img
-                              src={item.productImage}
-                              alt={item.productTitle ?? ""}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-300">
-                              <ShoppingBag size={24} />
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-[#CC2200] truncate">
-                          {item.productTitle}
-                        </p>
-                        {item.productPrice && (
-                          <p className="text-sm font-bold text-black mt-0.5">{item.productPrice}</p>
-                        )}
-                      </a>
-                      <button
-                        onClick={() =>
-                          customer?.email &&
-                          removeWishlistMutation.mutate({
-                            customerGid: customer?.id ?? "",
-                            productId: item.productId,
-                          })
-                        }
-                        className="absolute top-2 right-2 w-6 h-6 bg-white border border-gray-200 flex items-center justify-center hover:border-red-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                        title="Remove from wishlist"
-                      >
-                        <X size={10} />
+                  <div className="flex flex-col items-start gap-3 md:items-end">
+                    <div className="flex items-center gap-3 text-[#1F1F22]">
+                      <button className="hover:text-[#F42824]" aria-label="Edit listing">
+                        <Pencil size={14} />
+                      </button>
+                      <button className="hover:text-[#F42824]" aria-label="Delete listing">
+                        <Trash2 size={14} />
                       </button>
                     </div>
-                  ))}
+                    <button className="bg-[#F42824] px-6 py-2 text-xs font-semibold uppercase tracking-wider text-white hover:bg-[#d8221d]">
+                      {listingStatusTab === "active" ? `View Bids (${listing.bids})` : "View Details"}
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                <div className="p-10 text-center">
-                  <Heart size={32} className="text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm font-bold uppercase tracking-widest text-gray-400">No saved items</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Heart products while browsing to save them here.
-                  </p>
-                  <a
-                    href="/products"
-                    className="inline-block mt-4 bg-[#CC2200] text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#aa1a00] transition-colors"
-                  >
-                    Browse Products
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 text-center">
+            <p className="geist-mono-font text-sm text-[#7E7A74]">No listings in this section yet.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
-          {/* Sign out */}
+  const renderAccountOverviewPanel = () => (
+    <div className="border border-[#E6E2DA] bg-[#F4F3EF] p-4 lg:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-center gap-4">
+          <div className="h-14 w-14 overflow-hidden rounded-full bg-[#E2DED5]">
+            <div className="flex h-full w-full items-center justify-center text-lg font-semibold text-[#1F1F22]">
+              {initials}
+            </div>
+          </div>
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="anek-devanagari-font text-3xl font-semibold text-[#1F1F22] -mb-2">{fullName}</h2>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0FDF4] px-3 py-2 geist-mono-font text-sm font-medium leading-none text-[#148A4B]">
+                <ShieldCheck size={16} strokeWidth={2} />
+                Verified Seller
+              </span>
+            </div>
+            <div className="geist-mono-font mt-1 flex items-center gap-2 text-xs text-[#6E6A62]">
+              <span className="text-[#F6B500]">★★★★★</span>
+              <span>4.9</span>
+              <span>|</span>
+              <span>128 reviews</span>
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={() => setActiveTab("personal-information")}
+          className="border border-[#1F1F22] px-5 py-2 text-xs font-semibold uppercase tracking-wider text-[#1F1F22] hover:bg-[#1F1F22] hover:text-white"
+        >
+          Edit Profile
+        </button>
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="border border-[#E6E2DA] bg-[#EFEDE8] p-4">
+          <div className="mb-4">
+
+            <Package size={20} className="text-[#6E6A62] mb-2" />
+          </div>
+          <p className="anek-devanagari-font text-4xl font-semibold text-[#1F1F22]">24</p>
+          <p className="geist-mono-font mt-1 text-xs text-[#6E6A62]">Active Listings</p>
+        </div>
+        <div className="border border-[#E6E2DA] bg-[#EFEDE8] p-4">
+          <div className="mb-4">
+
+            <ShoppingBag size={20} className="text-[#6E6A62]" />
+          </div>
+          <p className="anek-devanagari-font text-4xl font-semibold text-[#1F1F22]">156</p>
+          <p className="geist-mono-font mt-1 text-xs text-[#6E6A62]">Items Sold</p>
+        </div>
+        <div className="border border-[#E6E2DA] bg-[#EFEDE8] p-4">
+          <div className="mb-4">
+
+            <Users size={20} className="text-[#6E6A62]" />
+          </div>
+          <p className="anek-devanagari-font text-4xl font-semibold text-[#1F1F22]">1.2k</p>
+          <p className="geist-mono-font mt-1 text-xs text-[#6E6A62]">Followers</p>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-[4px] bg-[#1E1F24] p-4 text-white">
+        <p className="geist-mono-font text-sm font-semibold">Trust Score: Excellent</p>
+        <p className="geist-mono-font mt-2 text-xs text-white/70">
+          Your fast shipping and high review ratings keep your trust score at the top level.
+          Buyers are 3x more likely to purchase from you!
+        </p>
+        <div className="mt-4 h-1.5 w-full rounded-full bg-white/20">
+          <div className="h-full w-[95%] rounded-full bg-[#2BE38A]" />
+        </div>
+      </div>
+    </div >
+  );
+
+  const renderPersonalInformationPanel = () => {
+    const resetPersonalInfo = () => {
+      if (!customer) return;
+      const generatedUsername = [customer.firstName, customer.lastName]
+        .filter(Boolean)
+        .join("_")
+        .toLowerCase()
+        .replace(/\s+/g, "_");
+
+      setPersonalInfoForm({
+        firstName: customer.firstName ?? "",
+        lastName: customer.lastName ?? "",
+        username: generatedUsername || "customer_account",
+        phone: customer.phone ?? "",
+        email: customer.email ?? "",
+      });
+    };
+
+    return (
+      <div className="border border-[#E6E2DA] bg-[#F4F3EF] p-4 lg:p-6">
+        <h2 className="text-lg font-semibold text-[#1F1F22]">Edit Profile</h2>
+
+        <div className="mt-3 rounded-[4px] border border-[#D8D4CC] bg-[#F8F7F4] p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+            <div className="h-[92px] w-[72px] overflow-hidden rounded-[24px] bg-[#E2DED5]">
+              <div className="flex h-full w-full items-center justify-center text-lg font-semibold text-[#1F1F22]">
+                {initials}
+              </div>
+            </div>
+            <div>
+              <p className="geist-mono-font text-2xl font-semibold text-[#1F1F22]">Profile Photo</p>
+              <p className="geist-mono-font mt-1 text-xs text-[#7E7A74]">
+                We recommend an image of at least 400x400. GIFs work too.
+              </p>
+              <button className="mt-3 border border-[#1F1F22] bg-[#F5F4F1] px-4 py-2 text-xs font-semibold text-[#1F1F22] hover:bg-[#ECEAE4]">
+                Upload New Photo
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1F1F22]">
+                <User size={11} />
+                First Name
+              </label>
+              <input
+                type="text"
+                value={personalInfoForm.firstName}
+                onChange={(e) => setPersonalInfoForm((prev) => ({ ...prev, firstName: e.target.value }))}
+                className="h-11 w-full border border-[#3C3B3F] bg-[#F7F6F3] px-3 text-sm outline-none focus:border-[#1F1F22]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1F1F22]">
+                <User size={11} />
+                Last Name
+              </label>
+              <input
+                type="text"
+                value={personalInfoForm.lastName}
+                onChange={(e) => setPersonalInfoForm((prev) => ({ ...prev, lastName: e.target.value }))}
+                className="h-11 w-full border border-[#3C3B3F] bg-[#F7F6F3] px-3 text-sm outline-none focus:border-[#1F1F22]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1F1F22]">
+                <User size={11} />
+                Username
+              </label>
+              <input
+                type="text"
+                value={personalInfoForm.username}
+                onChange={(e) => setPersonalInfoForm((prev) => ({ ...prev, username: e.target.value }))}
+                className="h-11 w-full border border-[#3C3B3F] bg-[#F7F6F3] px-3 text-sm outline-none focus:border-[#1F1F22]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1F1F22]">
+                <Phone size={11} />
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={personalInfoForm.phone}
+                onChange={(e) => setPersonalInfoForm((prev) => ({ ...prev, phone: e.target.value }))}
+                className="h-11 w-full border border-[#3C3B3F] bg-[#F7F6F3] px-3 text-sm outline-none focus:border-[#1F1F22]"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1F1F22]">
+                <Mail size={11} />
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={personalInfoForm.email}
+                onChange={(e) => setPersonalInfoForm((prev) => ({ ...prev, email: e.target.value }))}
+                className="h-11 w-full border border-[#3C3B3F] bg-[#F7F6F3] px-3 text-sm outline-none focus:border-[#1F1F22]"
+              />
+            </div>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={resetPersonalInfo}
+              className="h-11 border border-[#3C3B3F] bg-[#F5F4F1] text-xs font-semibold uppercase tracking-wider text-[#1F1F22] hover:bg-[#ECEAE4]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => toast.success("Profile changes saved.")}
+              className="h-11 bg-[#1F1F22] text-xs font-semibold uppercase tracking-wider text-white hover:bg-[#111]"
+            >
+              Save Profile
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderNotificationsPanel = () => {
+    const rows: {
+      label: string;
+      whatsappKey: keyof NotificationSettings;
+      emailKey: keyof NotificationSettings;
+    }[] = [
+        {
+          label: "Order updates and tracking",
+          whatsappKey: "orderUpdatesWhatsapp",
+          emailKey: "orderUpdatesEmail",
+        },
+        {
+          label: "Messages from buyers/sellers",
+          whatsappKey: "messagesWhatsapp",
+          emailKey: "messagesEmail",
+        },
+        {
+          label: "New offers and bids",
+          whatsappKey: "offersWhatsapp",
+          emailKey: "offersEmail",
+        },
+        {
+          label: "Promotions and sales",
+          whatsappKey: "promotionsWhatsapp",
+          emailKey: "promotionsEmail",
+        },
+        {
+          label: "Direct messages",
+          whatsappKey: "directMessagesWhatsapp",
+          emailKey: "directMessagesEmail",
+        },
+        {
+          label: "Item sold alerts",
+          whatsappKey: "soldAlertsWhatsapp",
+          emailKey: "soldAlertsEmail",
+        },
+      ];
+
+    const toggle = (key: keyof NotificationSettings) => {
+      setNotificationSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const Toggle = ({
+      checked,
+      onClick,
+      label,
+    }: {
+      checked: boolean;
+      onClick: () => void;
+      label: string;
+    }) => (
+      <button
+        type="button"
+        onClick={onClick}
+        role="switch"
+        aria-label={label}
+        className={`relative inline-flex h-6 w-10 items-center rounded-full border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F22]/40 ${checked
+          ? "border-[#F42824] bg-[#F42824]"
+          : "border-[#CFC9BE] bg-[#D8D4CC]"
+          }`}
+        aria-pressed={checked}
+      >
+        <span
+          className={`pointer-events-none inline-block h-4.5 w-4.5 rounded-full bg-white shadow-sm transition-transform duration-200 ${checked ? "translate-x-[18px]" : "translate-x-[3px]"
+            }`}
+        />
+      </button>
+    );
+
+    return (
+      <div className="border border-[#E6E2DA] bg-[#F4F3EF] p-4 lg:p-6">
+        <div className="mb-3 flex items-center gap-2">
+          <Bell size={16} className="text-[#1F1F22]" />
+          <h2 className="geist-mono-font text-[28px] font-semibold text-[#1F1F22]">Notifications</h2>
+        </div>
+
+        <div className="max-w-[560px]">
+          <div className="mb-2 grid grid-cols-[minmax(0,1fr)_88px_88px] items-center text-xs font-semibold text-[#3B3835]">
+            <span />
+            <span className="justify-self-center">Whatsapp</span>
+            <span className="justify-self-center">EMail</span>
+          </div>
+
+          <div className="space-y-3">
+            {rows.map((row) => (
+              <div key={row.label} className="grid grid-cols-[minmax(0,1fr)_88px_88px] items-center">
+                <p className="geist-mono-font text-[18px] text-[#1F1F22]">{row.label}</p>
+                <div className="justify-self-center">
+                  <Toggle
+                    checked={notificationSettings[row.whatsappKey]}
+                    onClick={() => toggle(row.whatsappKey)}
+                    label={`${row.label} Whatsapp`}
+                  />
+                </div>
+                <div className="justify-self-center">
+                  <Toggle
+                    checked={notificationSettings[row.emailKey]}
+                    onClick={() => toggle(row.emailKey)}
+                    label={`${row.label} Email`}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
           <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 border-2 border-black py-3 text-sm font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors"
+            type="button"
+            onClick={() => toast.success("Notification preferences saved.")}
+            className="mt-10 bg-[#1F1F22] px-6 py-3 text-sm font-semibold text-white hover:bg-[#111]"
           >
-            <LogOut size={14} />
-            Sign Out
+            Save Preferences
           </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPlaceholderPanel = (title: string, description: string) => (
+    <div className="bg-[#F4F3EF] border border-[#E6E2DA] p-4 lg:p-6">
+      <h2 className="anek-devanagari-font text-3xl font-semibold text-[#1F1F22]">{title}</h2>
+      <p className="geist-mono-font mt-1 text-sm text-[#6E6A62]">{description}</p>
+      <div className="mt-5 border border-dashed border-[#D7D3CC] bg-[#FBFAF8] p-6 text-sm text-[#6E6A62]">
+        This section is ready. Connect it with live data/workflow next.
+      </div>
+    </div>
+  );
+
+  const renderRightPanel = () => {
+    if (activeTab === "account-overview") return renderAccountOverviewPanel();
+    if (activeTab === "my-orders") return renderOrdersPanel();
+    if (activeTab === "saved-addresses") return renderSavedAddressesPanel();
+    if (activeTab === "wishlist") return renderWishlistPanel();
+    if (activeTab === "personal-information") return renderPersonalInformationPanel();
+    if (activeTab === "account-details") {
+      return renderPlaceholderPanel("Account Details", "Manage account profile and authentication preferences.");
+    }
+    if (activeTab === "notifications") return renderNotificationsPanel();
+    if (activeTab === "settings") {
+      return renderPlaceholderPanel("Settings", "Manage your account preferences and app configuration.");
+    }
+    if (activeTab === "my-listings") return renderMyListingsPanel();
+    if (activeTab === "earnings") {
+      return renderPlaceholderPanel("Earnings", "Track payouts, commissions, and statement history.");
+    }
+    if (activeTab === "buyer-protection") {
+      return renderPlaceholderPanel("Buyer Protection", "Get support for eligible purchases and dispute handling.");
+    }
+    if (activeTab === "terms-of-use") {
+      return renderPlaceholderPanel("Terms of Use", "Read marketplace terms and user responsibilities.");
+    }
+    return renderPlaceholderPanel("Privacy Center", "Control your privacy and data usage preferences.");
+  };
+
+  return (
+    <StorefrontLayout>
+      <div className="min-h-screen bg-[#ECE9E2]">
+        <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-10">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+            <aside className="border-r border-[#DDD8CF] pr-0 lg:pr-6">
+              <div className="mb-5">
+                <button
+                  onClick={() => setActiveTab("account-overview")}
+                  className={`geist-mono-font text-[15px] font-bold ${activeTab === "account-overview" ? "text-[#F42824]" : "text-[#1F1F22]"}`}
+                >
+                  Account
+                </button>
+                <p className={`mt-0 geist-mono-font text-[13px] ${activeTab === "account-overview" ? "text-[#F42824]" : "text-[#6E6A62]"}`}>
+                  {fullName.toLowerCase()}
+                </p>
+              </div>
+
+              <div className="space-y-5">
+                {sidebarSections.map((section) => (
+                  <div key={section.subtitle} className="border-b border-[#DDD8CF] pb-2">
+                    <p className="mb-4 text-[11px] uppercase tracking-[0.18em] text-[#9A968E] geist-mono-font">
+                      {section.subtitle}
+                    </p>
+                    <div className="space-y-1">
+                      {section.items.map((item) => (
+                        <button
+                          key={item.key}
+                          onClick={() => setActiveTab(item.key)}
+                          className={`block w-full text-left text-sm geist-mono-font mb-3 ${activeTab === item.key
+                            ? "font-semibold text-[#F42824]"
+                            : "text-[#6E6A62] hover:text-[#1F1F22]"
+                            }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="mt-8 flex items-center gap-2 text-xs uppercase tracking-widest text-[#6E6A62] hover:text-[#1F1F22]"
+              >
+                <LogOut size={14} />
+                Sign Out
+              </button>
+            </aside>
+
+            <section>{renderRightPanel()}</section>
+          </div>
         </div>
       </div>
 
@@ -662,8 +1213,8 @@ export default function Account() {
                   {createAddressMutation.isPending || updateAddressMutation.isPending
                     ? "Saving..."
                     : editingAddressId
-                    ? "Update Address"
-                    : "Save Address"}
+                      ? "Update Address"
+                      : "Save Address"}
                 </button>
               </div>
             </form>
