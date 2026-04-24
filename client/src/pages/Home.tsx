@@ -63,8 +63,8 @@ const HERO_BANNER_SLIDES = [
     modelClass: "left-1/2 -translate-x-1/2 bottom-0 h-[108%] md:h-[114%] lg:h-[125%] w-auto",
     title: ["Built for", "how you", "show up"],
     subtitle: "Work. Weekends. Everything in between.",
-    ctaLabel: "Sell now",
-    ctaHref: WHATSAPP_URL,
+    ctaLabel: "SHOP MEN",
+    ctaHref: "/collections/men",
   },
   {
     bg: bannerBg2,
@@ -74,7 +74,7 @@ const HERO_BANNER_SLIDES = [
     title: ["DRESS THE", "NEXT YOU"],
     subtitle: "From everyday staples to standout pieces.",
     ctaLabel: "SHOP WOMEN",
-    ctaHref: WHATSAPP_URL,
+    ctaHref: "/collections/women",
   },
   {
     bg: bannerBg3,
@@ -236,6 +236,7 @@ export default function Home() {
   };
   const currentHeroSlide = HERO_BANNER_SLIDES[activeHeroSlide];
   const isThirdHeroSlide = activeHeroSlide === 2;
+  const isHeroCtaExternal = /^https?:\/\//i.test(currentHeroSlide.ctaHref);
   return (
     <StorefrontLayout>
 
@@ -293,9 +294,9 @@ export default function Home() {
                   <div className="mt-10">
                     <a
                       href={currentHeroSlide.ctaHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="thrifti-btn-red inline-flex anek-devanagari-font text-sm md:text-base 2xl:text-2xl pb-1"
+                      target={isHeroCtaExternal ? "_blank" : undefined}
+                      rel={isHeroCtaExternal ? "noopener noreferrer" : undefined}
+                      className="thrifti-btn-red inline-flex anek-devanagari-font text-sm md:text-base 2xl:text-2xl pb-2"
                     >
                       {currentHeroSlide.ctaLabel}
                     </a>
@@ -538,22 +539,24 @@ export default function Home() {
               >
                 {builtSlides.map((slide, index) => (
                   <div key={index} className="w-full shrink-0 basis-full px-1.5 md:basis-1/2 lg:basis-1/3">
-                    <div className="group relative overflow-hidden border-2 border-transparent transition-colors duration-300 hover:border-[var(--thrifti-red)]">
-                      <img
-                        src={slide}
-                        alt={`Built for Bangalore ${index + 1}`}
-                        className="w-full h-[300px] md:h-[360px] lg:h-[460px] object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/55 transition-colors duration-300 pointer-events-none" />
-                      <div className="absolute inset-x-0 bottom-4 z-10 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                        <p className="anek-devanagari-font text-[var(--thrifti-red)] text-2xl uppercase leading-[1.05] tracking-[0.04em]">
-                          Koramangala
-                        </p>
-                        <p className="anek-devanagari-font text-[var(--thrifti-red)] text-2xl uppercase leading-[1.05] tracking-[0.04em]">
-                          Street Fits
-                        </p>
+                    <Link href="/collections" className="block">
+                      <div className="group relative overflow-hidden border-2 border-transparent transition-colors duration-300 hover:border-[var(--thrifti-red)]">
+                        <img
+                          src={slide}
+                          alt={`Built for Bangalore ${index + 1}`}
+                          className="w-full h-[300px] md:h-[360px] lg:h-[460px] object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/55 transition-colors duration-300 pointer-events-none" />
+                        <div className="absolute inset-x-0 bottom-4 z-10 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                          <p className="anek-devanagari-font text-[var(--thrifti-red)] text-2xl uppercase leading-[1.05] tracking-[0.04em]">
+                            Koramangala
+                          </p>
+                          <p className="anek-devanagari-font text-[var(--thrifti-red)] text-2xl uppercase leading-[1.05] tracking-[0.04em]">
+                            Street Fits
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -598,7 +601,7 @@ export default function Home() {
         title={<>Limited drops.<br /> No repeats.</>}
         description="Curated pieces, limited time. Once they're gone, they're gone. Experience the shift in modern Indian fashion culture."
         ctaLabel="EXPLORE DROPS"
-        ctaHref="/products"
+        ctaHref="/collections"
         imageSrc={launchingImage}
         imageAlt="Fashion show"
       />

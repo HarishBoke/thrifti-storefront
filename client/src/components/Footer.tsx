@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Facebook, Instagram, Twitter, Mail } from "lucide-react";
+import { Facebook, Instagram, Twitter, Mail, Youtube } from "lucide-react";
 import ThriftiLogo from "@/components/ThriftiLogo";
 
 // Footer link groups matching Figma v6 exactly
@@ -32,7 +32,8 @@ const FOOTER_LINKS = [
 const SOCIAL_LINKS = [
   { icon: Facebook, label: "Facebook", href: "https://www.facebook.com/thrifti.in" },
   { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/thrifti.in" },
-  { icon: Twitter, label: "Twitter", href: "https://twitter.com/thrifti_in" },
+  // { icon: Twitter, label: "Twitter", href: "https://twitter.com/thrifti_in" },
+  { icon: Youtube, label: "Youtube", href: "https://www.youtube.com/@thrifti.official" },
   { icon: Mail, label: "Email", href: "mailto:hello@thrifti.in" },
 ];
 
