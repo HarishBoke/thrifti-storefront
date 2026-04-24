@@ -13,6 +13,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Collections from "./pages/Collections";
 import CollectionDetail from "./pages/CollectionDetail";
 import Sell from "./pages/Sell";
+import SellItems from "./pages/SellItems";
 import Account from "./pages/Account";
 import Login from "./pages/Login";
 import About from "./pages/About";
@@ -39,6 +40,7 @@ function Router() {
         <Route path="/collections" component={Collections} />
         <Route path="/collections/:handle" component={CollectionDetail} />
         <Route path="/sell" component={Sell} />
+        <Route path="/sell-items" component={SellItems} />
         <Route path="/account" component={Account} />
         <Route path="/login" component={Login} />
 

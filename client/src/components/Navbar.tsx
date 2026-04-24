@@ -338,6 +338,13 @@ export default function Navbar() {
       setSearchQuery("");
     }
   };
+  const handleSellClick = () => {
+    if (isAuthenticated) {
+      navigate("/sell-items");
+      return;
+    }
+    navigate("/login");
+  };
   const desktopHeaderHeight = isHomePage ? 200 - 142 * scrollProgress : 72;
   const desktopLogoHeight = isHomePage ? 152 - 104 * scrollProgress : 52;
 
@@ -465,7 +472,13 @@ export default function Navbar() {
                   )}
                 </button>
               </Link>
-
+              <button
+                onClick={handleSellClick}
+                className="inline-flex items-center justify-center bg-[#1E1F26] px-4 pt-2 pb-1 text-base font-semibold tracking-[0.08em] text-[#F5F1EA] transition-colors hover:bg-[#15161C] anek-devanagari-font ml-6"
+                aria-label="Open sell items page"
+              >
+                SELL
+              </button>
               {/* Hamburger (for extra pages on desktop) */}
               <button
                 onClick={() => setMobileOpen((v) => !v)}
@@ -636,6 +649,13 @@ export default function Navbar() {
                 >
                   <User className="w-4 h-4" /> {isAuthenticated ? "My Account" : "Sign In"}
                 </Link>
+                <button
+                  onClick={handleSellClick}
+                  className="inline-flex items-center justify-center bg-[#1E1F26] px-4 pt-2 pb-1 text-base font-semibold tracking-[0.08em] text-[#F5F1EA] transition-colors hover:bg-[#15161C] anek-devanagari-font mt-2"
+                  aria-label="Open sell items page"
+                >
+                  SELL
+                </button>
                 <a
                   href={WHATSAPP_URL}
                   target="_blank"
@@ -645,6 +665,7 @@ export default function Navbar() {
                   Start Selling on WhatsApp
                 </a>
               </div>
+
             </nav>
           </div>
         )}
