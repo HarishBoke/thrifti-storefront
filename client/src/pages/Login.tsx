@@ -54,6 +54,8 @@ export default function Login() {
   const [resendCountdown, setResendCountdown] = useState(40);
   const [verificationToken, setVerificationToken] = useState("");
   const [otpVerifiedToken, setOtpVerifiedToken] = useState("");
+  // Ref to hold otpVerifiedToken synchronously — avoids stale closure in handleOtpRegister
+  const otpVerifiedTokenRef = useRef("");
   const [flowUid, setFlowUid] = useState("");
 
   // OTP new-user registration form (shown when phone not found in Shopify)
@@ -162,6 +164,7 @@ export default function Login() {
       }
 
       setOtpVerifiedToken(resolvedOtpVerifiedToken);
+      otpVerifiedTokenRef.current = resolvedOtpVerifiedToken;
       setLoaderMessage("Signing you in...");
 
       // Also persist the Setoo session token (non-fatal if it fails)
@@ -207,7 +210,9 @@ export default function Login() {
       toast.error("Please fill in all fields.");
       return;
     }
-    if (!otpVerifiedToken) {
+    // Read from ref to avoid stale closure (state update is async, ref is synchronous)
+    const resolvedToken = otpVerifiedTokenRef.current || otpVerifiedToken;
+    if (!resolvedToken) {
       toast.error("OTP session expired. Please start over.");
       setShowOtpRegister(false);
       setIsOtpRequested(false);
@@ -224,7 +229,7 @@ export default function Login() {
         firstName: otpRegFirstName,
         lastName: otpRegLastName,
         email: otpRegEmail,
-        otpVerifiedToken,
+        otpVerifiedToken: resolvedToken,
       });
       setLoaderMessage("Almost there...");
       setTokenAndFetch(result.accessToken, result.expiresAt);
@@ -262,6 +267,7 @@ export default function Login() {
       setFlowUid(resolvedFlowUid);
       setVerificationToken(response.verification_token);
       setOtpVerifiedToken("");
+      otpVerifiedTokenRef.current = "";
       setIsOtpRequested(true);
       setShowOtpRegister(false);
       setOtpCode("");
